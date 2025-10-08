@@ -45,6 +45,9 @@
     --bg-image:   url("./Screenshot_SS_Moss_Grotto_01.png?v=1");
     --orn-top:    url("./375px-SS_NPC_Dialogue_Top.png?v=1");
     --orn-bottom: url("./300px-SS_NPC_Dialogue_Bottom.png?v=1");
+
+    /* Small fleur embellishment */
+    --fleur-small: url("./completion_top_fleur0004.png");
   }
 
   *{box-sizing:border-box}
@@ -93,7 +96,6 @@
     border-bottom:2px solid var(--edge);padding-bottom:.75rem;
     backdrop-filter:saturate(120%) blur(2px);
   }
-  .topbar h1{margin:0;font-size:1.35rem;letter-spacing:.3px}
 
   .controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-left:auto;align-items:center}
   .controls input[type="search"], .controls select{
@@ -125,8 +127,21 @@
     background:var(--card);border:1px solid var(--edge);border-radius:.9rem;overflow:hidden;
     box-shadow:0 6px 20px rgba(0,0,0,.25);
   }
-  .cat-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer}
-  .cat-head h2{margin:0;font-size:1.05rem}
+  .cat-head{
+    display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer
+  }
+  .cat-head h2{
+    margin:0;font-size:1.05rem;display:flex;align-items:center;gap:.5rem
+  }
+  /* Fleur next to category titles */
+  .cat-head h2::after{
+    content:"";
+    width:74px;height:16px;
+    background:var(--fleur-small) center/contain no-repeat;
+    opacity:.95;
+    filter:drop-shadow(0 0 1px rgba(0,0,0,.2));
+  }
+
   .cat-right{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
   .pillType{font-size:.7rem;padding:.2rem .45rem;border-radius:.45rem;border:1px solid var(--edge);background:var(--cardHover);color:var(--muted)}
   .cat-count{color:var(--muted);font-size:.85rem;margin-left:.25rem}
@@ -177,9 +192,30 @@
   .footer{margin:1.25rem 0;color:var(--muted);text-align:center;border-top:2px solid var(--edge);padding-top:1rem}
   hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
   .small{font-size:.85rem;color:var(--muted)}
-  .subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#e8ffef;display:flex;align-items:center;gap:.5rem}
+
+  /* Color subheads (Red/Blue/Yellow) */
+  .subhead{
+    margin:.5rem 1rem 0;font-size:.85rem;color:#e8ffef;display:flex;align-items:center;gap:.5rem;position:relative
+  }
   .dot{width:.6rem;height:.6rem;border-radius:50%}
   .dot.red{background:var(--red)} .dot.blue{background:var(--blue)} .dot.yellow{background:var(--yellow)}
+  /* Fleur next to color subheads */
+  .subhead::after{
+    content:""; margin-left:.4rem;
+    width:64px;height:14px;
+    background:var(--fleur-small) center/contain no-repeat;
+    opacity:.95; filter:drop-shadow(0 0 1px rgba(0,0,0,.2));
+  }
+
+  /* Group headers in grouped lists (e.g., Keys/Relics types) */
+  .grouphdr{
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .grouphdr::after{
+    content:""; width:60px;height:12px;
+    background:var(--fleur-small) center/contain no-repeat;
+    opacity:.95; filter:drop-shadow(0 0 1px rgba(0,0,0,.2));
+  }
   </style>
 </head>
 <body>
@@ -625,7 +661,7 @@
       });
       Object.keys(byGroup).forEach(gname => {
         const hdr = document.createElement("div");
-        hdr.className = "small";
+        hdr.className = "small grouphdr";
         hdr.style.margin = ".5rem 0 .25rem";
         hdr.textContent = gname;
         container.appendChild(hdr);
