@@ -139,7 +139,7 @@
   .loc.open{display:block}
   .loc a{color:#eaffea;text-decoration:underline}
 
-  /* Option A ornaments (no stretch) */
+  /* Ornaments (no stretch) */
   .orn{
     width:100%;
     height:22px;
@@ -215,7 +215,7 @@
   </div>
 
 <script>
-/* ------ JavaScript (Tools acts kept; Extras expanded; Journal condensed) ------ */
+/* ------ JavaScript (full data + bosses + extras) ------ */
 (function() {
   const STORAGE_KEY = "silksong-checklist-v16";
   const HJ_KEY = "hj-count";
@@ -284,7 +284,7 @@
       {id:"skill_purenails", name:"Pure Nails", weight:1, act:3},
     ]},
 
-    /* TOOLS — 51% (Acts already updated earlier) */
+    /* TOOLS — 51% (Acts updated per your list) */
     { type:"main", name:"Tools — 51%", items:[
       /* RED — Act 1 */
       {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:1, color:"red"},
@@ -363,22 +363,81 @@
       {id:"misc_everbloom", name:"Everbloom", weight:1, act:3},
     ]},
 
-    /* ================== EXTRAS (updated) ================== */
+    /* ================== EXTRAS ================== */
 
-    /* Bosses (42) */
-    { type:"extra", name:"Boss Fights", items:(()=> {
-      const a=[]; for(let i=1;i<=42;i++) a.push({id:`boss_${i}`, name:`Boss ${i}`, act:null}); return a;
-    })() },
+    /* Bosses: named & split by Act (locations/notes in loc) */
+    { type:"extra", name:"Boss Fights", items:[
+      /* ---- Act 1 — Mandatory ---- */
+      {id:"boss_moss_mother",      name:"Moss Mother",            act:1, loc:"Moss Grotto"},
+      {id:"boss_bell_beast",       name:"Bell Beast",             act:1, loc:"The Marrow • unlocks Bellways + Silk Heart"},
+      {id:"boss_lace_a1",          name:"Lace",                   act:1, loc:"Deep Docks (after Swift Step)"},
+      {id:"boss_fourth_chorus",    name:"Fourth Chorus",          act:1, loc:"Far Fields (after Drifter’s Cloak)"},
+      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood • access to Weaver statue (with Cling Grip)"},
+      {id:"boss_widow_bellhart",   name:"Widow Bellhart",         act:1, loc:"—"},
+      {id:"boss_last_judge",       name:"Last Judge",             act:1, loc:"Blasted Steps • Gate to Citadel / Act 2"},
+
+      /* ---- Act 1 — Optional ---- */
+      {id:"boss_moorwing",         name:"Moorwing",               act:1, loc:"Greymoor (south-west)"},
+      {id:"boss_savage_beastfly_a1",name:"Savage Beastfly",       act:1, loc:"Hunter’s March, Chapel of the Beast • Beast Crest"},
+      {id:"boss_skull_tyrant",     name:"Skull Tyrant",           act:1, loc:"The Marrow • via ‘Terrible Tyrant’ Wish"},
+      {id:"boss_moss_mother_duo",  name:"Moss Mother Duo",        act:1, loc:"Weavenest Atla • west of bench • Weavelight Tool"},
+      {id:"boss_great_conchflies", name:"Great Conchflies",       act:1, loc:"Blasted Steps • path to Citadel/Sands"},
+      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via Sinner’s Road/The Mist) • Cross Stitch"},
+      {id:"boss_craggler",         name:"Craggler",               act:1, loc:"The Marrow"},
+      {id:"boss_skarrgard",        name:"Skarrgard",              act:1, loc:"Hunter’s March"},
+      {id:"boss_disgraced_chef_lugoli", name:"Disgraced Chef Lugoli", act:1, loc:"Sinner’s Road"},
+
+      /* ---- Act 2 — Mandatory ---- */
+      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song quest"},
+      {id:"boss_lace_rematch",     name:"Lace (rematch)",         act:2, loc:"The Cradle • Silk Heart"},
+      {id:"boss_grand_mother_silk",name:"Grand Mother Silk",      act:2, loc:"The Cradle"},
+
+      /* ---- Act 2 — Optional ---- */
+      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage • Claw Mirror, Psalm Scroll"},
+      {id:"boss_savage_beastfly_a2",name:"Savage Beastfly (rematch)",act:2, loc:"Far Fields • Mask Shard"},
+      {id:"boss_groal_the_great",  name:"Groal the Great",        act:2, loc:"Bilewater • access Seeker’s Soul"},
+      {id:"boss_broodmother",      name:"Broodmother",            act:2, loc:"The Slab • ‘Wailing Mother’ Wish"},
+      {id:"boss_disgraced_chef_lugosi", name:"Disgraced Chef Lugosi", act:2, loc:"Sinner’s Road (Double Jump)"},
+      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door • shortcut to Forge Daughter"},
+      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower • Conchcutter"},
+      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket • Wispfire Lantern"},
+      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • end of ‘Final Audience’ • Reserve Bind"},
+      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room below Songclave"},
+      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • after ‘Trail’s End’ Wish"},
+      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key • Silk Heart"},
+      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate • Rune Rage"},
+      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak • Volt Filament"},
+      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook • Grey Memento"},
+
+      /* ---- Act 3 — Mandatory ---- */
+      {id:"boss_shrine_guardian_seth", name:"Shrine Guardian Seth", act:3, loc:"Grand Gate (west passage)"},
+      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep • Pollen Heart"},
+      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak • Elegy of the Deep • Encrusted Heart"},
+      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path • Hunter’s Heart"},
+      {id:"boss_lost_lace",        name:"Lost Lace",              act:3, loc:"The Abyss • after Old Hearts + Everbloom"},
+
+      /* ---- Act 3 — Optional ---- */
+      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow • unlocks Beastling Call"},
+      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor • Craw Memento"},
+      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps • Hero’s Memento"},
+      {id:"boss_plasmified_zango", name:"Plasmified Zango",       act:3, loc:"Wormways"},
+      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage • Dark Mirror"},
+      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay • Pin Badge"},
+      {id:"boss_summoned_savior",  name:"Summoned Savior",        act:3, loc:"Moss Grotto (Steel Mode)"},
+      {id:"boss_palestag",         name:"Palestag",               act:3, loc:"Verdania"},
+      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania • Conjoined Heart"},
+      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • secret next to Memory Locket"},
+    ]},
 
     /* Wishes (73) */
     { type:"extra", name:"Wishes", items:(()=> {
       const a=[]; for(let i=1;i<=73;i++) a.push({id:`wish_${i}`, name:`Wish ${i}`, act:null}); return a;
     })() },
 
-    /* The Materium (placeholder list) */
+    /* The Materium — placeholder */
     { type:"extra", name:"The Materium", items:[ {id:"materium_placeholder1", name:"Materium Entry — TBD", act:null} ]},
 
-    /* Hunter Journal — condensed (special render, still affects totals) */
+    /* Hunter Journal — condensed counter (no 237 checkboxes) */
     { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:`${HJ_TOTAL} entries (use the counter below)`, act:null, condensed:true} ]},
 
     /* Keys (grouped) */
@@ -392,7 +451,7 @@
 
     /* Relics (grouped) */
     { type:"extra", name:"Relics", items:(()=> {
-      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:`relic_${base}_${i}`, name:`${base} ${i}`, act:null, group}); };
+      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group}); };
       const out=[];
       add(out,6,"Cylinder","Cylinders");
       add(out,4,"Choral Commandment","Choral Commandments");
@@ -435,7 +494,7 @@
       {id:"oil_3", name:"Pail Oil 3", act:null},
     ]},
 
-    /* Craft Metal — 8 (one word) */
+    /* Craft Metal — 8 (one word in display is fine) */
     { type:"extra", name:"Craft Metal", items:(()=> {
       const a=[]; for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;
     })() }
@@ -578,14 +637,13 @@
         wrap.append(label, meta);
         container.appendChild(wrap);
 
-        // A collapsible details block for info/links if needed
+        // Collapsible info (manual toggle only)
         const details = document.createElement("div"); details.className="loc";
         const ornTop = document.createElement("div"); ornTop.className="orn top";
         const ornBottom = document.createElement("div"); ornBottom.className="orn bottom";
-        const body = document.createElement("div"); body.innerHTML = "Tip: Use this counter to track total entries without listing all 237. You can still search by category using the filters above.";
+        const body = document.createElement("div"); body.innerHTML = "Tip: Use this counter to track total entries without listing all 237.";
         details.append(ornTop, body, ornBottom);
 
-        // A tiny toggle button
         const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent = "ℹ Notes";
         locBtn.addEventListener("click", ()=>details.classList.toggle("open"));
         const meta2 = document.createElement("div"); meta2.style.marginLeft="auto"; meta2.appendChild(locBtn);
@@ -720,7 +778,7 @@
     const count = document.createElement("div"); count.className = "cat-count";
     const selectAll = document.createElement("button"); selectAll.type="button"; selectAll.className="smallbtn"; selectAll.textContent="✓ All";
     const deselectAll = document.createElement("button"); deselectAll.type="button"; deselectAll.className="smallbtn"; deselectAll.textContent="✗ None";
-    const toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent="–";
+    const toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent = "–";
     right.append(pill, count, selectAll, deselectAll, toggle);
     head.append(h2, right);
 
@@ -875,61 +933,6 @@
     extrasTotalEl.textContent = extrasTotal;
     const pctExtra = extrasTotal ? Math.round((extrasDone / extrasTotal) * 100) : 0;
     barFillExtrasEl.style.width = pctExtra + "%";
-  }
-
-  function render(){
-    board.innerHTML = "";
-    const items = flatItems();
-    totalBadge.textContent = `${items.length} items`;
-
-    const term = (searchEl.value || "").trim().toLowerCase();
-    const actFilter = actFilterEl.value;
-
-    const visible = items.filter(it => {
-      const s = it.name.toLowerCase();
-      const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term) || (it.group||"").toLowerCase().includes(term);
-      const matchesAct = actFilter === "all" || String(it.act) === actFilter;
-      let matchesType = true;
-      if (filterType === "main") matchesType = it.type === "main";
-      else if (filterType === "extra") matchesType = it.type !== "main";
-      return matchesSearch && matchesAct && matchesType;
-    });
-
-    if (groupByAct) {
-      const byAct = {};
-      for (const it of visible) {
-        const k = it.act == null ? "Unknown" : it.act;
-        (byAct[k] ||= []).push(it);
-      }
-      const keys = Object.keys(byAct).sort((a,b) => {
-        if (a === "Unknown") return 1;
-        if (b === "Unknown") return -1;
-        return Number(a) - Number(b);
-      });
-      for (const k of keys) {
-        const title = k === "Unknown" ? "Act Unknown" : `Act ${k}`;
-        board.appendChild(sectionTitle(title));
-        const byCat = groupBy(byAct[k], "category");
-        Object.keys(byCat)
-          .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
-          .forEach(catName => {
-            const arr = byCat[catName].slice().sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
-            board.appendChild(renderCategory(catName, arr));
-          });
-        const hr = document.createElement("hr"); hr.className="soft";
-        board.appendChild(hr);
-      }
-    } else {
-      const byCat = groupBy(visible, "category");
-      Object.keys(byCat)
-        .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
-        .forEach(catName => {
-          const arr = byCat[catName].slice().sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
-          board.appendChild(renderCategory(catName, arr));
-        });
-    }
-
-    updateTotals();
   }
 
   /* Kickoff */
