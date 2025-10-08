@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Silksong 100% Checklist</title>
+<title>Silksong 100% Checklist (Weighted + Extras)</title>
 <style>
 :root{
   --fg:#eaeaea; --bg:#0e0f13; --muted:#9aa0a6; --accent:#6ee7ff; --accent2:#8fff8f;
-  --card:#16171c; --edge:#22242a; --chip:#1f2128; --bar:#2a2d35;
+  --card:#16171c; --edge:#22242a; --chip:#1f2128; --bar:#2a2d35; --warn:#ffd166;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -27,10 +27,13 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 .progress .label{color:var(--muted);font-size:.9rem}
 .bar{height:10px;background:var(--bar);border-radius:999px;overflow:hidden}
 .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+.bar-fill.extra{background:linear-gradient(90deg,#a1c4fd,#c2ffd8)}
 .board{display:grid;gap:1rem}
 .category{background:var(--card);border:1px solid var(--edge);border-radius:.8rem;overflow:hidden}
 .cat-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer}
 .cat-head h2{margin:0;font-size:1rem}
+.cat-right{display:flex;align-items:center;gap:.5rem}
+.pillType{font-size:.7rem;padding:.2rem .45rem;border-radius:.45rem;border:1px solid #2b2e39;background:#13151c;color:var(--muted)}
 .cat-count{color:var(--muted);font-size:.85rem}
 .cat-items{padding:.2rem 1rem 1rem 1rem;display:grid;gap:.25rem}
 .item{display:flex;align-items:center;gap:.6rem;padding:.4rem;border-radius:.5rem}
@@ -41,12 +44,14 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 .hidden{display:none!important}
 .footer{margin:1.25rem 0;color:var(--muted);text-align:center;border-top:1px solid var(--edge);padding-top:1rem}
 hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
+.small{font-size:.85rem;color:var(--muted)}
+.warning{color:var(--warn)}
 </style>
 </head>
 <body>
 <div class="container">
   <div class="topbar">
-    <h1>Silksong 100% Checklist</h1>
+    <h1>Silksong Checklist</h1>
     <span id="totalBadge" class="badge">0 items</span>
     <div class="controls">
       <input id="search" type="search" placeholder="Search items…" aria-label="Search" />
@@ -68,15 +73,22 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     </div>
   </div>
 
+  <!-- Weighted 100% -->
   <div class="progress">
     <div class="label">
-      <strong><span id="percent">0</span>%</strong> total •
+      <strong><span id="percent">0</span>%</strong> of weighted 100% •
       <span id="doneCount">0</span>/<span id="totalCount">0</span> items checked
+      <span id="weightWarn" class="small warning" style="display:none"> • Note: weighted total ≠ 100%</span>
     </div>
     <div class="bar"><div id="barFill" class="bar-fill"></div></div>
-    <div class="label" style="font-size:.85rem;color:var(--muted)">
-      Each item has a weight (percent) that matches the in-game 100% breakdown.
+  </div>
+
+  <!-- Extras -->
+  <div class="progress">
+    <div class="label small">
+      Extras (unweighted): <span id="extrasDone">0</span>/<span id="extrasTotal">0</span> items completed
     </div>
+    <div class="bar"><div id="barFillExtras" class="bar-fill extra"></div></div>
   </div>
 
   <div id="board" class="board" aria-live="polite"></div>
@@ -88,167 +100,150 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-weights-v1";
-
-  // Helper for act label (handles null/undefined)
+  const STORAGE_KEY = "silksong-checklist-v3";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
-  // ======= DATA (from your list) =======
-  // Use { id, name, weight, category, act? }
-  const DATA = {
-    categories: [
-      {
-        name: "Needle Upgrades — 4%",
-        items: [
-          { id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:null },
-          { id:"needle_shining",   name:"Shining Needle",   weight:1, act:null },
-          { id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:null },
-          { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:null },
-        ]
-      },
-      {
-        name: "Ancient Masks — 5%",
-        // 1% for each additional Ancient Mask (20 shards total) – track as 5 masks
-        items: [
-          { id:"mask_1", name:"Ancient Mask I", weight:1, act:null },
-          { id:"mask_2", name:"Ancient Mask II",weight:1, act:null },
-          { id:"mask_3", name:"Ancient Mask III",weight:1, act:null },
-          { id:"mask_4", name:"Ancient Mask IV",weight:1, act:null },
-          { id:"mask_5", name:"Ancient Mask V",weight:1, act:null },
-        ]
-      },
-      {
-        name: "Silk Spool (Silk Capacity) — 9%",
-        // 1% each – 9 upgrades (18 fragments total)
-        items: Array.from({length:9}, (_,i)=>({ id:`spool_${i+1}`, name:`Silk Spool +${i+1}`, weight:1, act:null }))
-      },
-      {
-        name: "Silk Hearts (Silk Regen Max) — 3%",
-        items: [
-          { id:"sheart_1", name:"Silk Heart I", weight:1, act:null },
-          { id:"sheart_2", name:"Silk Heart II",weight:1, act:null },
-          { id:"sheart_3", name:"Silk Heart III",weight:1, act:null },
-        ]
-      },
-      {
-        name: "Miscellaneous — 2%",
-        items: [
-          { id:"misc_sylphsong", name:"Sylphsong (EVAHEAL / BoundCrestUpgrader)", weight:1, act:null },
-          { id:"misc_everbloom", name:"Everbloom (WhiteFlower)", weight:1, act:null },
-        ]
-      },
-      {
-        name: "Crests — 6%",
-        items: [
-          { id:"crest_architect", name:"Architect (Toolmaster)", weight:1, act:null },
-          { id:"crest_beast",     name:"Beast (Warrior)",        weight:1, act:null },
-          { id:"crest_reaper",    name:"Reaper (Reaper)",        weight:1, act:null },
-          { id:"crest_shaman",    name:"Shaman (Spell)",         weight:1, act:null },
-          { id:"crest_wanderer",  name:"Wanderer (Wanderer)",    weight:1, act:null },
-          { id:"crest_witch",     name:"Witch (Witch)",          weight:1, act:null },
-        ]
-      },
-      {
-        name: "Silk Skills — 6%",
-        items: [
-          { id:"skill_crossstitch", name:"Cross Stitch (Parry)",           weight:1, act:null },
-          { id:"skill_palenails",   name:"Pale Nails (Silk Boss Needle)",  weight:1, act:null },
-          { id:"skill_sharpdart",   name:"Sharpdart (Silk Charge)",        weight:1, act:null },
-          { id:"skill_silkspear",   name:"Silkspear (Silk Spear)",         weight:1, act:null },
-          { id:"skill_runerage",    name:"Rune Rage (Silk Bomb)",          weight:1, act:null },
-          { id:"skill_threadstorm", name:"Thread Storm (Thread Sphere)",   weight:1, act:null },
-        ]
-      },
-      {
-        name: "Crafting Kit Upgrades — 4%",
-        items: [
-          { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:null },
-          { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:null },
-          { id:"kit_3", name:"Crafting Kit Expansion III",weight:1,act:null },
-          { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:null },
-        ]
-      },
-      {
-        name: "Tool Pouch Upgrades — 4%",
-        items: [
-          { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:null },
-          { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:null },
-          { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1,act:null },
-          { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:null },
-        ]
-      },
-      {
-        name: "Abilities — 6%",
-        items: [
-          { id:"ab_clawline",   name:"Clawline",    weight:1, act:null },
-          { id:"ab_clinggrip",  name:"Cling Grip",  weight:1, act:null },
-          { id:"ab_needlestrike",name:"Needle Strike",weight:1,act:null },
-          { id:"ab_needolin",   name:"Needolin",    weight:1, act:null },
-          { id:"ab_silksoar",   name:"Silk Soar",   weight:1, act:null },
-          { id:"ab_swiftstep",  name:"Swift Step",  weight:1, act:null },
-        ]
-      },
-      {
-        name: "Tools — 51%",
-        items: [
-          {id:"tool_wallcling", name:"Ascendant’s Grip (Wallcling)", weight:1, act:null},
-          {id:"tool_barbed", name:"Barbed Bracelet (Barbed Wire)", weight:1, act:null},
-          {id:"tool_clawmirror", name:"Claw Mirror(s) (Dazzle Bind/Upgraded)", weight:1, act:null},
-          {id:"tool_cogfly", name:"Cogfly (Cogwork Flier)", weight:1, act:null},
-          {id:"tool_cogwheel", name:"Cogwork Wheel (Cogwork Saw)", weight:1, act:null},
-          {id:"tool_compass", name:"Compass", weight:1, act:null},
-          {id:"tool_conchcutter", name:"Conchcutter (Conch Drill)", weight:1, act:null},
-          {id:"tool_curveclaw", name:"Curveclaw / Curvesickle (Curve Claws/Upgraded)", weight:1, act:null},
-          {id:"tool_deadbug", name:"Dead Bug’s Purse / Shell Satchel", weight:1, act:null},
-          {id:"tool_delverdrill", name:"Delver’s Drill (Screw Attack)", weight:1, act:null},
-          {id:"tool_druidseye", name:"Druid’s Eye / Eyes (Mosscreep 1/2)", weight:1, act:null},
-          {id:"tool_eggflealia", name:"Egg of Flealia (Flea Charm)", weight:1, act:null},
-          {id:"tool_fleabrew", name:"Flea Brew", weight:1, act:null},
-          {id:"tool_flintslate", name:"Flintslate (Flintstone)", weight:1, act:null},
-          {id:"tool_fracturedmask", name:"Fractured Mask", weight:1, act:null},
-          {id:"tool_injectorband", name:"Injector Band (Quickbind)", weight:1, act:null},
-          {id:"tool_longclaw", name:"Longclaw (Longneedle)", weight:1, act:null},
-          {id:"tool_longpin", name:"Longpin (Harpoon)", weight:1, act:null},
-          {id:"tool_magmbell", name:"Magma Bell (Lava Charm)", weight:1, act:null},
-          {id:"tool_magnetite_brooch", name:"Magnetite Brooch (Rosary Magnet)", weight:1, act:null},
-          {id:"tool_magnetite_dice", name:"Magnetite Dice", weight:1, act:null},
-          {id:"tool_memorycrystal", name:"Memory Crystal (Revenge Crystal)", weight:1, act:null},
-          {id:"tool_multibinder", name:"Multibinder (Multibind)", weight:1, act:null},
-          {id:"tool_pinbadge", name:"Pin Badge (Pinstress Tool)", weight:1, act:null},
-          {id:"tool_pimpillo", name:"Pimpillo (Pimpilo)", weight:1, act:null},
-          {id:"tool_plasmium", name:"Plasmium Phial (Lifeblood Syringe)", weight:1, act:null},
-          {id:"tool_pollip", name:"Pollip Pouch (Poison Pouch)", weight:1, act:null},
-          {id:"tool_quicksling", name:"Quick Sling", weight:1, act:null},
-          {id:"tool_reservebind", name:"Reserve Bind", weight:1, act:null},
-          {id:"tool_rosarycannon", name:"Rosary Cannon", weight:1, act:null},
-          {id:"tool_sawtooth", name:"Sawtooth Circlet (Brolly Spike)", weight:1, act:null},
-          {id:"tool_scuttlebrace", name:"Scuttlebrace", weight:1, act:null},
-          {id:"tool_shardpendant", name:"Shard Pendant (Bone Necklace)", weight:1, act:null},
-          {id:"tool_silkshot", name:"Silkshot (WebShot Architect/Forge/Weaver)", weight:1, act:null},
-          {id:"tool_silkspeed", name:"Silkspeed Anklets (Sprintmaster)", weight:1, act:null},
-          {id:"tool_snitchpick", name:"Snitch Pick (Thief Claw)", weight:1, act:null},
-          {id:"tool_spiderstrings", name:"Spider Strings (Musician Charm)", weight:1, act:null},
-          {id:"tool_spoolext", name:"Spool Extender", weight:1, act:null},
-          {id:"tool_stingshard", name:"Sting Shard", weight:1, act:null},
-          {id:"tool_straightpin", name:"Straight Pin", weight:1, act:null},
-          {id:"tool_tacks", name:"Tacks (Tack)", weight:1, act:null},
-          {id:"tool_thiefsmark", name:"Thief’s Mark (Thief Charm)", weight:1, act:null},
-          {id:"tool_threefold", name:"Threefold Pin (Tri Pin)", weight:1, act:null},
-          {id:"tool_throwingring", name:"Throwing Ring (Shakra Ring)", weight:1, act:null},
-          {id:"tool_voltfilament", name:"Volt Filament (Zap Imbuement)", weight:1, act:null},
-          {id:"tool_voltvessels", name:"Voltvessels (Lightning Rod)", weight:1, act:null},
-          {id:"tool_wardingbell", name:"Warding Bell (Bell Bind)", weight:1, act:null},
-          {id:"tool_weavelight", name:"Weavelight (White Ring)", weight:1, act:null},
-          {id:"tool_weightedbelt", name:"Weighted Belt (Weighted Anklet)", weight:1, act:null},
-          {id:"tool_wispfire", name:"Wispfire Lantern (Wisp Lantern)", weight:1, act:null},
-          {id:"tool_wreathpurity", name:"Wreath of Purity (Maggot Charm)", weight:1, act:null},
-        ]
-      },
-    ]
-  };
+  // ======= DATA =======
+  // type: "main" (weighted) or "extra" (unweighted)
+  const DATA = [
+    { type:"main", name:"Needle Upgrades — 4%", items:[
+      { id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:null },
+      { id:"needle_shining",   name:"Shining Needle",   weight:1, act:null },
+      { id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:null },
+      { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:null },
+    ]},
+
+    // Mask Shards: 20 × 0.25% = 5%
+    { type:"main", name:"Mask Shards — 5%", items:
+      Array.from({length:20}, (_,i)=>({ id:`maskShard_${i+1}`, name:`Mask Shard ${i+1}`, weight:0.25, act:null }))
+    },
+
+    // Silk Spools: 9 × 1% = 9%
+    { type:"main", name:"Silk Spool (Capacity) — 9%", items:
+      Array.from({length:9}, (_,i)=>({ id:`spool_${i+1}`, name:`Silk Spool +${i+1}`, weight:1, act:null }))
+    },
+
+    // Silk Hearts: 3 × 1% = 3%
+    { type:"main", name:"Silk Hearts (Regen Max) — 3%", items:[
+      { id:"sheart_1", name:"Silk Heart I", weight:1, act:null },
+      { id:"sheart_2", name:"Silk Heart II",weight:1, act:null },
+      { id:"sheart_3", name:"Silk Heart III",weight:1, act:null },
+    ]},
+
+    // Misc: 2%
+    { type:"main", name:"Miscellaneous — 2%", items:[
+      { id:"misc_sylphsong", name:"Sylphsong (EVAHEAL / BoundCrestUpgrader)", weight:1, act:null },
+      { id:"misc_everbloom", name:"Everbloom (WhiteFlower)", weight:1, act:null },
+    ]},
+
+    // Crests with Acts (order as given)
+    { type:"main", name:"Crests — 6%", items:[
+      { id:"crest_reaper",    name:"Reaper (Reaper)",        weight:1, act:1 },
+      { id:"crest_wanderer",  name:"Wanderer (Wanderer)",    weight:1, act:1 },
+      { id:"crest_beast",     name:"Beast (Warrior)",        weight:1, act:1 },
+      { id:"crest_witch",     name:"Witch (Witch)",          weight:1, act:2 },
+      { id:"crest_architect", name:"Architect (Toolmaster)", weight:1, act:2 },
+      { id:"crest_shaman",    name:"Shaman (Spell)",         weight:1, act:3 },
+    ]},
+
+    // Silk Skills (order + acts)
+    { type:"main", name:"Silk Skills — 6%", items:[
+      { id:"skill_silkspear",   name:"Silkspear (Silk Spear)",         weight:1, act:1 },
+      { id:"skill_threadstorm", name:"Thread Storm (Thread Sphere)",   weight:1, act:1 },
+      { id:"skill_sharpdart",   name:"Sharpdart (Silk Charge)",        weight:1, act:1 },
+      { id:"skill_crossstitch", name:"Cross Stitch (Parry)",           weight:1, act:1 },
+      { id:"skill_runerage",    name:"Rune Rage (Silk Bomb)",          weight:1, act:1 },
+      { id:"skill_purenails",   name:"Pure Nails (Silk Boss Needle)",  weight:1, act:3 },
+    ]},
+
+    // Upgrades split
+    { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
+      { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:null },
+      { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:null },
+      { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:null },
+      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:null },
+    ]},
+    { type:"main", name:"Tool Pouch Upgrades — 8%", items:[
+      { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:null },
+      { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:null },
+      { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1,act:null },
+      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:null },
+      { id:"pouch_5", name:"Tool Pouch Expansion V",  weight:1, act:null },
+      { id:"pouch_6", name:"Tool Pouch Expansion VI", weight:1, act:null },
+      { id:"pouch_7", name:"Tool Pouch Expansion VII",weight:1, act:null },
+      { id:"pouch_8", name:"Tool Pouch Expansion VIII",weight:1,act:null },
+    ]},
+
+    // Abilities order + acts
+    { type:"main", name:"Abilities — 6%", items:[
+      { id:"ab_swiftstep",  name:"Swift Step",   weight:1, act:1 },
+      { id:"ab_clinggrip",  name:"Cling Grip",   weight:1, act:1 },
+      { id:"ab_needolin",   name:"Needolin",     weight:1, act:1 },
+      { id:"ab_clawline",   name:"Clawline",     weight:1, act:2 },
+      { id:"ab_needlestrike",name:"Needle Strike",weight:1, act:2 },
+      { id:"ab_silksoar",   name:"Silk Soar",    weight:1, act:3 },
+    ]},
+
+    // Tools — unchanged list (51%)
+    { type:"main", name:"Tools — 51%", items:[
+      {id:"tool_wallcling", name:"Ascendant’s Grip (Wallcling)", weight:1, act:null},
+      {id:"tool_barbed", name:"Barbed Bracelet (Barbed Wire)", weight:1, act:null},
+      {id:"tool_clawmirror", name:"Claw Mirror(s) (Dazzle Bind/Upgraded)", weight:1, act:null},
+      {id:"tool_cogfly", name:"Cogfly (Cogwork Flier)", weight:1, act:null},
+      {id:"tool_cogwheel", name:"Cogwork Wheel (Cogwork Saw)", weight:1, act:null},
+      {id:"tool_compass", name:"Compass", weight:1, act:null},
+      {id:"tool_conchcutter", name:"Conchcutter (Conch Drill)", weight:1, act:null},
+      {id:"tool_curveclaw", name:"Curveclaw / Curvesickle (Curve Claws/Upgraded)", weight:1, act:null},
+      {id:"tool_deadbug", name:"Dead Bug’s Purse / Shell Satchel", weight:1, act:null},
+      {id:"tool_delverdrill", name:"Delver’s Drill (Screw Attack)", weight:1, act:null},
+      {id:"tool_druidseye", name:"Druid’s Eye / Eyes (Mosscreep 1/2)", weight:1, act:null},
+      {id:"tool_eggflealia", name:"Egg of Flealia (Flea Charm)", weight:1, act:null},
+      {id:"tool_fleabrew", name:"Flea Brew", weight:1, act:null},
+      {id:"tool_flintslate", name:"Flintslate (Flintstone)", weight:1, act:null},
+      {id:"tool_fracturedmask", name:"Fractured Mask", weight:1, act:null},
+      {id:"tool_injectorband", name:"Injector Band (Quickbind)", weight:1, act:null},
+      {id:"tool_longclaw", name:"Longclaw (Longneedle)", weight:1, act:null},
+      {id:"tool_longpin", name:"Longpin (Harpoon)", weight:1, act:null},
+      {id:"tool_magmbell", name:"Magma Bell (Lava Charm)", weight:1, act:null},
+      {id:"tool_magnetite_brooch", name:"Magnetite Brooch (Rosary Magnet)", weight:1, act:null},
+      {id:"tool_magnetite_dice", name:"Magnetite Dice", weight:1, act:null},
+      {id:"tool_memorycrystal", name:"Memory Crystal (Revenge Crystal)", weight:1, act:null},
+      {id:"tool_multibinder", name:"Multibinder (Multibind)", weight:1, act:null},
+      {id:"tool_pinbadge", name:"Pin Badge (Pinstress Tool)", weight:1, act:null},
+      {id:"tool_pimpillo", name:"Pimpillo (Pimpilo)", weight:1, act:null},
+      {id:"tool_plasmium", name:"Plasmium Phial (Lifeblood Syringe)", weight:1, act:null},
+      {id:"tool_pollip", name:"Pollip Pouch (Poison Pouch)", weight:1, act:null},
+      {id:"tool_quicksling", name:"Quick Sling", weight:1, act:null},
+      {id:"tool_reservebind", name:"Reserve Bind", weight:1, act:null},
+      {id:"tool_rosarycannon", name:"Rosary Cannon", weight:1, act:null},
+      {id:"tool_sawtooth", name:"Sawtooth Circlet (Brolly Spike)", weight:1, act:null},
+      {id:"tool_scuttlebrace", name:"Scuttlebrace", weight:1, act:null},
+      {id:"tool_shardpendant", name:"Shard Pendant (Bone Necklace)", weight:1, act:null},
+      {id:"tool_silkshot", name:"Silkshot (WebShot Architect/Forge/Weaver)", weight:1, act:null},
+      {id:"tool_silkspeed", name:"Silkspeed Anklets (Sprintmaster)", weight:1, act:null},
+      {id:"tool_snitchpick", name:"Snitch Pick (Thief Claw)", weight:1, act:null},
+      {id:"tool_spiderstrings", name:"Spider Strings (Musician Charm)", weight:1, act:null},
+      {id:"tool_spoolext", name:"Spool Extender", weight:1, act:null},
+      {id:"tool_stingshard", name:"Sting Shard", weight:1, act:null},
+      {id:"tool_straightpin", name:"Straight Pin", weight:1, act:null},
+      {id:"tool_tacks", name:"Tacks (Tack)", weight:1, act:null},
+      {id:"tool_thiefsmark", name:"Thief’s Mark (Thief Charm)", weight:1, act:null},
+      {id:"tool_threefold", name:"Threefold Pin (Tri Pin)", weight:1, act:null},
+      {id:"tool_throwingring", name:"Throwing Ring (Shakra Ring)", weight:1, act:null},
+      {id:"tool_voltfilament", name:"Volt Filament (Zap Imbuement)", weight:1, act:null},
+      {id:"tool_voltvessels", name:"Voltvessels (Lightning Rod)", weight:1, act:null},
+      {id:"tool_wardingbell", name:"Warding Bell (Bell Bind)", weight:1, act:null},
+      {id:"tool_weavelight", name:"Weavelight (White Ring)", weight:1, act:null},
+      {id:"tool_weightedbelt", name:"Weighted Belt (Weighted Anklet)", weight:1, act:null},
+      {id:"tool_wispfire", name:"Wispfire Lantern (Wisp Lantern)", weight:1, act:null},
+      {id:"tool_wreathpurity", name:"Wreath of Purity (Maggot Charm)", weight:1, act:null},
+    ]},
+
+    // (Your extras section from earlier can live here if you want; omitted for brevity)
+  ];
   // ======= END DATA =======
 
-  // DOM
+  // -------- DOM
   const board = document.getElementById("board");
   const searchEl = document.getElementById("search");
   const sortByEl = document.getElementById("sortBy");
@@ -260,25 +255,32 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   const importBtn = document.getElementById("importBtn");
   const importFile = document.getElementById("importFile");
   const resetBtn = document.getElementById("resetBtn");
+
   const doneCountEl = document.getElementById("doneCount");
   const totalCountEl = document.getElementById("totalCount");
   const percentEl = document.getElementById("percent");
   const barFillEl = document.getElementById("barFill");
+  const weightWarnEl = document.getElementById("weightWarn");
+
+  const extrasDoneEl = document.getElementById("extrasDone");
+  const extrasTotalEl = document.getElementById("extrasTotal");
+  const barFillExtrasEl = document.getElementById("barFillExtras");
+
   const totalBadge = document.getElementById("totalBadge");
 
-  // State
+  // -------- State
   let checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
   let groupByAct = false;
 
   function flatItems(){
     const list = [];
-    DATA.categories.forEach(cat => {
-      cat.items.forEach(item => list.push({...item, category:cat.name}));
+    DATA.forEach(cat=>{
+      cat.items.forEach(it=>list.push({...it, category:cat.name, type:cat.type}));
     });
     return list;
   }
 
-  // Populate Act filter (includes Unknown)
+  // Populate Act filter
   (function initActFilter(){
     const acts = new Set(flatItems().map(i => i.act).filter(a => a || a === 0));
     [...acts].sort((a,b)=>a-b).forEach(a=>{
@@ -292,89 +294,103 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   function render(){
     board.innerHTML = "";
     const items = flatItems();
-    const totalItems = items.length;
-    totalCountEl.textContent = totalItems;
-    totalBadge.textContent = `${totalItems} items`;
+    totalBadge.textContent = `${items.length} items`;
 
     const term = (searchEl.value || "").trim().toLowerCase();
     const actFilter = actFilterEl.value;
 
-    let visible = items.filter(it => {
-      const matchesSearch = !term || it.name.toLowerCase().includes(term) || it.category.toLowerCase().includes(term);
+    // Filter
+    let visible = items.filter(it=>{
+      const s = it.name.toLowerCase();
+      const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term);
       const matchesAct = (actFilter === "all") || (String(it.act) === actFilter);
       return matchesSearch && matchesAct;
     });
 
+    // Sort
     const sortBy = sortByEl.value;
     const cmp = {
       "act": (a,b)=> ((a.act??999)-(b.act??999)) || a.name.localeCompare(b.name),
       "name": (a,b)=> a.name.localeCompare(b.name),
       "category": (a,b)=> a.category.localeCompare(b.category) || a.name.localeCompare(b.name)
-    }[sortBy] || ((a,b)=>0);
+    }[sortBy];
     visible.sort(cmp);
 
+    // Render grouped by category (or Act mode)
     if (groupByAct){
       const byAct = new Map();
       visible.forEach(i=>{
-        const key = (i.act==null) ? "Unknown" : i.act;
-        if(!byAct.has(key)) byAct.set(key, []);
-        byAct.get(key).push(i);
+        const k = (i.act==null) ? "Unknown" : i.act;
+        if(!byAct.has(k)) byAct.set(k, []);
+        byAct.get(k).push(i);
       });
       const keys = [...byAct.keys()].sort((a,b)=>{
-        if(a==="Unknown") return 1;
-        if(b==="Unknown") return -1;
-        return a-b;
+        if(a==="Unknown") return 1; if(b==="Unknown") return -1; return a-b;
       });
       keys.forEach(k=>{
         const title = (k==="Unknown") ? "Act Unknown" : `Act ${k}`;
-        const wrap = document.createElement("div");
-        const h = document.createElement("div"); h.textContent = title; h.style.margin=".25rem 0 .5rem"; h.style.color="#cfd3da";
-        wrap.appendChild(h);
-        const cats = groupBy(byAct.get(k), "category");
-        Object.keys(cats).sort().forEach(catName=>{
-          wrap.appendChild(renderCategory(catName, cats[catName]));
+        board.appendChild(sectionTitle(title));
+        const byCat = groupBy(byAct.get(k), "category");
+        Object.keys(byCat).sort().forEach(catName=>{
+          board.appendChild(renderCategory(catName, byCat[catName]));
         });
-        board.appendChild(wrap);
-        const hr = document.createElement("hr"); hr.className="soft"; board.appendChild(hr);
+        board.appendChild(document.createElement("hr")).className="soft";
       });
     } else {
-      const cats = groupBy(visible, "category");
-      Object.keys(cats).sort().forEach(catName=>{
-        board.appendChild(renderCategory(catName, cats[catName]));
+      const byCat = groupBy(visible, "category");
+      Object.keys(byCat).sort().forEach(catName=>{
+        board.appendChild(renderCategory(catName, byCat[catName]));
       });
     }
 
     updateTotals();
   }
 
+  function sectionTitle(text){
+    const d = document.createElement("div");
+    d.textContent = text;
+    d.style.margin = ".25rem 0 .5rem";
+    d.style.color = "#cfd3da";
+    d.style.fontSize = ".95rem";
+    return d;
+  }
+
   function renderCategory(catName, items){
+    const type = items[0]?.type || "main";
     const card = document.createElement("section");
     card.className = "category";
+
     const head = document.createElement("div");
     head.className = "cat-head";
     const h2 = document.createElement("h2"); h2.textContent = catName;
+    const right = document.createElement("div"); right.className="cat-right";
+    const pill = document.createElement("span"); pill.className="pillType"; pill.textContent = (type==="main"?"Weighted":"Extra");
     const count = document.createElement("div"); count.className = "cat-count";
     const toggle = document.createElement("button"); toggle.type="button"; toggle.textContent="–";
-    head.appendChild(h2); head.appendChild(count); head.appendChild(toggle);
+    right.append(pill, count, toggle);
+    head.append(h2, right);
 
     const list = document.createElement("div");
     list.className = "cat-items";
 
     items.forEach(it=>{
-      const row = document.createElement("div"); row.className = "item";
-      const cb = document.createElement("input"); cb.type="checkbox"; cb.id = it.id; cb.checked = checked.has(it.id);
+      const row = document.createElement("div"); row.className="item";
+      const cb = document.createElement("input"); cb.type="checkbox"; cb.id=it.id; cb.checked = checked.has(it.id);
       const lab = document.createElement("label"); lab.setAttribute("for", it.id); lab.textContent = it.name;
       const meta = document.createElement("div"); meta.className="meta";
-      const pillW = document.createElement("span"); pillW.className="pill"; pillW.textContent = `${it.weight}%`;
-      const pillA = document.createElement("span"); pillA.className="pill"; pillA.textContent = ACT_LABEL(it.act);
-      meta.appendChild(pillW); meta.appendChild(pillA);
+      if(type==="main"){
+        const w = document.createElement("span"); w.className="pill"; w.textContent = `${it.weight}%`;
+        meta.appendChild(w);
+      }
+      const a = document.createElement("span"); a.className="pill"; a.textContent = ACT_LABEL(it.act);
+      meta.appendChild(a);
 
       cb.addEventListener("change", ()=>{
         if(cb.checked) checked.add(it.id); else checked.delete(it.id);
         persist(); updateTotals(); updateCatCount(count, items);
       });
 
-      row.appendChild(cb); row.appendChild(lab); row.appendChild(meta);
+      row.append(cb, lab, meta);
       list.appendChild(row);
     });
 
@@ -385,7 +401,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       }
     });
 
-    card.appendChild(head); card.appendChild(list);
+    card.append(head, list);
     updateCatCount(count, items);
     return card;
   }
@@ -396,23 +412,35 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   }
 
   function updateTotals(){
-    const all = flatItems();
-    const doneItems = all.filter(i=>checked.has(i.id));
-    const done = doneItems.length;
-    doneCountEl.textContent = done;
+    const items = flatItems();
+    const main = items.filter(i=>i.type==="main");
+    const extras = items.filter(i=>i.type!=="main");
 
-    const totalWeight = all.reduce((s,i)=>s + (Number(i.weight)||0), 0);
-    const doneWeight  = doneItems.reduce((s,i)=>s + (Number(i.weight)||0), 0);
+    // Weighted (main)
+    const totalItems = main.length;
+    totalCountEl.textContent = totalItems;
+    const totalWeight = main.reduce((s,i)=>s + (Number(i.weight)||0), 0);
+    const doneMain = main.filter(i=>checked.has(i.id));
+    const doneCount = doneMain.length;
+    doneCountEl.textContent = doneCount;
+    const doneWeight = doneMain.reduce((s,i)=>s + (Number(i.weight)||0), 0);
     const pct = totalWeight ? Math.round((doneWeight/totalWeight)*100) : 0;
     percentEl.textContent = pct;
     barFillEl.style.width = pct + "%";
+    weightWarnEl.style.display = (Math.abs(totalWeight-100)<1e-9)? "none":"inline";
+
+    // Extras (if you add any)
+    const extrasDone = extras.filter(i=>checked.has(i.id)).length;
+    extrasDoneEl.textContent = extrasDone;
+    extrasTotalEl.textContent = extras.length;
+    const pctExtra = extras.length ? Math.round((extrasDone/extras.length)*100) : 0;
+    barFillExtrasEl.style.width = pctExtra + "%";
   }
 
   function groupBy(list, key){
     return list.reduce((acc, cur)=>{
       const k = cur[key];
-      if(!acc[k]) acc[k] = [];
-      acc[k].push(cur);
+      (acc[k] ||= []).push(cur);
       return acc;
     }, {});
   }
@@ -420,25 +448,14 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...checked])); }
 
   // Controls
-  searchEl.addEventListener("input", render);
-  sortByEl.addEventListener("change", render);
-  actFilterEl.addEventListener("change", render);
-
-  groupBtn.addEventListener("click", ()=>{
-    groupByAct = !groupByAct;
-    groupBtn.textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
-    render();
-  });
-
-  expandAllBtn.addEventListener("click", ()=>{
+  document.getElementById("expandAll").addEventListener("click", ()=>{
     document.querySelectorAll(".cat-items").forEach(el=>{
       el.classList.remove("hidden");
       const btn = el.previousElementSibling.querySelector("button");
       if(btn) btn.textContent = "–";
     });
   });
-
-  collapseAllBtn.addEventListener("click", ()=>{
+  document.getElementById("collapseAll").addEventListener("click", ()=>{
     document.querySelectorAll(".cat-items").forEach(el=>{
       el.classList.add("hidden");
       const btn = el.previousElementSibling.querySelector("button");
@@ -446,31 +463,39 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     });
   });
 
-  exportBtn.addEventListener("click", ()=>{
-    const payload = { version:1, checked:[...checked] };
+  document.getElementById("exportBtn").addEventListener("click", ()=>{
+    const payload = { version:3, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "silksong-100-progress.json"; a.click();
+    a.href = url; a.download = "silksong-progress.json"; a.click();
     URL.revokeObjectURL(url);
   });
-
-  importBtn.addEventListener("click", ()=>importFile.click());
-  importFile.addEventListener("change", async ()=>{
-    const f = importFile.files?.[0]; if(!f) return;
+  document.getElementById("importBtn").addEventListener("click", ()=>importFile.click());
+  document.getElementById("importFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
     try{
       const obj = JSON.parse(await f.text());
       if(!obj || !Array.isArray(obj.checked)) throw new Error("bad");
       checked = new Set(obj.checked);
       persist(); render(); alert("Import complete!");
     }catch(err){ alert("Import failed. Make sure you selected a valid export file."); }
-    finally{ importFile.value = ""; }
+    finally{ e.target.value = ""; }
   });
-
-  resetBtn.addEventListener("click", ()=>{
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
     if(!confirm("Reset all progress?")) return;
     checked.clear(); persist(); render();
   });
+
+  document.getElementById("groupByAct").addEventListener("click", ()=>{
+    groupByAct = !groupByAct;
+    document.getElementById("groupByAct").textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", render);
+  document.getElementById("sortBy").addEventListener("change", render);
+  document.getElementById("actFilter").addEventListener("change", render);
 
   // Initial render
   render();
