@@ -14,12 +14,12 @@
   --accent:#ff7a7a;  /* coral red accents */
   --accent2:#ffc2c2; /* light blush for gradients/hover */
 
-  --card:#5a1c26;    /* darker card surface for contrast */
+  --card:#5a1c26;      /* darker card surface for contrast */
   --cardHover:#6a222d; /* hover surface */
-  --edge:#9a3a49;    /* muted red borders */
-  --edgeStrong:#b55362; /* stronger border on hover/focus */
-  --chip:#66202a;    /* badge/chip background */
-  --bar:#4c1720;     /* progress track */
+  --edge:#9a3a49;      /* muted red borders */
+  --edgeStrong:#b55362;/* stronger border on hover/focus */
+  --chip:#66202a;      /* badge/chip background */
+  --bar:#4c1720;       /* progress track */
 
   --extra1:#ff9aa5;  /* extras bar gradient 1 */
   --extra2:#ffd6d6;  /* extras bar gradient 2 */
@@ -28,6 +28,10 @@
   --red:#ffe0e0;
   --blue:#a9cfff;
   --yellow:#ffe39a;
+
+  /* ornament images – update these paths to where you place your files */
+  --orn-top:url("assets/ornament-top.png");      /* e.g., 375px-SS_NPC_Dialogue_Top.png */
+  --orn-bottom:url("assets/ornament-bottom.png");/* e.g., 300px-SS_NPC_Dialogue_Bottom.png */
 }
 
 *{box-sizing:border-box}
@@ -112,14 +116,31 @@ input[type="checkbox"]{
   filter:drop-shadow(0 0 0 rgba(0,0,0,0));
 }
 
-/* Location details */
+/* Location details (default CLOSED) */
 .loc{
-  grid-column:1/-1;margin:.25rem 0 0 2rem;padding:.6rem .8rem;
-  border-left:3px solid var(--accent);color:#ffe3e3;background:var(--cardHover);border-radius:.25rem
+  display:none;                /* <-- stay closed on load/refresh */
+  grid-column:1/-1;
+  margin:.25rem 0 0 2rem;
+  padding:.85rem .9rem .9rem .9rem;
+  border-left:3px solid var(--accent);
+  color:#ffe3e3;
+  background:var(--cardHover);
+  border-radius:.4rem;
+  position:relative;
 }
+.loc.open{display:block;}      /* toggled open state */
 .loc a{color:#fff;text-decoration:underline}
 .loc a:hover{opacity:.9}
 
+/* Ornaments */
+.orn{
+  width:100%;height:22px;opacity:.95;filter:drop-shadow(0 0 1px rgba(0,0,0,.15));
+  background-position:center;background-repeat:no-repeat;background-size:contain;margin:.2rem 0 .6rem 0
+}
+.orn.top{background-image:var(--orn-top);height:24px}
+.orn.bottom{background-image:var(--orn-bottom);height:20px;margin:.6rem 0 .1rem 0}
+
+/* Footer + misc */
 .hidden{display:none!important}
 .footer{margin:1.25rem 0;color:var(--muted);text-align:center;border-top:2px solid var(--edge);padding-top:1rem}
 
@@ -186,7 +207,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v11";
+  const STORAGE_KEY = "silksong-checklist-v12";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
   /* ========= ORDER CONTROL (acquisition order) ========= */
@@ -341,7 +362,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]},
   ];
 
-  // Build order maps from your DATA definition
+  // Build order maps
   buildOrderMaps(DATA);
 
   // -------- DOM lookups
@@ -537,10 +558,15 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
       const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent = "📍 Location";
       meta.appendChild(locBtn);
 
+      /* location details (closed by default). Includes ornaments above/below. */
       const details = document.createElement("div"); details.className="loc";
-      details.innerHTML = (it.loc || "Location info not added yet.") + (it.url? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
+      const ornTop = document.createElement("div"); ornTop.className="orn top";
+      const ornBottom = document.createElement("div"); ornBottom.className="orn bottom";
+      const body = document.createElement("div");
+      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
+      details.append(ornTop, body, ornBottom);
 
-      function toggleDetails(){ details.style.display = (details.style.display==="block")? "none":"block"; }
+      function toggleDetails(){ details.classList.toggle("open"); }
       lab.addEventListener("click", toggleDetails);
       locBtn.addEventListener("click", toggleDetails);
 
@@ -606,7 +632,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     });
   });
   exportBtn.addEventListener("click", ()=>{
-    const payload = { version:11, checked:[...checked] };
+    const payload = { version:12, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
