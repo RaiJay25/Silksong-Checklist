@@ -14,7 +14,7 @@
   src:
     local("Trajan Pro Regular"),
     local("TrajanPro-Regular"),
-    url("assets/TrajanPro-Regular.woff2") format("woff2");
+    url("TrajanPro-Regular.woff2") format("woff2");
   font-weight:400;
   font-style:normal;
   font-display:swap;
@@ -42,10 +42,10 @@
   --blue:#a9cfff;
   --yellow:#ffe39a;
 
-  /* Your exact files + cache buster */
-  --bg-image:   url("assets/Screenshot_SS_Moss_Grotto_01.png?v=4");
-  --orn-top:    url("assets/375px-SS_NPC_Dialogue_Top.png?v=4");
-  --orn-bottom: url("assets/300px-SS_NPC_Dialogue_Bottom.png?v=4");
+  /* Your files live in the repo ROOT (no assets/). Add cache-busters to beat caching. */
+  --bg-image:   url("./Screenshot_SS_Moss_Grotto_01.png?v=1");
+  --orn-top:    url("./375px-SS_NPC_Dialogue_Top.png?v=1");
+  --orn-bottom: url("./300px-SS_NPC_Dialogue_Bottom.png?v=1");
 }
 
 /* ===== Base ===== */
@@ -217,7 +217,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 
 <script>
 (function(){
-  var STORAGE_KEY = "silksong-checklist-v15";
+  var STORAGE_KEY = "silksong-checklist-v16";
   function ACT_LABEL(act){ return (act || act === 0) ? ("Act " + act) : "Act Unknown"; }
 
   /* ======= DATA ======= */
@@ -240,11 +240,12 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
       })()
     },
 
+    /* Spool Fragments: 1–6 Act 1, 7–18 Act 2 (each 0.5%, total 9%) */
     { type:"main", name:"Spool Fragments — 9%", items:(function(){
-        var arr=[], n;
+        var arr=[], n, act;
         for(var k=0;k<18;k++){
-          n = k+1;
-          arr.push({ id:"spoolFrag_"+n, name:"Spool Fragment "+n, weight:0.5, act:null });
+          n = k+1; act = (n<=6)?1:2;
+          arr.push({ id:"spoolFrag_"+n, name:"Spool Fragment "+n, weight:0.5, act:act });
         }
         return arr;
       })()
@@ -363,7 +364,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]}
   ];
 
-  /* ===== Acquisition-order indices (no optional chaining / ??) ===== */
+  /* ===== Acquisition-order indices ===== */
   var categoryIndex = new Map();
   var itemIndex = new Map();
   (function buildOrder(){
@@ -688,7 +689,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
   });
 
   document.getElementById("exportBtn").addEventListener("click", function(){
-    var payload = { version:15, checked:Array.from(checked) };
+    var payload = { version:16, checked:Array.from(checked) };
     var blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
