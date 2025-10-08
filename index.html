@@ -60,12 +60,13 @@
   }
 
   /* Background with dark green overlay */
-  body::before{
+  body::before {
     content:"";
     position:fixed; inset:0;
     background:
       linear-gradient(rgba(10,25,18,.68), rgba(10,25,18,.68)),
-      var(--bg-image) center/cover no-repeat fixed;
+      var(--bg-image) center/cover no-repeat;
+    background-attachment: scroll, fixed; /* two layers */
     z-index:-1;
   }
 
