@@ -55,7 +55,6 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 .small{font-size:.85rem;color:var(--muted)}
 .warning{color:var(--warn)}
-.subsplit{display:grid;gap:.5rem}
 .subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#cfd3da;display:flex;align-items:center;gap:.5rem}
 .dot{width:.6rem;height:.6rem;border-radius:50%}
 .dot.red{background:var(--red)} .dot.blue{background:var(--blue)} .dot.yellow{background:var(--yellow)}
@@ -113,85 +112,83 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v4";
+  const STORAGE_KEY = "silksong-checklist-v5";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
   // ======= DATA =======
   // type: "main" (weighted) or "extra" (unweighted)
-  // NEW: items can have optional {loc, url} for the reveal panel; click label OR 📍 button to toggle.
-  // NEW: Tools include a "color": "red" | "blue" | "yellow" (used for the mini split).
+  // Optional fields: act, color (tools), loc, url
   const DATA = [
+    /* ---- Needle Upgrades (acts set) ---- */
     { type:"main", name:"Needle Upgrades — 4%", items:[
-      { id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:null },
-      { id:"needle_shining",   name:"Shining Needle",   weight:1, act:null },
-      { id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:null },
-      { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:null },
+      { id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1 },
+      { id:"needle_shining",   name:"Shining Needle",   weight:1, act:2 },
+      { id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:2 },
+      { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:3 },
     ]},
 
-    // Mask Shards: 20 × 0.25% = 5%
-    { type:"main", name:"Mask Shards — 5%", items:
+    /* ---- Mask Shards: 20 × 0.25% = 5% (order not meaningful) ---- */
+    { type:"main", name:"Mask Shards — 5% (order not indicative)", items:
       Array.from({length:20}, (_,i)=>({ id:`maskShard_${i+1}`, name:`Mask Shard ${i+1}`, weight:0.25, act:null }))
     },
 
-    // Silk Spools: 9 × 1% = 9%
-    { type:"main", name:"Silk Spool (Capacity) — 9%", items:
-      Array.from({length:9}, (_,i)=>({ id:`spool_${i+1}`, name:`Silk Spool +${i+1}`, weight:1, act:null }))
+    /* ---- Spool Fragments: 18 × 0.5% = 9% ---- */
+    { type:"main", name:"Spool Fragments — 9%", items:
+      Array.from({length:18}, (_,i)=>({ id:`spoolFrag_${i+1}`, name:`Spool Fragment ${i+1}`, weight:0.5, act:null }))
     },
 
-    // Silk Hearts: 3 × 1% = 3%
-    { type:"main", name:"Silk Hearts (Regen Max) — 3%", items:[
-      { id:"sheart_1", name:"Silk Heart I", weight:1, act:null },
-      { id:"sheart_2", name:"Silk Heart II",weight:1, act:null },
-      { id:"sheart_3", name:"Silk Heart III",weight:1, act:null },
+    /* ---- Silk Hearts: 3 × 1% (Act 1, then Act 2 ×2) ---- */
+    { type:"main", name:"Silk Hearts — 3%", items:[
+      { id:"sheart_1", name:"Silk Heart I", weight:1, act:1 },
+      { id:"sheart_2", name:"Silk Heart II",weight:1, act:2 },
+      { id:"sheart_3", name:"Silk Heart III",weight:1, act:2 },
     ]},
 
-    // Misc: 2%
+    /* ---- Misc (names cleaned) ---- */
     { type:"main", name:"Miscellaneous — 2%", items:[
-      { id:"misc_sylphsong", name:"Sylphsong (EVAHEAL / BoundCrestUpgrader)", weight:1, act:null },
-      { id:"misc_everbloom", name:"Everbloom (WhiteFlower)", weight:1, act:null },
+      { id:"misc_sylphsong", name:"Sylphsong", weight:1, act:null },
+      { id:"misc_everbloom", name:"Everbloom", weight:1, act:null },
     ]},
 
-    // Crests with Acts
+    /* ---- Crests (acts set, names cleaned) ---- */
     { type:"main", name:"Crests — 6%", items:[
-      { id:"crest_reaper",    name:"Reaper (Reaper)",        weight:1, act:1 },
-      { id:"crest_wanderer",  name:"Wanderer (Wanderer)",    weight:1, act:1 },
-      { id:"crest_beast",     name:"Beast (Warrior)",        weight:1, act:1 },
-      { id:"crest_witch",     name:"Witch (Witch)",          weight:1, act:2 },
-      { id:"crest_architect", name:"Architect (Toolmaster)", weight:1, act:2 },
-      { id:"crest_shaman",    name:"Shaman (Spell)",         weight:1, act:3 },
+      { id:"crest_reaper",    name:"Reaper",        weight:1, act:1 },
+      { id:"crest_wanderer",  name:"Wanderer",      weight:1, act:1 },
+      { id:"crest_beast",     name:"Beast",         weight:1, act:1 },
+      { id:"crest_witch",     name:"Witch",         weight:1, act:2 },
+      { id:"crest_architect", name:"Architect",     weight:1, act:2 },
+      { id:"crest_shaman",    name:"Shaman",        weight:1, act:3 },
     ]},
 
-    // Silk Skills
+    /* ---- Silk Skills (order/acts set, names cleaned) ---- */
     { type:"main", name:"Silk Skills — 6%", items:[
-      { id:"skill_silkspear",   name:"Silkspear (Silk Spear)",         weight:1, act:1 },
-      { id:"skill_threadstorm", name:"Thread Storm (Thread Sphere)",   weight:1, act:1 },
-      { id:"skill_sharpdart",   name:"Sharpdart (Silk Charge)",        weight:1, act:1 },
-      { id:"skill_crossstitch", name:"Cross Stitch (Parry)",           weight:1, act:1 },
-      { id:"skill_runerage",    name:"Rune Rage (Silk Bomb)",          weight:1, act:1 },
-      { id:"skill_purenails",   name:"Pure Nails (Silk Boss Needle)",  weight:1, act:3 },
+      { id:"skill_silkspear",   name:"Silkspear",   weight:1, act:1 },
+      { id:"skill_threadstorm", name:"Thread Storm",weight:1, act:1 },
+      { id:"skill_sharpdart",   name:"Sharpdart",   weight:1, act:1 },
+      { id:"skill_crossstitch", name:"Cross Stitch",weight:1, act:1 },
+      { id:"skill_runerage",    name:"Rune Rage",   weight:1, act:1 },
+      { id:"skill_purenails",   name:"Pure Nails",  weight:1, act:3 },
     ]},
 
-    // Upgrades split
+    /* ---- Crafting Kit Upgrades: 4 ×1% with matching acts ---- */
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
-      { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:null },
-      { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:null },
-      { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:null },
-      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:null },
-    ]},
-    { type:"main", name:"Tool Pouch Upgrades — 8%", items:[
-      { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:null },
-      { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:null },
-      { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1,act:null },
-      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:null },
-      { id:"pouch_5", name:"Tool Pouch Expansion V",  weight:1, act:null },
-      { id:"pouch_6", name:"Tool Pouch Expansion VI", weight:1, act:null },
-      { id:"pouch_7", name:"Tool Pouch Expansion VII",weight:1, act:null },
-      { id:"pouch_8", name:"Tool Pouch Expansion VIII",weight:1,act:null },
+      { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1 },
+      { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:1 },
+      { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:2 },
+      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 },
     ]},
 
-    // TOOLS — 51% total (mini-split by color). Colors from current guides (see notes).
+    /* ---- Tool Pouch Upgrades: 4 ×1% total 4% (acts set) ---- */
+    { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
+      { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1 },
+      { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:1 },
+      { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1, act:2 },
+      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 },
+    ]},
+
+    /* ---- Tools — 51% with Red/Blue/Yellow split (names cleaned) ---- */
     { type:"main", name:"Tools — 51% (Red / Blue / Yellow)", items:[
-      // ---- RED ----
+      // RED
       {id:"tool_straightpin",  name:"Straight Pin",  weight:1, act:null, color:"red"},
       {id:"tool_threefold",    name:"Threefold Pin", weight:1, act:null, color:"red"},
       {id:"tool_stingshard",   name:"Sting Shard",   weight:1, act:null, color:"red"},
@@ -210,9 +207,8 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       {id:"tool_flintslate",   name:"Flintslate",    weight:1, act:null, color:"red"},
       {id:"tool_fleabrew",     name:"Flea Brew",     weight:1, act:null, color:"red"},
       {id:"tool_plasmium",     name:"Plasmium Phial",weight:1, act:null, color:"red"},
-
-      // ---- BLUE ----
-      {id:"tool_druidseye",    name:"Druid’s Eye / Eyes", weight:1, act:null, color:"blue"},
+      // BLUE
+      {id:"tool_druidseye",    name:"Druid’s Eye / Druid’s Eyes", weight:1, act:null, color:"blue"},
       {id:"tool_magmbell",     name:"Magma Bell",         weight:1, act:null, color:"blue"},
       {id:"tool_wardingbell",  name:"Warding Bell",       weight:1, act:null, color:"blue"},
       {id:"tool_pollip",       name:"Pollip Pouch",       weight:1, act:null, color:"blue"},
@@ -223,7 +219,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       {id:"tool_injectorband", name:"Injector Band",      weight:1, act:null, color:"blue"},
       {id:"tool_spoolext",     name:"Spool Extender",     weight:1, act:null, color:"blue"},
       {id:"tool_reservebind",  name:"Reserve Bind",       weight:1, act:null, color:"blue"},
-      {id:"tool_clawmirror",   name:"Claw Mirror(s)",     weight:1, act:null, color:"blue"},
+      {id:"tool_clawmirror",   name:"Claw Mirror",        weight:1, act:null, color:"blue"},
       {id:"tool_memorycrystal",name:"Memory Crystal",     weight:1, act:null, color:"blue"},
       {id:"tool_snitchpick",   name:"Snitch Pick",        weight:1, act:null, color:"blue"},
       {id:"tool_voltfilament", name:"Volt Filament",      weight:1, act:null, color:"blue"},
@@ -233,8 +229,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       {id:"tool_wispfire",     name:"Wispfire Lantern",   weight:1, act:null, color:"blue"},
       {id:"tool_eggflealia",   name:"Egg of Flealia",     weight:1, act:null, color:"blue"},
       {id:"tool_pinbadge",     name:"Pin Badge",          weight:1, act:null, color:"blue"},
-
-      // ---- YELLOW ----
+      // YELLOW
       {id:"tool_compass",      name:"Compass",            weight:1, act:null, color:"yellow"},
       {id:"tool_shardpendant", name:"Shard Pendant",      weight:1, act:null, color:"yellow"},
       {id:"tool_magnetite_brooch", name:"Magnetite Brooch", weight:1, act:null, color:"yellow"},
@@ -258,12 +253,12 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     { type:"extra", name:"Relics", items:[ {id:"relic_placeholder1", name:"Relic — TBD", act:null} ]},
     { type:"extra", name:"Memory Lockets", items:[ {id:"locket_placeholder1", name:"Memory Locket — TBD", act:null} ]},
     { type:"extra", name:"Fleas", items:[ {id:"flea_placeholder1", name:"Flea — TBD", act:null} ]},
-    { type:"extra", name:"Pail Oil", items:[ {id:"oil_placeholder1", name:"Pale Oil — TBD", act:null} ]},
+    { type:"extra", name:"Pail Oil", items:[ {id:"oil_placeholder1", name:"Pail Oil — TBD", act:null} ]},
     { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]},
   ];
   // ======= END DATA =======
 
-  // -------- DOM
+  // -------- DOM + logic (unchanged except totals reflect 100%) --------
   const board = document.getElementById("board");
   const searchEl = document.getElementById("search");
   const sortByEl = document.getElementById("sortBy");
@@ -285,7 +280,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   const totalBadge = document.getElementById("totalBadge");
   const groupBtn = document.getElementById("groupByAct");
 
-  // -------- State
   let checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
   let groupByAct = false;
 
@@ -297,7 +291,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     return list;
   }
 
-  // Populate Act filter
   (function initActFilter(){
     const acts = new Set(flatItems().map(i => i.act).filter(a => a || a === 0));
     [...acts].sort((a,b)=>a-b).forEach(a=>{
@@ -316,7 +309,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     const term = (searchEl.value || "").trim().toLowerCase();
     const actFilter = actFilterEl.value;
 
-    // Filter
     let visible = items.filter(it=>{
       const s = it.name.toLowerCase();
       const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term);
@@ -324,7 +316,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       return matchesSearch && matchesAct;
     });
 
-    // Sort
     const sortBy = sortByEl.value;
     const cmp = {
       "act": (a,b)=> ((a.act??999)-(b.act??999)) || a.name.localeCompare(b.name),
@@ -333,7 +324,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     }[sortBy];
     visible.sort(cmp);
 
-    // Group by Act or by Category
     if (groupByAct){
       const byAct = new Map();
       visible.forEach(i=>{
@@ -391,13 +381,9 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     list.className = "cat-items";
 
     if(isTools){
-      // mini split
-      list.appendChild(subHead("Red", "red"));
-      renderItems(list, items.filter(i=>i.color==="red"));
-      list.appendChild(subHead("Blue","blue"));
-      renderItems(list, items.filter(i=>i.color==="blue"));
-      list.appendChild(subHead("Yellow","yellow"));
-      renderItems(list, items.filter(i=>i.color==="yellow"));
+      list.appendChild(subHead("Red","red"));   renderItems(list, items.filter(i=>i.color==="red"));
+      list.appendChild(subHead("Blue","blue")); renderItems(list, items.filter(i=>i.color==="blue"));
+      list.appendChild(subHead("Yellow","yellow")); renderItems(list, items.filter(i=>i.color==="yellow"));
     } else {
       renderItems(list, items);
     }
@@ -435,7 +421,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent="📍 Location";
       meta.appendChild(locBtn);
 
-      // details panel
       const details = document.createElement("div"); details.className="loc";
       details.innerHTML = (it.loc || "Location info not added yet.") + (it.url? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
 
@@ -445,7 +430,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
       cb.addEventListener("change", ()=>{
         if(cb.checked) checked.add(it.id); else checked.delete(it.id);
-        persist(); updateTotals();
+        persist(); updateTotals(); 
       });
 
       row.append(cb, lab, meta);
@@ -490,7 +475,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...checked])); }
 
-  // Controls
   document.getElementById("expandAll").addEventListener("click", ()=>{
     document.querySelectorAll(".cat-items").forEach(el=>{
       el.classList.remove("hidden");
@@ -506,7 +490,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     });
   });
   document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const payload = { version:4, checked:[...checked] };
+    const payload = { version:5, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -537,7 +521,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   document.getElementById("sortBy").addEventListener("change", render);
   document.getElementById("actFilter").addEventListener("change", render);
 
-  // Initial render
   render();
 })();
 </script>
