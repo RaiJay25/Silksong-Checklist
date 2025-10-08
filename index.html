@@ -68,6 +68,26 @@
 
   .container{max-width:1100px;margin:0 auto;padding:1rem}
 
+  /* ===== Centered title with fleurs ===== */
+  .titlewrap{
+    text-align:center;
+    margin:.8rem auto 0;
+    display:grid;
+    justify-items:center;
+    gap:.25rem;
+  }
+  .titlewrap .fleur{
+    width:min(420px,90%);
+    height:auto;
+    opacity:.96;
+    filter:drop-shadow(0 0 1px rgba(0,0,0,.25));
+  }
+  .titlewrap h1{
+    margin:.1rem 0;
+    font-size:clamp(1.4rem, 2.5vw + 1rem, 2.2rem);
+    letter-spacing:.3px;
+  }
+
   .topbar{
     display:flex;gap:1rem;align-items:center;flex-wrap:wrap;
     border-bottom:2px solid var(--edge);padding-bottom:.75rem;
@@ -164,8 +184,15 @@
 </head>
 <body>
   <div class="container">
-    <div class="topbar">
+
+    <!-- Centered title with top/bottom fleurs -->
+    <div class="titlewrap" aria-label="Title">
+      <img class="fleur" src="./Hornet_Title_Fleur_top0007.png" alt="" />
       <h1>Silksong Checklist</h1>
+      <img class="fleur" src="./Hornet_Title_Fleur_bot0007.png" alt="" />
+    </div>
+
+    <div class="topbar">
       <span id="totalBadge" class="badge">0 items</span>
 
       <div class="controls">
@@ -451,7 +478,7 @@
 
     /* Relics (grouped) */
     { type:"extra", name:"Relics", items:(()=> {
-      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group}); };
+      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group}); };
       const out=[];
       add(out,6,"Cylinder","Cylinders");
       add(out,4,"Choral Commandment","Choral Commandments");
