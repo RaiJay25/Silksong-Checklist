@@ -295,15 +295,7 @@
       {id:"needle_pale", name:"Pale Steel Needle", weight:1, act:3},
     ]},
 
-    { type:"main", name:"Mask Shards — 5%", items:(function(){
-        const arr = [];
-        for (let k = 0; k < 20; k++) {
-          const n = k+1;
-          const act = (n <=6) ? 1 : (n <=16 ? 2 : 3);
-          arr.push({ id:`maskShard_${n}`, name:`Mask Shard ${n}`, weight:0.25, act });
-        }
-        return arr;
-    })() },
+{ type:"main", name:"Mask Shards — 5%", items:(function(){
 
     { type:"main", name:"Spool Fragments — 9%", items:(function(){
         const arr = [];
