@@ -295,16 +295,83 @@
       {id:"needle_pale", name:"Pale Steel Needle", weight:1, act:3},
     ]},
 
-{ type:"main", name:"Mask Shards — 5%", items:(function(){
+    /* ===== UPDATED: Mask Shards with locations ===== */
+    { type:"main", name:"Mask Shards — 5%", items:(function(){
+      // Locations compiled from your notes + guide
+      const LOC = {
+        1: "Buy from Pebb for 300 Rosaries. If not bought before Act 3, moves to Grindle’s shop (Blasted Steps) for 320.",
+        2: "Lower Wormways via Mosshome — behind a breakable wall, just in front of a Simple Key door.",
+        3: "Passage between The Marrow and Deep Docks (enter from The Marrow). Cling Grip recommended.",
+        4: "Far Fields — above the Seamstress’s home. Requires Drifter’s Cloak.",
+        5: "Shellwood (center) — end of a platforming challenge behind a breakable wall.",
+        6: "East Weavenest Atla — behind a breakable wall. Requires Cling Grip.",
+        7: "Cogwork Core — path from lower bench to exterior tall room in Choral Chambers.",
+        8: "Songclave — buy from merchant after Wandering Merchant quest.",
+        9: "Whispering Vaults — corridor below the bench; hidden liftable block mid-way.",
+        10:"Mount Fay — after Faydown Cloak; near 90 Rosary bench, climb broken pillar and wall-jump.",
+        11:"Bellhart — complete the Savage Beastfly Grand Hunt Wish and deliver the claw to the Wishwall.",
+        12:"Far Fields — skull-house lava room east of Seamstress; survive waves then ride airflow up.",
+        13:"Blasted Steps — floating-platform gauntlet with spiders/boulders to next screen.",
+        14:"Wisp Thicket — past fire mages; Magma Bell recommended.",
+        15:"Bilewater — ‘fish room’ right of Shakra; sprint through then climb to the shard.",
+        16:"The Slab — Key of the Apostate; complete saw-blade pogo/jump puzzle to upper corner.",
+        17:"Mount Fay (Act 3) — after Silk Soar; reach hidden icy platforming section.",
+        18:"Far Fields (Act 3) — ‘Fastest in Pharloom’ Wish; win three races after unlocking new area with Silk Soar.",
+        19:"Bellhart (Act 3) — ‘Dark Hearts’ Wish; defeat 12 Void Masses across Pharloom.",
+        20:"Bellhart (Act 3) — ‘The Hidden Hunter’ Wish; obtain Grass Doll after Gurr the Outcast and return."
+      };
 
+      const arr = [];
+      for (let k = 0; k < 20; k++) {
+        const n = k+1;
+        const act = (n <=6) ? 1 : (n <=16 ? 2 : 3);
+        arr.push({
+          id:`maskShard_${n}`,
+          name:`Mask Shard ${n}`,
+          weight:0.25,
+          act,
+          loc: LOC[n] || "Location details coming soon."
+        });
+      }
+      return arr;
+    })() },
+
+    /* ===== UPDATED: Spool Fragments with locations ===== */
     { type:"main", name:"Spool Fragments — 9%", items:(function(){
-        const arr = [];
-        for (let k = 0; k < 18; k++) {
-          const n = k+1;
-          const act = (n <=6) ? 1 : 2;  // 1–6 Act1, 7–18 Act2
-          arr.push({ id:`spoolFrag_${n}`, name:`Spool Fragment ${n}`, weight:0.5, act });
-        }
-        return arr;
+      const LOC = {
+        1: "Behind a breakable wall in a mossy area above Bone Bottom (Act 1).",
+        2: "Deep Docks central — from Forge Daughter exit, go down then east; flip lever, jump back upward.",
+        3: "Greymoor above Shakra’s bench — wall-jump NE of Halfway Home, then east; use Cling Grip in a balloon chamber.",
+        4: "Sold by Frey in Bellhart for 270 Rosaries (after My Missing Courier Wish).",
+        5: "Weavenest Atla — ascend east wall after teleporting, head west past Marrowmaws, drop into hidden passage (Needolin).",
+        6: "The Slab — from Bellway station, climb north two levels, cross cages, then a ceiling passage (Cling Grip).",
+        7: "Top of Grand Gate — strike scales with upward attack to tip them.",
+        8: "Underworks — south of Ventrica station; west through combat gauntlet.",
+        9: "Flea Caravan — received when they ascend to Grand Gate (need 12 Fleas + Last Judge defeated).",
+        10:"Whiteward — under the lift; call it, drop down, side passage to fragment.",
+        11:"SE Cogwork Core — complete combat gauntlet and continue east.",
+        12:"Lower Underworks (right) — from The Cauldron, descend shaft then break left wall in burning floor room.",
+        13:"Reward from Sherma after completing Balm For The Wounded Wish.",
+        14:"Sold by Jubilana for 500 Rosaries (after The Lost Merchant Wish).",
+        15:"Deep Docks SE — use Clawline to open gate, descend, Clawline across, break explosive rock, platform to fragment.",
+        16:"High Halls — highest point in left vertical room (Faydown Cloak + Clawline) or via Silk Soar.",
+        17:"Western Memorium — from 4F below Ventrica, break vines south then path around spikes to chamber.",
+        18:"Sold by Grindle for 680 Rosaries (requires Faydown Cloak + Cling Grip)."
+      };
+
+      const arr = [];
+      for (let k = 0; k < 18; k++) {
+        const n = k+1;
+        const act = (n <=6) ? 1 : 2; // 1–6 Act1, 7–18 Act2
+        arr.push({
+          id:`spoolFrag_${n}`,
+          name:`Spool Fragment ${n}`,
+          weight:0.5,
+          act,
+          loc: LOC[n] || "Location details coming soon."
+        });
+      }
+      return arr;
     })() },
 
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
@@ -339,7 +406,7 @@
       {id:"skill_purenails", name:"Pure Nails", weight:1, act:3},
     ]},
 
-    /* TOOLS — 51% (Acts updated per your list) */
+    /* TOOLS — 51% */
     { type:"main", name:"Tools — 51%", items:[
       /* RED — Act 1 */
       {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:1, color:"red"},
@@ -549,22 +616,20 @@
       {id:"oil_3", name:"Pail Oil 3", act:null},
     ]},
 
-    /* Craft Metal — 8 (one word in display is fine) */
+    /* Craft Metal — 8 */
     { type:"extra", name:"Craft Metal", items:(()=> {
       const a=[]; for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;
     })() }
   ];
 
-  /* ===== Order indices for stable sort (your acquisition order) ===== */
+  /* ===== Order indices for stable sort ===== */
   const categoryIndex = new Map();
   const itemIndex = new Map();
   (function buildOrder() {
     let c = 0, i = 0;
     for (const cat of DATA) {
       if (!categoryIndex.has(cat.name)) categoryIndex.set(cat.name, c++);
-      for (const it of cat.items) {
-        itemIndex.set(it.id, i++);
-      }
+      for (const it of cat.items) itemIndex.set(it.id, i++);
     }
   })();
 
@@ -605,11 +670,7 @@
 
   function flatItems(){
     const list = [];
-    for (const cat of DATA) {
-      for (const it of cat.items) {
-        list.push({...it, category: cat.name, type: cat.type});
-      }
-    }
+    for (const cat of DATA) for (const it of cat.items) list.push({...it, category: cat.name, type: cat.type});
     return list;
   }
 
