@@ -58,16 +58,32 @@
     letter-spacing:.2px;
     min-height:100%;
   }
-
-  /* Background with dark green overlay */
-  body::before {
-    content:"";
-    position:fixed; inset:0;
+  
+  /* Fixed background layer (image + dark overlay), iOS-safe */
+  .bg-fixed{
+    position: fixed;
+    inset: 0;
+    z-index: 0;            /* not negative */
+    pointer-events: none;  /* never blocks clicks */
     background:
-      linear-gradient(rgba(10,25,18,.68), rgba(10,25,18,.68)),
       var(--bg-image) center/cover no-repeat;
-    background-attachment: scroll, fixed; /* two layers */
-    z-index:-1;
+  }
+  .bg-fixed::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(rgba(10,25,18,.68), rgba(10,25,18,.68));
+  }
+  
+  /* Put all page content above the background */
+  .page{
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* iOS Safari blur needs the prefix */
+  .topbar{
+    -webkit-backdrop-filter: saturate(120%) blur(2px);
+    backdrop-filter: saturate(120%) blur(2px);
   }
 
   .container{max-width:1100px;margin:0 auto;padding:1rem}
@@ -225,6 +241,15 @@
   </style>
 </head>
 <body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+
+  <div class="page">
+    <div class="container">
+      <!-- (everything you already have goes here unchanged) -->
+    </div>
+  </div>
+</body>
+
   <div class="container">
 
     <!-- Centered title with top/bottom fleurs -->
