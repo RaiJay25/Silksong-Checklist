@@ -215,11 +215,15 @@
   </div>
 
 <script>
-/* ------ JavaScript (Tools acts updated only) ------ */
+/* ------ JavaScript (Tools acts kept; Extras expanded; Journal condensed) ------ */
 (function() {
   const STORAGE_KEY = "silksong-checklist-v16";
+  const HJ_KEY = "hj-count";
+  const HJ_TOTAL = 237;
+
   function ACT_LABEL(a) { return (a || a === 0) ? `Act ${a}` : "Act Unknown"; }
 
+  /* ===== DATA ===== */
   const DATA = [
     { type:"main", name:"Needle Upgrades — 4%", items:[
       {id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1},
@@ -227,6 +231,7 @@
       {id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:2},
       {id:"needle_pale", name:"Pale Steel Needle", weight:1, act:3},
     ]},
+
     { type:"main", name:"Mask Shards — 5%", items:(function(){
         const arr = [];
         for (let k = 0; k < 20; k++) {
@@ -236,27 +241,31 @@
         }
         return arr;
     })() },
+
     { type:"main", name:"Spool Fragments — 9%", items:(function(){
         const arr = [];
         for (let k = 0; k < 18; k++) {
           const n = k+1;
-          const act = (n <=6) ? 1 : 2;  // first 6 => Act1, rest => Act2
+          const act = (n <=6) ? 1 : 2;  // 1–6 Act1, 7–18 Act2
           arr.push({ id:`spoolFrag_${n}`, name:`Spool Fragment ${n}`, weight:0.5, act });
         }
         return arr;
     })() },
+
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
       {id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1},
       {id:"kit_2", name:"Crafting Kit Expansion II", weight:1, act:1},
       {id:"kit_3", name:"Crafting Kit Expansion III", weight:1, act:2},
       {id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2},
     ]},
+
     { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
       {id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1},
       {id:"pouch_2", name:"Tool Pouch Expansion II", weight:1, act:1},
       {id:"pouch_3", name:"Tool Pouch Expansion III", weight:1, act:2},
       {id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2},
     ]},
+
     { type:"main", name:"Crests — 6%", items:[
       {id:"crest_reaper", name:"Reaper", weight:1, act:1},
       {id:"crest_wanderer", name:"Wanderer", weight:1, act:1},
@@ -265,6 +274,7 @@
       {id:"crest_architect", name:"Architect", weight:1, act:2},
       {id:"crest_shaman", name:"Shaman", weight:1, act:3},
     ]},
+
     { type:"main", name:"Silk Skills — 6%", items:[
       {id:"skill_silkspear", name:"Silkspear", weight:1, act:1},
       {id:"skill_threadstorm", name:"Thread Storm", weight:1, act:1},
@@ -274,7 +284,7 @@
       {id:"skill_purenails", name:"Pure Nails", weight:1, act:3},
     ]},
 
-    /* ============== TOOLS — 51% (Acts updated) ============== */
+    /* TOOLS — 51% (Acts already updated earlier) */
     { type:"main", name:"Tools — 51%", items:[
       /* RED — Act 1 */
       {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:1, color:"red"},
@@ -347,24 +357,91 @@
       {id:"sheart_2", name:"Silk Heart II", weight:1, act:2},
       {id:"sheart_3", name:"Silk Heart III", weight:1, act:2},
     ]},
+
     { type:"main", name:"Miscellaneous — 2%", items:[
       {id:"misc_sylphsong", name:"Sylphsong", weight:1, act:2},
       {id:"misc_everbloom", name:"Everbloom", weight:1, act:3},
     ]},
 
-    /* Extras placeholders */
-    { type:"extra", name:"Boss Fights", items:[ {id:"boss_placeholder1", name:"Boss — TBD", act:null} ]},
-    { type:"extra", name:"Wishes", items:[ {id:"wish_placeholder1", name:"Wish — TBD", act:null} ]},
+    /* ================== EXTRAS (updated) ================== */
+
+    /* Bosses (42) */
+    { type:"extra", name:"Boss Fights", items:(()=> {
+      const a=[]; for(let i=1;i<=42;i++) a.push({id:`boss_${i}`, name:`Boss ${i}`, act:null}); return a;
+    })() },
+
+    /* Wishes (73) */
+    { type:"extra", name:"Wishes", items:(()=> {
+      const a=[]; for(let i=1;i<=73;i++) a.push({id:`wish_${i}`, name:`Wish ${i}`, act:null}); return a;
+    })() },
+
+    /* The Materium (placeholder list) */
     { type:"extra", name:"The Materium", items:[ {id:"materium_placeholder1", name:"Materium Entry — TBD", act:null} ]},
-    { type:"extra", name:"Hunter Journal", items:[ {id:"journal_placeholder1", name:"Journal Entry — TBD", act:null} ]},
-    { type:"extra", name:"Keys", items:[ {id:"key_placeholder1", name:"Key — TBD", act:null} ]},
-    { type:"extra", name:"Relics", items:[ {id:"relic_placeholder1", name:"Relic — TBD", act:null} ]},
-    { type:"extra", name:"Memory Lockets", items:[ {id:"locket_placeholder1", name:"Memory Locket — TBD", act:null} ]},
-    { type:"extra", name:"Fleas", items:[ {id:"flea_placeholder1", name:"Flea — TBD", act:null} ]},
-    { type:"extra", name:"Pail Oil", items:[ {id:"oil_placeholder1", name:"Pail Oil — TBD", act:null} ]},
-    { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]}
+
+    /* Hunter Journal — condensed (special render, still affects totals) */
+    { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:`${HJ_TOTAL} entries (use the counter below)`, act:null, condensed:true} ]},
+
+    /* Keys (grouped) */
+    { type:"extra", name:"Keys", items:(()=> {
+      const items=[];
+      for(let i=1;i<=4;i++) items.push({id:`key_simple_${i}`, name:`Simple Key ${i}`, act:null, group:"Simple Keys"});
+      for(let i=1;i<=3;i++) items.push({id:`key_slab_${i}`, name:`Slab Key ${i}`, act:null, group:"Slab Keys"});
+      for(let i=1;i<=4;i++) items.push({id:`key_misc_${i}`, name:`Misc Key ${i}`, act:null, group:"Misc Keys"});
+      return items;
+    })() },
+
+    /* Relics (grouped) */
+    { type:"extra", name:"Relics", items:(()=> {
+      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:`relic_${base}_${i}`, name:`${base} ${i}`, act:null, group}); };
+      const out=[];
+      add(out,6,"Cylinder","Cylinders");
+      add(out,4,"Choral Commandment","Choral Commandments");
+      add(out,3,"Weaver Effigy","Weaver Effigy");
+      add(out,4,"Bone Scroll","Bone Scroll");
+      add(out,3,"Rune Harp","Rune Harp");
+      add(out,1,"Arcane Egg","Arcane Egg");
+      return out;
+    })() },
+
+    /* Mementos — all Act 3 */
+    { type:"extra", name:"Mementos", items:[
+      {id:"mem_hunter", name:"Hunter’s Memento", act:3},
+      {id:"mem_grey", name:"Grey Memento", act:3},
+      {id:"mem_guardian", name:"Guardian’s Memento", act:3},
+      {id:"mem_sprintmaster", name:"Sprintmaster’s Memento", act:3},
+      {id:"mem_craw", name:"Craw Memento", act:3},
+      {id:"mem_hero", name:"Hero’s Memento", act:3},
+      {id:"mem_surface", name:"Surface Memento", act:3},
+      {id:"mem_pollenheart", name:"Pollen Heart", act:3},
+      {id:"mem_encrustedheart", name:"Encrusted Heart", act:3},
+      {id:"mem_huntersheart", name:"Hunter’s Heart", act:3},
+      {id:"mem_conjoinedheart", name:"Conjoined Heart", act:3},
+    ]},
+
+    /* Memory Lockets — 20 */
+    { type:"extra", name:"Memory Lockets", items:(()=> {
+      const a=[]; for(let i=1;i<=20;i++) a.push({id:`locket_${i}`, name:`Memory Locket ${i}`, act:null}); return a;
+    })() },
+
+    /* Fleas — 30 */
+    { type:"extra", name:"Fleas", items:(()=> {
+      const a=[]; for(let i=1;i<=30;i++) a.push({id:`flea_${i}`, name:`Flea ${i}`, act:null}); return a;
+    })() },
+
+    /* Pail Oil — 3 */
+    { type:"extra", name:"Pail Oil", items:[ 
+      {id:"oil_1", name:"Pail Oil 1", act:null},
+      {id:"oil_2", name:"Pail Oil 2", act:null},
+      {id:"oil_3", name:"Pail Oil 3", act:null},
+    ]},
+
+    /* Craft Metal — 8 (one word) */
+    { type:"extra", name:"Craft Metal", items:(()=> {
+      const a=[]; for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;
+    })() }
   ];
 
+  /* ===== Order indices for stable sort (your acquisition order) ===== */
   const categoryIndex = new Map();
   const itemIndex = new Map();
   (function buildOrder() {
@@ -377,6 +454,7 @@
     }
   })();
 
+  /* ===== DOM refs ===== */
   const board = document.getElementById("board");
   const searchEl = document.getElementById("search");
   const actFilterEl = document.getElementById("actFilter");
@@ -400,9 +478,16 @@
   const filterMainBtn = document.getElementById("filterMain");
   const filterExtraBtn = document.getElementById("filterExtra");
 
+  /* ===== State ===== */
   let checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+  let hjCount = Number(localStorage.getItem(HJ_KEY) || "0");
   let groupByAct = false;
   let filterType = "all";
+
+  function persist() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checked)));
+    localStorage.setItem(HJ_KEY, String(hjCount));
+  }
 
   function flatItems(){
     const list = [];
@@ -414,6 +499,7 @@
     return list;
   }
 
+  /* Act dropdown */
   (function initActFilter(){
     const acts = new Set(flatItems().map(i => i.act).filter(a => a !== null && a !== undefined));
     Array.from(acts).sort((a,b)=>a-b).forEach(a => {
@@ -443,7 +529,72 @@
   }
 
   function renderItems(container, items) {
+    // Detect if this category wants grouping (by `group` label)
+    const hasGroup = items.some(x => x.group);
+    if (hasGroup) {
+      const byGroup = {};
+      items.forEach(it => {
+        const g = it.group || "Other";
+        (byGroup[g] ||= []).push(it);
+      });
+      Object.keys(byGroup).forEach(gname => {
+        const hdr = document.createElement("div");
+        hdr.className = "small";
+        hdr.style.margin = ".5rem 0 .25rem";
+        hdr.textContent = gname;
+        container.appendChild(hdr);
+        renderItemsList(container, byGroup[gname]);
+      });
+    } else {
+      renderItemsList(container, items);
+    }
+  }
+
+  function renderItemsList(container, items){
     for (const it of items) {
+      if (it.condensed) {
+        // Special Hunter Journal compact control
+        const wrap = document.createElement("div");
+        wrap.className = "item";
+        const label = document.createElement("div");
+        label.textContent = `Hunter Journal progress: `;
+        const meta = document.createElement("div"); meta.className="meta";
+
+        const count = document.createElement("span"); count.className="pill"; count.id="hjCount"; count.textContent = `${hjCount}/${HJ_TOTAL}`;
+        const minus = document.createElement("button"); minus.type="button"; minus.className="smallbtn"; minus.textContent = "–";
+        const plus = document.createElement("button"); plus.type="button"; plus.className="smallbtn"; plus.textContent = "+";
+        const reset = document.createElement("button"); reset.type="button"; reset.className="smallbtn"; reset.textContent = "Reset";
+
+        function updateHJ(delta){
+          hjCount = Math.max(0, Math.min(HJ_TOTAL, hjCount + delta));
+          document.getElementById("hjCount").textContent = `${hjCount}/${HJ_TOTAL}`;
+          persist(); updateTotals();
+        }
+        minus.addEventListener("click", ()=>updateHJ(-1));
+        plus.addEventListener("click", ()=>updateHJ(+1));
+        reset.addEventListener("click", ()=>{ hjCount=0; document.getElementById("hjCount").textContent = `${hjCount}/${HJ_TOTAL}`; persist(); updateTotals(); });
+
+        meta.append(count, minus, plus, reset);
+        wrap.append(label, meta);
+        container.appendChild(wrap);
+
+        // A collapsible details block for info/links if needed
+        const details = document.createElement("div"); details.className="loc";
+        const ornTop = document.createElement("div"); ornTop.className="orn top";
+        const ornBottom = document.createElement("div"); ornBottom.className="orn bottom";
+        const body = document.createElement("div"); body.innerHTML = "Tip: Use this counter to track total entries without listing all 237. You can still search by category using the filters above.";
+        details.append(ornTop, body, ornBottom);
+
+        // A tiny toggle button
+        const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent = "ℹ Notes";
+        locBtn.addEventListener("click", ()=>details.classList.toggle("open"));
+        const meta2 = document.createElement("div"); meta2.style.marginLeft="auto"; meta2.appendChild(locBtn);
+        wrap.appendChild(meta2);
+        container.appendChild(details);
+
+        continue;
+      }
+
       const row = document.createElement("div"); row.className = "item";
       const cb = document.createElement("input");
       cb.type = "checkbox"; cb.id = it.id; cb.checked = checked.has(it.id);
@@ -469,9 +620,7 @@
       body.innerHTML = (it.loc || "Location info not added yet.") + (it.url ? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
       details.append(ornTop, body, ornBottom);
 
-      function toggleDetails() {
-        details.classList.toggle("open");
-      }
+      function toggleDetails() { details.classList.toggle("open"); }
       lab.addEventListener("click", toggleDetails);
       locBtn.addEventListener("click", toggleDetails);
 
@@ -488,8 +637,8 @@
   }
 
   function updateCatCount(el, items){
-    const done = items.filter(i => checked.has(i.id)).length;
-    el.textContent = `${done}/${items.length}`;
+    const done = items.filter(i => !i.condensed && checked.has(i.id)).length; // condensed not counted per-item
+    el.textContent = `${done}/${items.filter(i=>!i.condensed).length}`;
   }
 
   function groupBy(list, key) {
@@ -512,7 +661,7 @@
 
     const visible = items.filter(it => {
       const s = it.name.toLowerCase();
-      const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term);
+      const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term) || (it.group||"").toLowerCase().includes(term);
       const matchesAct = actFilter === "all" || String(it.act) === actFilter;
       let matchesType = true;
       if (filterType === "main") matchesType = it.type === "main";
@@ -534,7 +683,6 @@
       for (const k of keys) {
         const title = k === "Unknown" ? "Act Unknown" : `Act ${k}`;
         board.appendChild(sectionTitle(title));
-
         const byCat = groupBy(byAct[k], "category");
         Object.keys(byCat)
           .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
@@ -542,7 +690,6 @@
             const arr = byCat[catName].slice().sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
             board.appendChild(renderCategory(catName, arr));
           });
-
         const hr = document.createElement("hr"); hr.className="soft";
         board.appendChild(hr);
       }
@@ -581,6 +728,7 @@
 
     function setAllInCategory(checkedState){
       for(const i of items){
+        if(i.condensed) continue; // skip condensed control
         if(checkedState) checked.add(i.id); else checked.delete(i.id);
       }
       persist(); render();
@@ -616,10 +764,6 @@
     return card;
   }
 
-  function persist() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checked)));
-  }
-
   /* Controls */
   document.getElementById("expandAll").addEventListener("click", () => {
     document.querySelectorAll(".cat-items").forEach(el => {
@@ -637,7 +781,7 @@
   });
 
   document.getElementById("exportBtn").addEventListener("click", () => {
-    const payload = { version: 16, checked: Array.from(checked) };
+    const payload = { version: 16, checked: Array.from(checked), hjCount };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -653,8 +797,9 @@
     reader.onload = function(){
       try {
         const obj = JSON.parse(reader.result);
-        if (!obj || !Array.isArray(obj.checked)) throw new Error("bad");
-        checked = new Set(obj.checked);
+        if (!obj || (!Array.isArray(obj.checked) && typeof obj.hjCount === "undefined")) throw new Error("bad");
+        if (Array.isArray(obj.checked)) checked = new Set(obj.checked);
+        if (typeof obj.hjCount !== "undefined") hjCount = Math.max(0, Math.min(HJ_TOTAL, Number(obj.hjCount)||0));
         persist();
         render();
         alert("Import complete!");
@@ -669,6 +814,7 @@
   document.getElementById("resetBtn").addEventListener("click", () => {
     if (!confirm("Reset all progress?")) return;
     checked.clear();
+    hjCount = 0;
     persist();
     render();
   });
@@ -698,8 +844,10 @@
   function updateTotals() {
     const items = flatItems();
     const main = items.filter(i => i.type === "main");
-    const extras = items.filter(i => i.type !== "main");
+    const extras = items.filter(i => i.type !== "main" && !i.condensed);
+    const extrasCondensed = items.filter(i => i.type !== "main" && i.condensed);
 
+    /* Weighted 100% stays based on main only */
     totalCountEl.textContent = main.length;
     let totalWeight = 0, doneWeight = 0, doneCount = 0;
     for (const it of main) {
@@ -711,15 +859,82 @@
     percentEl.textContent = pct;
     barFillEl.style.width = pct + "%";
 
+    /* Extras progress: count normal extras + condensed journal count */
     let extrasDone = 0;
-    for (const it of extras) { if (checked.has(it.id)) extrasDone++; }
+    for (const it of extras) if (checked.has(it.id)) extrasDone++;
+    let extrasTotal = extras.length;
+
+    // Add condensed categories: currently only Hunter Journal
+    const hasHJ = extrasCondensed.some(x => x.id === "hj_condensed");
+    if (hasHJ) {
+      extrasDone += hjCount;
+      extrasTotal += HJ_TOTAL;
+    }
+
     extrasDoneEl.textContent = extrasDone;
-    extrasTotalEl.textContent = extras.length;
-    const pctExtra = extras.length ? Math.round((extrasDone / extras.length) * 100) : 0;
+    extrasTotalEl.textContent = extrasTotal;
+    const pctExtra = extrasTotal ? Math.round((extrasDone / extrasTotal) * 100) : 0;
     barFillExtrasEl.style.width = pctExtra + "%";
   }
 
+  function render(){
+    board.innerHTML = "";
+    const items = flatItems();
+    totalBadge.textContent = `${items.length} items`;
+
+    const term = (searchEl.value || "").trim().toLowerCase();
+    const actFilter = actFilterEl.value;
+
+    const visible = items.filter(it => {
+      const s = it.name.toLowerCase();
+      const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term) || (it.group||"").toLowerCase().includes(term);
+      const matchesAct = actFilter === "all" || String(it.act) === actFilter;
+      let matchesType = true;
+      if (filterType === "main") matchesType = it.type === "main";
+      else if (filterType === "extra") matchesType = it.type !== "main";
+      return matchesSearch && matchesAct && matchesType;
+    });
+
+    if (groupByAct) {
+      const byAct = {};
+      for (const it of visible) {
+        const k = it.act == null ? "Unknown" : it.act;
+        (byAct[k] ||= []).push(it);
+      }
+      const keys = Object.keys(byAct).sort((a,b) => {
+        if (a === "Unknown") return 1;
+        if (b === "Unknown") return -1;
+        return Number(a) - Number(b);
+      });
+      for (const k of keys) {
+        const title = k === "Unknown" ? "Act Unknown" : `Act ${k}`;
+        board.appendChild(sectionTitle(title));
+        const byCat = groupBy(byAct[k], "category");
+        Object.keys(byCat)
+          .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
+          .forEach(catName => {
+            const arr = byCat[catName].slice().sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
+            board.appendChild(renderCategory(catName, arr));
+          });
+        const hr = document.createElement("hr"); hr.className="soft";
+        board.appendChild(hr);
+      }
+    } else {
+      const byCat = groupBy(visible, "category");
+      Object.keys(byCat)
+        .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
+        .forEach(catName => {
+          const arr = byCat[catName].slice().sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
+          board.appendChild(renderCategory(catName, arr));
+        });
+    }
+
+    updateTotals();
+  }
+
+  /* Kickoff */
   render();
+
 })();
 </script>
 </body>
