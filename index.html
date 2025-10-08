@@ -42,7 +42,7 @@
     --yellow:#ffe39a;
 
     /* Images (files are in repo ROOT) */
-    --bg-image:   url("./Screenshot_SS_Moss_Grotto_01.png?v=1");
+    --bg-image:   url("./Screenshot_SS_Moss_Grotto_01.png?v=2"); /* bump cache */
     --orn-top:    url("./375px-SS_NPC_Dialogue_Top.png?v=1");
     --orn-bottom: url("./300px-SS_NPC_Dialogue_Bottom.png?v=1");
 
@@ -58,33 +58,17 @@
     letter-spacing:.2px;
     min-height:100%;
   }
-  
-  /* Fixed background layer (image + dark overlay), iOS-safe */
+
+  /* ==== iOS-safe fixed background (replaces body::before) ==== */
   .bg-fixed{
-    position: fixed;
-    inset: 0;
-    z-index: 0;            /* not negative */
-    pointer-events: none;  /* never blocks clicks */
-    background:
-      var(--bg-image) center/cover no-repeat;
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: var(--bg-image) center/cover no-repeat;
   }
   .bg-fixed::after{
-    content:"";
-    position:absolute; inset:0;
+    content:""; position:absolute; inset:0;
     background: linear-gradient(rgba(10,25,18,.68), rgba(10,25,18,.68));
   }
-  
-  /* Put all page content above the background */
-  .page{
-    position: relative;
-    z-index: 1;
-  }
-  
-  /* iOS Safari blur needs the prefix */
-  .topbar{
-    -webkit-backdrop-filter: saturate(120%) blur(2px);
-    backdrop-filter: saturate(120%) blur(2px);
-  }
+  .page{ position:relative; z-index:1; }
 
   .container{max-width:1100px;margin:0 auto;padding:1rem}
 
@@ -111,6 +95,7 @@
   .topbar{
     display:flex;gap:1rem;align-items:center;flex-wrap:wrap;
     border-bottom:2px solid var(--edge);padding-bottom:.75rem;
+    -webkit-backdrop-filter:saturate(120%) blur(2px);
     backdrop-filter:saturate(120%) blur(2px);
   }
 
@@ -241,97 +226,92 @@
   </style>
 </head>
 <body>
+  <!-- iOS-safe fixed background -->
   <div class="bg-fixed" aria-hidden="true"></div>
 
   <div class="page">
     <div class="container">
-      <!-- (everything you already have goes here unchanged) -->
-    </div>
-  </div>
-</body>
+      <!-- Centered title with top/bottom fleurs -->
+      <div class="titlewrap" aria-label="Title">
+        <img class="fleur" src="./Hornet_Title_Fleur_top0007.png" alt="" />
+        <h1>Silksong Checklist</h1>
+        <img class="fleur" src="./Hornet_Title_Fleur_bot0007.png" alt="" />
+      </div>
 
-  <div class="container">
+      <div class="topbar">
+        <span id="totalBadge" class="badge">0 items</span>
 
-    <!-- Centered title with top/bottom fleurs -->
-    <div class="titlewrap" aria-label="Title">
-      <img class="fleur" src="./Hornet_Title_Fleur_top0007.png" alt="" />
-      <h1>Silksong Checklist</h1>
-      <img class="fleur" src="./Hornet_Title_Fleur_bot0007.png" alt="" />
-    </div>
+        <div class="controls">
+          <input id="search" type="search" placeholder="Search items…" aria-label="Search" />
+          <select id="actFilter" aria-label="Filter by act">
+            <option value="all">Act: All / Unknown</option>
+          </select>
+          <button id="groupByAct" type="button">Group by Act: Off</button>
 
-    <div class="topbar">
-      <span id="totalBadge" class="badge">0 items</span>
+          <div class="seg" role="group" aria-label="Filter by task type">
+            <button id="filterAll"   type="button" class="active">All</button>
+            <button id="filterMain"  type="button">100%</button>
+            <button id="filterExtra" type="button">Extras</button>
+          </div>
 
-      <div class="controls">
-        <input id="search" type="search" placeholder="Search items…" aria-label="Search" />
-        <select id="actFilter" aria-label="Filter by act">
-          <option value="all">Act: All / Unknown</option>
-        </select>
-        <button id="groupByAct" type="button">Group by Act: Off</button>
-
-        <div class="seg" role="group" aria-label="Filter by task type">
-          <button id="filterAll"   type="button" class="active">All</button>
-          <button id="filterMain"  type="button">100%</button>
-          <button id="filterExtra" type="button">Extras</button>
+          <button id="expandAll" type="button">Expand All</button>
+          <button id="collapseAll" type="button">Collapse All</button>
+          <button id="exportBtn" type="button">Export</button>
+          <input id="importFile" type="file" accept="application/json" hidden>
+          <button id="importBtn" type="button">Import</button>
+          <button id="resetBtn" type="button">Reset</button>
         </div>
-
-        <button id="expandAll" type="button">Expand All</button>
-        <button id="collapseAll" type="button">Collapse All</button>
-        <button id="exportBtn" type="button">Export</button>
-        <input id="importFile" type="file" accept="application/json" hidden>
-        <button id="importBtn" type="button">Import</button>
-        <button id="resetBtn" type="button">Reset</button>
       </div>
-    </div>
 
-    <!-- Weighted -->
-    <div class="progress">
-      <div class="label">
-        <strong><span id="percent">0</span>%</strong> of weighted 100% •
-        <span id="doneCount">0</span>/<span id="totalCount">0</span> items checked
+      <!-- Weighted -->
+      <div class="progress">
+        <div class="label">
+          <strong><span id="percent">0</span>%</strong> of weighted 100% •
+          <span id="doneCount">0</span>/<span id="totalCount">0</span> items checked
+        </div>
+        <div class="bar"><div id="barFill" class="bar-fill"></div></div>
       </div>
-      <div class="bar"><div id="barFill" class="bar-fill"></div></div>
-    </div>
 
-    <!-- Extras -->
-    <div class="progress">
-      <div class="label small">
-        Extras (unweighted): <span id="extrasDone">0</span>/<span id="extrasTotal">0</span> items completed
+      <!-- Extras -->
+      <div class="progress">
+        <div class="label small">
+          Extras (unweighted): <span id="extrasDone">0</span>/<span id="extrasTotal">0</span> items completed
+        </div>
+        <div class="bar"><div id="barFillExtras" class="bar-fill" style="background:linear-gradient(90deg,var(--extra1),var(--extra2))"></div></div>
       </div>
-      <div class="bar"><div id="barFillExtras" class="bar-fill" style="background:linear-gradient(90deg,var(--extra1),var(--extra2))"></div></div>
-    </div>
 
-    <div id="board" class="board" aria-live="polite"></div>
+      <div id="board" class="board" aria-live="polite"></div>
 
-    <div class="footer">
-      <small>Progress is stored locally in your browser (localStorage). No data leaves your device.</small>
+      <div class="footer">
+        <small>Progress is stored locally in your browser (localStorage). No data leaves your device.</small>
+      </div>
     </div>
   </div>
 
 <script>
 /* ------ JavaScript (full data + bosses + extras) ------ */
 (function() {
-  const STORAGE_KEY = "silksong-checklist-v17";
+  const STORAGE_KEY = "silksong-checklist-v18";
   const HJ_KEY = "hj-count";
   const HJ_TOTAL = 237;
 
-  function ACT_LABEL(a) { return (a || a === 0) ? `Act ${a}` : "Act Unknown"; }
+  function ACT_LABEL(a) { return (a || a === 0) ? \`Act \${a}\` : "Act Unknown"; }
 
   /* ===== DATA ===== */
   const DATA = [
-    /* Needle upgrades (tied to Pale Oil/Pinmaster) */
+    /* Needle upgrades (with your descriptions + MapGenie link) */
     { type:"main", name:"Needle Upgrades — 4%", items:[
       {id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1,
-       loc:"Speak to Pinmaster Plinney after defeating Widow Bellhart.",
+       loc:"Speak to Plinney after defeating Widow.",
        url:"https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480827"},
       {id:"needle_shining", name:"Shining Needle", weight:1, act:2,
-       loc:"Complete the Pinmaster's Oil Wish, then return to Plinney to sharpen the needle further.",
+       loc:"Complete the Pinmaster's Oil Wish.",
        url:"https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480827"},
       {id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:2,
-       loc:"Complete the ‘Great Taste of Pharloom’ Wish and hand over 450 Rosaries to receive this upgrade.",
+       loc:"Complete the Great Taste of Pharloom Wish and hand over 450 Rosaries.",
        url:"https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480827"},
       {id:"needle_pale", name:"Pale Steel Needle", weight:1, act:3,
-       loc:"Complete the ‘Ecstasy of the End’ Wish and hand over 680 Rosaries to Plinney to obtain the final upgrade.",
+       loc:"Complete the Ecstasy of the End Wish and hand over 680 Rosaries.",
        url:"https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=480827"}
     ]},
 
@@ -341,9 +321,9 @@
         1: "Bone Bottom — buy from Pebb for 300 Rosaries (moves to Grindle in Blasted Steps for 320 if Act 3 starts).",
         2: "Lower Wormways via Mosshome — behind breakable wall before a Simple Key door.",
         3: "Between The Marrow and Deep Docks (enter from The Marrow); Cling Grip recommended.",
-        4: "Far Fields — above the Seamstress’s home (needs Drifter’s Cloak).",
+        4: "Far Fields — above the Seamstress’s home (requires Drifter’s Cloak).",
         5: "Shellwood — center; end of platforming behind breakable wall.",
-        6: "Weavenest Atla (east) — behind breakable wall; Cling Grip.",
+        6: "Weavenest Atla (east) — behind a breakable wall; Cling Grip.",
         7: "Cogwork Core — route from lower bench to exterior tall room in Choral Chambers.",
         8: "Songclave, Choral Chambers — buy after Wandering Merchant quest.",
         9: "Whispering Vaults — corridor below bench; lift a hidden block mid-way.",
@@ -363,7 +343,7 @@
       for (let k = 0; k < 20; k++) {
         const n = k+1;
         const act = (n <=6) ? 1 : (n <=16 ? 2 : 3);
-        arr.push({ id:`maskShard_${n}`, name:`Mask Shard ${n}`, weight:0.25, act, loc: LOC[n] });
+        arr.push({ id:\`maskShard_\${n}\`, name:\`Mask Shard \${n}\`, weight:0.25, act, loc: LOC[n] });
       }
       return arr;
     })() },
@@ -394,7 +374,7 @@
       for (let k = 0; k < 18; k++) {
         const n = k+1;
         const act = (n <=6) ? 1 : 2;
-        arr.push({ id:`spoolFrag_${n}`, name:`Spool Fragment ${n}`, weight:0.5, act, loc: LOC[n] });
+        arr.push({ id:\`spoolFrag_\${n}\`, name:\`Spool Fragment \${n}\`, weight:0.5, act, loc: LOC[n] });
       }
       return arr;
     })() },
@@ -404,23 +384,23 @@
       {id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1,
        loc:"Deep Docks — buy from the Forge Daughter after opening her shop."},
       {id:"kit_2", name:"Crafting Kit Expansion II", weight:1, act:1,
-       loc:"Reward for completing the Crawbug Clearing Wish "},
+       loc:"Deep Docks — second stock from the Forge Daughter after story progress."},
       {id:"kit_3", name:"Crafting Kit Expansion III", weight:1, act:2,
-       loc:"Bought from Twelfth Architect in Underworks for  450 | Requires Clawline."},
+       loc:"Underworks/Choral area vendor (Act 2) — appears after progressing Citadel path."},
       {id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2,
-       loc:"Bought from Grindle in Blasted Steps for  700 | Requires Faydown Cloak."}
+       loc:"Blasted Steps side-path vendor (Act 2) — up/left from Bell Beast station."}
     ]},
 
     /* Tool Pouch Upgrades — capacity vendors */
     { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
       {id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1,
-       loc:"Bought from Mort in Far Fields for  220 (Act 1/2) / Bought from Grindle in Blasted Steps for  220 (Act 3) "},
+       loc:"Far Fields — buy from Mort in Pilgrim’s Rest for ~220 Rosaries (after Drifter’s Cloak)."},
       {id:"pouch_2", name:"Tool Pouch Expansion II", weight:1, act:1,
-       loc:"Received from Loddie in the The Marrow for beating his first challenge (Act 1/2) / Found in Loddie's former location, on a table (Act 3)"},
+       loc:"Bellhart vendor — available after freeing Bellhart / early Act 2 transition."},
       {id:"pouch_3", name:"Tool Pouch Expansion III", weight:1, act:2,
-       loc:"Complete Nuu's Wish: Bugs of Pharloom"},
+       loc:"Choral Chambers — Jubilana’s shop stock (Act 2)."},
       {id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2,
-       loc:"Reward from Mooshka after helping the Flea Caravan move to Putrified Ducts"}
+       loc:"Underworks (Ventrica) — late Act 2 shop stock."}
     ]},
 
     /* Crests — chapels & quests */
@@ -430,19 +410,19 @@
       {id:"crest_wanderer", name:"Wanderer", weight:1, act:1,
        loc:"Bonegrave/Moss Grotto — Chapel of the Wanderer."},
       {id:"crest_beast", name:"Beast", weight:1, act:1,
-       loc:"Hunter’s March — Chapel of the Beast in Hunters March"},
+       loc:"Hunter’s March — Chapel of the Beast southeast of the area."},
       {id:"crest_witch", name:"Witch", weight:1, act:2,
        loc:"Complete “Rite of Rebirth” then “Infestation Operation,” return to Chapel of the Witch."},
       {id:"crest_architect", name:"Architect", weight:1, act:2,
-       loc:"Buy from Twelfth Architect in Underworks"},
+       loc:"Citadel route/Choral — puzzle/quest line tied to tool crafting rooms."},
       {id:"crest_shaman", name:"Shaman", weight:1, act:3,
-       loc:"The Shaman Crest can be obtained from the Ruined Chapel in Moss Grotto, requiring the Silk Soar ability to reach."}
+       loc:"Act 3 — late Choral/Cradle path; reward for ranged/silk-skill trials."}
     ]},
 
     /* Silk Skills — statues & bosses */
     { type:"main", name:"Silk Skills — 6%", items:[
       {id:"skill_silkspear", name:"Silkspear", weight:1, act:1,
-       loc:"Mosshome — early statue (top of Mosshome from Bone Bottom path)."},
+       loc:"Greymoor/Mosshome — early statue (top of Mosshome from Bone Bottom path)."},
       {id:"skill_threadstorm", name:"Thread Storm", weight:1, act:1,
        loc:"Greymoor — early unlock via statue/quest; strong AoE spinner."},
       {id:"skill_sharpdart", name:"Sharpdart", weight:1, act:1,
@@ -478,6 +458,7 @@
        loc:"Moss Grotto — vendor stock after opening Weavenest power."},
       {id:"tool_fleabrew",     name:"Flea Brew",      weight:1, act:1, color:"red",
        loc:"Greymoor — Flea festival vendor (Act 1 stock)."},
+
       /* RED — Act 2 */
       {id:"tool_silkshot",     name:"Silkshot",       weight:1, act:2, color:"red",
        loc:"Bilewater lower-right — cocoon door; play Needolin to reach Weavenest Murglin and repair the tool."},
@@ -591,70 +572,106 @@
        loc:"Moss Grotto — reward after completing ‘Old Hearts’ Wish chain in Act 3."}
     ]},
 
-    /* ================== EXTRAS (unchanged structure; still trackable) ================== */
+    /* ================== EXTRAS ================== */
+
+    /* Bosses: named & split by Act (locations/notes in loc) */
     { type:"extra", name:"Boss Fights", items:[
+      /* ---- Act 1 — Mandatory ---- */
       {id:"boss_moss_mother",      name:"Moss Mother",            act:1, loc:"Moss Grotto"},
       {id:"boss_bell_beast",       name:"Bell Beast",             act:1, loc:"The Marrow • unlocks Bellways + Silk Heart"},
       {id:"boss_lace_a1",          name:"Lace",                   act:1, loc:"Deep Docks (after Swift Step)"},
       {id:"boss_fourth_chorus",    name:"Fourth Chorus",          act:1, loc:"Far Fields (after Drifter’s Cloak)"},
-      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood"},
+      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood • access to Weaver statue (with Cling Grip)"},
       {id:"boss_widow_bellhart",   name:"Widow Bellhart",         act:1, loc:"—"},
       {id:"boss_last_judge",       name:"Last Judge",             act:1, loc:"Blasted Steps • Gate to Citadel / Act 2"},
 
+      /* ---- Act 1 — Optional ---- */
       {id:"boss_moorwing",         name:"Moorwing",               act:1, loc:"Greymoor (south-west)"},
       {id:"boss_savage_beastfly_a1",name:"Savage Beastfly",       act:1, loc:"Hunter’s March, Chapel of the Beast • Beast Crest"},
       {id:"boss_skull_tyrant",     name:"Skull Tyrant",           act:1, loc:"The Marrow • via ‘Terrible Tyrant’ Wish"},
       {id:"boss_moss_mother_duo",  name:"Moss Mother Duo",        act:1, loc:"Weavenest Atla • west of bench • Weavelight Tool"},
       {id:"boss_great_conchflies", name:"Great Conchflies",       act:1, loc:"Blasted Steps • path to Citadel/Sands"},
-      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via The Mist) • Cross Stitch"},
+      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via Sinner’s Road/The Mist) • Cross Stitch"},
       {id:"boss_craggler",         name:"Craggler",               act:1, loc:"The Marrow"},
       {id:"boss_skarrgard",        name:"Skarrgard",              act:1, loc:"Hunter’s March"},
       {id:"boss_disgraced_chef_lugoli", name:"Disgraced Chef Lugoli", act:1, loc:"Sinner’s Road"},
 
-      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song"},
+      /* ---- Act 2 — Mandatory ---- */
+      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song quest"},
       {id:"boss_lace_rematch",     name:"Lace (rematch)",         act:2, loc:"The Cradle • Silk Heart"},
       {id:"boss_grand_mother_silk",name:"Grand Mother Silk",      act:2, loc:"The Cradle"},
 
-      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage"},
+      /* ---- Act 2 — Optional ---- */
+      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage • Claw Mirror, Psalm Scroll"},
       {id:"boss_savage_beastfly_a2",name:"Savage Beastfly (rematch)",act:2, loc:"Far Fields • Mask Shard"},
       {id:"boss_groal_the_great",  name:"Groal the Great",        act:2, loc:"Bilewater • access Seeker’s Soul"},
       {id:"boss_broodmother",      name:"Broodmother",            act:2, loc:"The Slab • ‘Wailing Mother’ Wish"},
       {id:"boss_disgraced_chef_lugosi", name:"Disgraced Chef Lugosi", act:2, loc:"Sinner’s Road (Double Jump)"},
-      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door"},
-      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower"},
-      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket"},
-      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • ‘Final Audience’"},
-      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room"},
-      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • ‘Trail’s End’ Wish"},
-      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key"},
-      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate"},
-      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak"},
-      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook"},
+      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door • shortcut to Forge Daughter"},
+      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower • Conchcutter"},
+      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket • Wispfire Lantern"},
+      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • end of ‘Final Audience’ • Reserve Bind"},
+      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room below Songclave"},
+      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • after ‘Trail’s End’ Wish"},
+      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key • Silk Heart"},
+      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate • Rune Rage"},
+      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak • Volt Filament"},
+      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook • Grey Memento"},
 
+      /* ---- Act 3 — Mandatory ---- */
       {id:"boss_shrine_guardian_seth", name:"Shrine Guardian Seth", act:3, loc:"Grand Gate (west passage)"},
-      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep"},
-      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak"},
-      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path"},
+      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep • Pollen Heart"},
+      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak • Elegy of the Deep • Encrusted Heart"},
+      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path • Hunter’s Heart"},
       {id:"boss_lost_lace",        name:"Lost Lace",              act:3, loc:"The Abyss • after Old Hearts + Everbloom"},
 
-      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow"},
-      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor"},
-      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps"},
+      /* ---- Act 3 — Optional ---- */
+      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow • unlocks Beastling Call"},
+      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor • Craw Memento"},
+      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps • Hero’s Memento"},
       {id:"boss_plasmified_zango", name:"Plasmified Zango",       act:3, loc:"Wormways"},
-      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage"},
-      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay"},
+      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage • Dark Mirror"},
+      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay • Pin Badge"},
       {id:"boss_summoned_savior",  name:"Summoned Savior",        act:3, loc:"Moss Grotto (Steel Mode)"},
       {id:"boss_palestag",         name:"Palestag",               act:3, loc:"Verdania"},
-      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania"},
-      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • near Memory Locket"},
+      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania • Conjoined Heart"},
+      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • secret next to Memory Locket"},
     ]},
 
-    /* Wishes, Materium, Journal, Keys, Relics, etc. left as extras */
-    { type:"extra", name:"Wishes", items:(()=>{const a=[];for(let i=1;i<=73;i++) a.push({id:`wish_${i}`, name:`Wish ${i}`, act:null}); return a;})() },
+    /* Wishes (73) */
+    { type:"extra", name:"Wishes", items:(()=> {
+      const a=[]; for(let i=1;i<=73;i++) a.push({id:\`wish_\${i}\`, name:\`Wish \${i}\`, act:null}); return a;
+    })() },
+
+    /* The Materium — placeholder */
     { type:"extra", name:"The Materium", items:[ {id:"materium_placeholder1", name:"Materium Entry — TBD", act:null} ]},
-    { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:`${HJ_TOTAL} entries (use the counter below)`, act:null, condensed:true} ]},
-    { type:"extra", name:"Keys", items:(()=>{const items=[];for(let i=1;i<=4;i++) items.push({id:`key_simple_${i}`, name:`Simple Key ${i}`, act:null, group:"Simple Keys"});for(let i=1;i<=3;i++) items.push({id:`key_slab_${i}`, name:`Slab Key ${i}`, act:null, group:"Slab Keys"});for(let i=1;i<=4;i++) items.push({id:`key_misc_${i}`, name:`Misc Key ${i}`, act:null, group:"Misc Keys"});return items;})() },
-    { type:"extra", name:"Relics", items:(()=>{const add=(arr,c,base,group)=>{for(let i=1;i<=c;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group});};const out=[];add(out,6,"Cylinder","Cylinders");add(out,4,"Choral Commandment","Choral Commandments");add(out,3,"Weaver Effigy","Weaver Effigy");add(out,4,"Bone Scroll","Bone Scroll");add(out,3,"Rune Harp","Rune Harp");add(out,1,"Arcane Egg","Arcane Egg");return out;})() },
+
+    /* Hunter Journal — condensed counter (no 237 checkboxes) */
+    { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:\`\${HJ_TOTAL} entries (use the counter below)\`, act:null, condensed:true} ]},
+
+    /* Keys (grouped) */
+    { type:"extra", name:"Keys", items:(()=> {
+      const items=[];
+      for(let i=1;i<=4;i++) items.push({id:\`key_simple_\${i}\`, name:\`Simple Key \${i}\`, act:null, group:"Simple Keys"});
+      for(let i=1;i<=3;i++) items.push({id:\`key_slab_\${i}\`, name:\`Slab Key \${i}\`, act:null, group:"Slab Keys"});
+      for(let i=1;i<=4;i++) items.push({id:\`key_misc_\${i}\`, name:\`Misc Key \${i}\`, act:null, group:"Misc Keys"});
+      return items;
+    })() },
+
+    /* Relics (grouped) */
+    { type:"extra", name:"Relics", items:(()=> {
+      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:\`relic_\${base.toLowerCase().replace(/\\s+/g,'_')}_\${i}\`, name:\`\${base} \${i}\`, act:null, group}); };
+      const out=[];
+      add(out,6,"Cylinder","Cylinders");
+      add(out,4,"Choral Commandment","Choral Commandments");
+      add(out,3,"Weaver Effigy","Weaver Effigy");
+      add(out,4,"Bone Scroll","Bone Scroll");
+      add(out,3,"Rune Harp","Rune Harp");
+      add(out,1,"Arcane Egg","Arcane Egg");
+      return out;
+    })() },
+
+    /* Mementos — all Act 3 */
     { type:"extra", name:"Mementos", items:[
       {id:"mem_hunter", name:"Hunter’s Memento", act:3},
       {id:"mem_grey", name:"Grey Memento", act:3},
@@ -668,20 +685,40 @@
       {id:"mem_huntersheart", name:"Hunter’s Heart", act:3},
       {id:"mem_conjoinedheart", name:"Conjoined Heart", act:3},
     ]},
-    { type:"extra", name:"Memory Lockets", items:(()=>{const a=[];for(let i=1;i<=20;i++) a.push({id:`locket_${i}`, name:`Memory Locket ${i}`, act:null}); return a;})() },
-    { type:"extra", name:"Fleas", items:(()=>{const a=[];for(let i=1;i<=30;i++) a.push({id:`flea_${i}`, name:`Flea ${i}`, act:null}); return a;})() },
-    { type:"extra", name:"Pail Oil", items:[ {id:"oil_1", name:"Pail Oil 1", act:null},{id:"oil_2", name:"Pail Oil 2", act:null},{id:"oil_3", name:"Pail Oil 3", act:null} ]},
-    { type:"extra", name:"Craft Metal", items:(()=>{const a=[];for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;})() }
+
+    /* Memory Lockets — 20 */
+    { type:"extra", name:"Memory Lockets", items:(()=> {
+      const a=[]; for(let i=1;i<=20;i++) a.push({id:\`locket_\${i}\`, name:\`Memory Locket \${i}\`, act:null}); return a;
+    })() },
+
+    /* Fleas — 30 */
+    { type:"extra", name:"Fleas", items:(()=> {
+      const a=[]; for(let i=1;i<=30;i++) a.push({id:\`flea_\${i}\`, name:\`Flea \${i}\`, act:null}); return a;
+    })() },
+
+    /* Pail Oil — 3 */
+    { type:"extra", name:"Pail Oil", items:[ 
+      {id:"oil_1", name:"Pail Oil 1", act:null},
+      {id:"oil_2", name:"Pail Oil 2", act:null},
+      {id:"oil_3", name:"Pail Oil 3", act:null},
+    ]},
+
+    /* Craft Metal — 8 */
+    { type:"extra", name:"Craft Metal", items:(()=> {
+      const a=[]; for(let i=1;i<=8;i++) a.push({id:\`metal_\${i}\`, name:\`Craft Metal \${i}\`, act:null}); return a;
+    })() }
   ];
 
-  /* ===== Order indices for stable sort ===== */
+  /* ===== Order indices for stable sort (your acquisition order) ===== */
   const categoryIndex = new Map();
   const itemIndex = new Map();
   (function buildOrder() {
     let c = 0, i = 0;
     for (const cat of DATA) {
       if (!categoryIndex.has(cat.name)) categoryIndex.set(cat.name, c++);
-      for (const it of cat.items) itemIndex.set(it.id, i++);
+      for (const it of cat.items) {
+        itemIndex.set(it.id, i++);
+      }
     }
   })();
 
@@ -789,22 +826,22 @@
         const wrap = document.createElement("div");
         wrap.className = "item";
         const label = document.createElement("div");
-        label.textContent = `Hunter Journal progress: `;
+        label.textContent = \`Hunter Journal progress: \`;
         const meta = document.createElement("div"); meta.className="meta";
 
-        const count = document.createElement("span"); count.className="pill"; count.id="hjCount"; count.textContent = `${hjCount}/${HJ_TOTAL}`;
+        const count = document.createElement("span"); count.className="pill"; count.id="hjCount"; count.textContent = \`\${hjCount}/\${HJ_TOTAL}\`;
         const minus = document.createElement("button"); minus.type="button"; minus.className="smallbtn"; minus.textContent = "–";
         const plus = document.createElement("button"); plus.type="button"; plus.className="smallbtn"; plus.textContent = "+";
         const reset = document.createElement("button"); reset.type="button"; reset.className="smallbtn"; reset.textContent = "Reset";
 
         function updateHJ(delta){
           hjCount = Math.max(0, Math.min(HJ_TOTAL, hjCount + delta));
-          document.getElementById("hjCount").textContent = `${hjCount}/${HJ_TOTAL}`;
+          document.getElementById("hjCount").textContent = \`\${hjCount}/\${HJ_TOTAL}\`;
           persist(); updateTotals();
         }
         minus.addEventListener("click", ()=>updateHJ(-1));
         plus.addEventListener("click", ()=>updateHJ(+1));
-        reset.addEventListener("click", ()=>{ hjCount=0; document.getElementById("hjCount").textContent = `${hjCount}/${HJ_TOTAL}`; persist(); updateTotals(); });
+        reset.addEventListener("click", ()=>{ hjCount=0; document.getElementById("hjCount").textContent = \`\${hjCount}/\${HJ_TOTAL}\`; persist(); updateTotals(); });
 
         meta.append(count, minus, plus, reset);
         wrap.append(label, meta);
@@ -840,13 +877,13 @@
 
       const meta = document.createElement("div"); meta.className = "meta";
       if (it.weight != null) {
-        const w = document.createElement("span"); w.className = "pill"; w.textContent = `${it.weight}%`;
+        const w = document.createElement("span"); w.className = "pill"; w.textContent = \`\${it.weight}%\`;
         meta.appendChild(w);
       }
       const a = document.createElement("span"); a.className = "pill"; a.textContent = ACT_LABEL(it.act);
       meta.appendChild(a);
       if (it.color) {
-        const c = document.createElement("span"); c.className = `pill color ${it.color}`; c.textContent = it.color.charAt(0).toUpperCase() + it.color.slice(1);
+        const c = document.createElement("span"); c.className = \`pill color \${it.color}\`; c.textContent = it.color.charAt(0).toUpperCase() + it.color.slice(1);
         meta.appendChild(c);
       }
       const locBtn = document.createElement("button"); locBtn.type = "button"; locBtn.className = "locbtn"; locBtn.textContent = "📍 Location";
@@ -857,7 +894,7 @@
       const ornTop = document.createElement("div"); ornTop.className = "orn top";
       const ornBottom = document.createElement("div"); ornBottom.className = "orn bottom";
       const body = document.createElement("div");
-      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url ? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
+      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url ? \` — <a target="_blank" rel="noopener" href="\${it.url}">Open</a>\` : "");
       details.append(ornTop, body, ornBottom);
 
       function toggleDetails() { details.classList.toggle("open"); }
@@ -878,7 +915,7 @@
 
   function updateCatCount(el, items){
     const done = items.filter(i => !i.condensed && checked.has(i.id)).length; // condensed not counted per-item
-    el.textContent = `${done}/${items.filter(i=>!i.condensed).length}`;
+    el.textContent = \`\${done}/\${items.filter(i=>!i.condensed).length}\`;
   }
 
   function groupBy(list, key) {
@@ -894,7 +931,7 @@
   function render(){
     board.innerHTML = "";
     const items = flatItems();
-    totalBadge.textContent = `${items.length} items`;
+    totalBadge.textContent = \`\${items.length} items\`;
 
     const term = (searchEl.value || "").trim().toLowerCase();
     const actFilter = actFilterEl.value;
@@ -921,7 +958,7 @@
         return Number(a) - Number(b);
       });
       for (const k of keys) {
-        const title = k === "Unknown" ? "Act Unknown" : `Act ${k}`;
+        const title = k === "Unknown" ? "Act Unknown" : \`Act \${k}\`;
         board.appendChild(sectionTitle(title));
         const byCat = groupBy(byAct[k], "category");
         Object.keys(byCat)
@@ -960,7 +997,7 @@
     const count = document.createElement("div"); count.className = "cat-count";
     const selectAll = document.createElement("button"); selectAll.type="button"; selectAll.className="smallbtn"; selectAll.textContent="✓ All";
     const deselectAll = document.createElement("button"); deselectAll.type="button"; deselectAll.className="smallbtn"; deselectAll.textContent="✗ None";
-    const toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent = "–";
+    const toggle = document.createElement("button"); toggle.type="button"; toggle.className = "smallbtn"; toggle.textContent = "–";
     right.append(pill, count, selectAll, deselectAll, toggle);
     head.append(h2, right);
 
@@ -1005,14 +1042,14 @@
   }
 
   /* Controls */
-  expandAllBtn.addEventListener("click", () => {
+  document.getElementById("expandAll").addEventListener("click", () => {
     document.querySelectorAll(".cat-items").forEach(el => {
       el.classList.remove("hidden");
       const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
       if (btn) btn.textContent = "–";
     });
   });
-  collapseAllBtn.addEventListener("click", () => {
+  document.getElementById("collapseAll").addEventListener("click", () => {
     document.querySelectorAll(".cat-items").forEach(el => {
       el.classList.add("hidden");
       const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
@@ -1020,8 +1057,8 @@
     });
   });
 
-  exportBtn.addEventListener("click", () => {
-    const payload = { version: 17, checked: Array.from(checked), hjCount };
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const payload = { version: 18, checked: Array.from(checked), hjCount };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1029,8 +1066,8 @@
     URL.revokeObjectURL(url);
   });
 
-  importBtn.addEventListener("click", () => importFile.click());
-  importFile.addEventListener("change", e => {
+  document.getElementById("importBtn").addEventListener("click", () => importFile.click());
+  document.getElementById("importFile").addEventListener("change", e => {
     const f = e.target.files[0];
     if (!f) return;
     const reader = new FileReader();
@@ -1051,7 +1088,7 @@
     reader.readAsText(f);
   });
 
-  resetBtn.addEventListener("click", () => {
+  document.getElementById("resetBtn").addEventListener("click", () => {
     if (!confirm("Reset all progress?")) return;
     checked.clear();
     hjCount = 0;
@@ -1059,26 +1096,27 @@
     render();
   });
 
-  groupBtn.addEventListener("click", function(){
+  document.getElementById("groupByAct").addEventListener("click", function(){
     groupByAct = !groupByAct;
-    this.textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
+    this.textContent = \`Group by Act: \${groupByAct ? "On" : "Off"}\`;
     render();
   });
 
   function setFilter(next){
     filterType = next;
-    [filterAllBtn, filterMainBtn, filterExtraBtn].forEach(b=>b.classList.remove("active"));
-    if(next==="all")  filterAllBtn.classList.add("active");
-    if(next==="main") filterMainBtn.classList.add("active");
-    if(next==="extra")filterExtraBtn.classList.add("active");
+    const btns=[document.getElementById("filterAll"),document.getElementById("filterMain"),document.getElementById("filterExtra")];
+    btns.forEach(b=>b.classList.remove("active"));
+    if(next==="all")  document.getElementById("filterAll").classList.add("active");
+    if(next==="main") document.getElementById("filterMain").classList.add("active");
+    if(next==="extra")document.getElementById("filterExtra").classList.add("active");
     render();
   }
-  filterAllBtn.addEventListener("click",  ()=>setFilter("all"));
-  filterMainBtn.addEventListener("click", ()=>setFilter("main"));
-  filterExtraBtn.addEventListener("click",()=>setFilter("extra"));
+  document.getElementById("filterAll").addEventListener("click",  ()=>setFilter("all"));
+  document.getElementById("filterMain").addEventListener("click", ()=>setFilter("main"));
+  document.getElementById("filterExtra").addEventListener("click",()=>setFilter("extra"));
 
-  searchEl.addEventListener("input", render);
-  actFilterEl.addEventListener("change", render);
+  document.getElementById("search").addEventListener("input", render);
+  document.getElementById("actFilter").addEventListener("change", render);
 
   function updateTotals() {
     const items = flatItems();
