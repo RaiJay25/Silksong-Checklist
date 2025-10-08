@@ -42,7 +42,7 @@
     --yellow:#ffe39a;
 
     /* Images (files are in repo ROOT) */
-    --bg-image:   url("./Screenshot_SS_Moss_Grotto_01.png?v=2"); /* bump cache */
+    --bg-image:   url("./Screenshot_SS_Moss_Grotto_01.png?v=3");
     --orn-top:    url("./375px-SS_NPC_Dialogue_Top.png?v=1");
     --orn-bottom: url("./300px-SS_NPC_Dialogue_Bottom.png?v=1");
 
@@ -291,11 +291,11 @@
 <script>
 /* ------ JavaScript (full data + bosses + extras) ------ */
 (function() {
-  const STORAGE_KEY = "silksong-checklist-v18";
+  const STORAGE_KEY = "silksong-checklist-v19";
   const HJ_KEY = "hj-count";
   const HJ_TOTAL = 237;
 
-  function ACT_LABEL(a) { return (a || a === 0) ? \`Act \${a}\` : "Act Unknown"; }
+  function ACT_LABEL(a) { return (a || a === 0) ? `Act ${a}` : "Act Unknown"; }
 
   /* ===== DATA ===== */
   const DATA = [
@@ -343,7 +343,7 @@
       for (let k = 0; k < 20; k++) {
         const n = k+1;
         const act = (n <=6) ? 1 : (n <=16 ? 2 : 3);
-        arr.push({ id:\`maskShard_\${n}\`, name:\`Mask Shard \${n}\`, weight:0.25, act, loc: LOC[n] });
+        arr.push({ id:`maskShard_${n}`, name:`Mask Shard ${n}`, weight:0.25, act, loc: LOC[n] });
       }
       return arr;
     })() },
@@ -374,7 +374,7 @@
       for (let k = 0; k < 18; k++) {
         const n = k+1;
         const act = (n <=6) ? 1 : 2;
-        arr.push({ id:\`spoolFrag_\${n}\`, name:\`Spool Fragment \${n}\`, weight:0.5, act, loc: LOC[n] });
+        arr.push({ id:`spoolFrag_${n}`, name:`Spool Fragment ${n}`, weight:0.5, act, loc: LOC[n] });
       }
       return arr;
     })() },
@@ -458,7 +458,6 @@
        loc:"Moss Grotto — vendor stock after opening Weavenest power."},
       {id:"tool_fleabrew",     name:"Flea Brew",      weight:1, act:1, color:"red",
        loc:"Greymoor — Flea festival vendor (Act 1 stock)."},
-
       /* RED — Act 2 */
       {id:"tool_silkshot",     name:"Silkshot",       weight:1, act:2, color:"red",
        loc:"Bilewater lower-right — cocoon door; play Needolin to reach Weavenest Murglin and repair the tool."},
@@ -479,7 +478,7 @@
 
       /* BLUE — Act 1 */
       {id:"tool_druidseye",    name:"Druid’s Eye / Druid’s Eyes", weight:1, act:1, color:"blue",
-       loc:"Mosshome — complete ‘Berry Picking’ for the Moss Druid (extra berries further empower it)."},
+       loc:"Mosshome — complete ‘Berry Picking’ for the Moss Druid."},
       {id:"tool_magmbell",     name:"Magma Bell",          weight:1, act:1, color:"blue",
        loc:"Wisp Thicket — heat shrine chest after flame trial."},
       {id:"tool_wardingbell",  name:"Warding Bell",        weight:1, act:1, color:"blue",
@@ -527,7 +526,7 @@
 
       /* YELLOW — Act 1 */
       {id:"tool_compass",      name:"Compass",             weight:1, act:1, color:"yellow",
-       loc:"The Marrow — buy from Shakra, the map vendor (she relocates as you progress)."},
+       loc:"The Marrow — buy from Shakra, the map vendor."},
       {id:"tool_shardpendant", name:"Shard Pendant",       weight:1, act:1, color:"yellow",
        loc:"The Marrow — small side room left of the central shaft (mid)."},
       {id:"tool_magnetite_brooch", name:"Magnetite Brooch", weight:1, act:1, color:"yellow",
@@ -573,105 +572,69 @@
     ]},
 
     /* ================== EXTRAS ================== */
-
-    /* Bosses: named & split by Act (locations/notes in loc) */
     { type:"extra", name:"Boss Fights", items:[
-      /* ---- Act 1 — Mandatory ---- */
       {id:"boss_moss_mother",      name:"Moss Mother",            act:1, loc:"Moss Grotto"},
       {id:"boss_bell_beast",       name:"Bell Beast",             act:1, loc:"The Marrow • unlocks Bellways + Silk Heart"},
       {id:"boss_lace_a1",          name:"Lace",                   act:1, loc:"Deep Docks (after Swift Step)"},
       {id:"boss_fourth_chorus",    name:"Fourth Chorus",          act:1, loc:"Far Fields (after Drifter’s Cloak)"},
-      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood • access to Weaver statue (with Cling Grip)"},
+      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood"},
       {id:"boss_widow_bellhart",   name:"Widow Bellhart",         act:1, loc:"—"},
       {id:"boss_last_judge",       name:"Last Judge",             act:1, loc:"Blasted Steps • Gate to Citadel / Act 2"},
 
-      /* ---- Act 1 — Optional ---- */
       {id:"boss_moorwing",         name:"Moorwing",               act:1, loc:"Greymoor (south-west)"},
       {id:"boss_savage_beastfly_a1",name:"Savage Beastfly",       act:1, loc:"Hunter’s March, Chapel of the Beast • Beast Crest"},
       {id:"boss_skull_tyrant",     name:"Skull Tyrant",           act:1, loc:"The Marrow • via ‘Terrible Tyrant’ Wish"},
       {id:"boss_moss_mother_duo",  name:"Moss Mother Duo",        act:1, loc:"Weavenest Atla • west of bench • Weavelight Tool"},
       {id:"boss_great_conchflies", name:"Great Conchflies",       act:1, loc:"Blasted Steps • path to Citadel/Sands"},
-      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via Sinner’s Road/The Mist) • Cross Stitch"},
+      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via The Mist) • Cross Stitch"},
       {id:"boss_craggler",         name:"Craggler",               act:1, loc:"The Marrow"},
       {id:"boss_skarrgard",        name:"Skarrgard",              act:1, loc:"Hunter’s March"},
       {id:"boss_disgraced_chef_lugoli", name:"Disgraced Chef Lugoli", act:1, loc:"Sinner’s Road"},
 
-      /* ---- Act 2 — Mandatory ---- */
-      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song quest"},
+      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song"},
       {id:"boss_lace_rematch",     name:"Lace (rematch)",         act:2, loc:"The Cradle • Silk Heart"},
       {id:"boss_grand_mother_silk",name:"Grand Mother Silk",      act:2, loc:"The Cradle"},
 
-      /* ---- Act 2 — Optional ---- */
-      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage • Claw Mirror, Psalm Scroll"},
+      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage"},
       {id:"boss_savage_beastfly_a2",name:"Savage Beastfly (rematch)",act:2, loc:"Far Fields • Mask Shard"},
       {id:"boss_groal_the_great",  name:"Groal the Great",        act:2, loc:"Bilewater • access Seeker’s Soul"},
       {id:"boss_broodmother",      name:"Broodmother",            act:2, loc:"The Slab • ‘Wailing Mother’ Wish"},
       {id:"boss_disgraced_chef_lugosi", name:"Disgraced Chef Lugosi", act:2, loc:"Sinner’s Road (Double Jump)"},
-      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door • shortcut to Forge Daughter"},
-      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower • Conchcutter"},
-      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket • Wispfire Lantern"},
-      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • end of ‘Final Audience’ • Reserve Bind"},
-      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room below Songclave"},
-      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • after ‘Trail’s End’ Wish"},
-      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key • Silk Heart"},
-      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate • Rune Rage"},
-      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak • Volt Filament"},
-      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook • Grey Memento"},
+      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door"},
+      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower"},
+      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket"},
+      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • ‘Final Audience’"},
+      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room"},
+      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • ‘Trail’s End’ Wish"},
+      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key"},
+      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate"},
+      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak"},
+      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook"},
 
-      /* ---- Act 3 — Mandatory ---- */
       {id:"boss_shrine_guardian_seth", name:"Shrine Guardian Seth", act:3, loc:"Grand Gate (west passage)"},
-      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep • Pollen Heart"},
-      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak • Elegy of the Deep • Encrusted Heart"},
-      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path • Hunter’s Heart"},
+      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep"},
+      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak"},
+      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path"},
       {id:"boss_lost_lace",        name:"Lost Lace",              act:3, loc:"The Abyss • after Old Hearts + Everbloom"},
 
-      /* ---- Act 3 — Optional ---- */
-      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow • unlocks Beastling Call"},
-      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor • Craw Memento"},
-      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps • Hero’s Memento"},
+      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow"},
+      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor"},
+      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps"},
       {id:"boss_plasmified_zango", name:"Plasmified Zango",       act:3, loc:"Wormways"},
-      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage • Dark Mirror"},
-      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay • Pin Badge"},
+      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage"},
+      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay"},
       {id:"boss_summoned_savior",  name:"Summoned Savior",        act:3, loc:"Moss Grotto (Steel Mode)"},
       {id:"boss_palestag",         name:"Palestag",               act:3, loc:"Verdania"},
-      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania • Conjoined Heart"},
-      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • secret next to Memory Locket"},
+      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania"},
+      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • near Memory Locket"},
     ]},
 
-    /* Wishes (73) */
-    { type:"extra", name:"Wishes", items:(()=> {
-      const a=[]; for(let i=1;i<=73;i++) a.push({id:\`wish_\${i}\`, name:\`Wish \${i}\`, act:null}); return a;
-    })() },
-
-    /* The Materium — placeholder */
+    /* Extras */
+    { type:"extra", name:"Wishes", items:(()=>{const a=[];for(let i=1;i<=73;i++) a.push({id:`wish_${i}`, name:`Wish ${i}`, act:null}); return a;})() },
     { type:"extra", name:"The Materium", items:[ {id:"materium_placeholder1", name:"Materium Entry — TBD", act:null} ]},
-
-    /* Hunter Journal — condensed counter (no 237 checkboxes) */
-    { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:\`\${HJ_TOTAL} entries (use the counter below)\`, act:null, condensed:true} ]},
-
-    /* Keys (grouped) */
-    { type:"extra", name:"Keys", items:(()=> {
-      const items=[];
-      for(let i=1;i<=4;i++) items.push({id:\`key_simple_\${i}\`, name:\`Simple Key \${i}\`, act:null, group:"Simple Keys"});
-      for(let i=1;i<=3;i++) items.push({id:\`key_slab_\${i}\`, name:\`Slab Key \${i}\`, act:null, group:"Slab Keys"});
-      for(let i=1;i<=4;i++) items.push({id:\`key_misc_\${i}\`, name:\`Misc Key \${i}\`, act:null, group:"Misc Keys"});
-      return items;
-    })() },
-
-    /* Relics (grouped) */
-    { type:"extra", name:"Relics", items:(()=> {
-      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:\`relic_\${base.toLowerCase().replace(/\\s+/g,'_')}_\${i}\`, name:\`\${base} \${i}\`, act:null, group}); };
-      const out=[];
-      add(out,6,"Cylinder","Cylinders");
-      add(out,4,"Choral Commandment","Choral Commandments");
-      add(out,3,"Weaver Effigy","Weaver Effigy");
-      add(out,4,"Bone Scroll","Bone Scroll");
-      add(out,3,"Rune Harp","Rune Harp");
-      add(out,1,"Arcane Egg","Arcane Egg");
-      return out;
-    })() },
-
-    /* Mementos — all Act 3 */
+    { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:`${HJ_TOTAL} entries (use the counter below)`, act:null, condensed:true} ]},
+    { type:"extra", name:"Keys", items:(()=>{const items=[];for(let i=1;i<=4;i++) items.push({id:`key_simple_${i}`, name:`Simple Key ${i}`, act:null, group:"Simple Keys"});for(let i=1;i<=3;i++) items.push({id:`key_slab_${i}`, name:`Slab Key ${i}`, act:null, group:"Slab Keys"});for(let i=1;i<=4;i++) items.push({id:`key_misc_${i}`, name:`Misc Key ${i}`, act:null, group:"Misc Keys"});return items;})() },
+    { type:"extra", name:"Relics", items:(()=>{const add=(arr,c,base,group)=>{for(let i=1;i<=c;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group});};const out=[];add(out,6,"Cylinder","Cylinders");add(out,4,"Choral Commandment","Choral Commandments");add(out,3,"Weaver Effigy","Weaver Effigy");add(out,4,"Bone Scroll","Bone Scroll");add(out,3,"Rune Harp","Rune Harp");add(out,1,"Arcane Egg","Arcane Egg");return out;})() },
     { type:"extra", name:"Mementos", items:[
       {id:"mem_hunter", name:"Hunter’s Memento", act:3},
       {id:"mem_grey", name:"Grey Memento", act:3},
@@ -685,40 +648,20 @@
       {id:"mem_huntersheart", name:"Hunter’s Heart", act:3},
       {id:"mem_conjoinedheart", name:"Conjoined Heart", act:3},
     ]},
-
-    /* Memory Lockets — 20 */
-    { type:"extra", name:"Memory Lockets", items:(()=> {
-      const a=[]; for(let i=1;i<=20;i++) a.push({id:\`locket_\${i}\`, name:\`Memory Locket \${i}\`, act:null}); return a;
-    })() },
-
-    /* Fleas — 30 */
-    { type:"extra", name:"Fleas", items:(()=> {
-      const a=[]; for(let i=1;i<=30;i++) a.push({id:\`flea_\${i}\`, name:\`Flea \${i}\`, act:null}); return a;
-    })() },
-
-    /* Pail Oil — 3 */
-    { type:"extra", name:"Pail Oil", items:[ 
-      {id:"oil_1", name:"Pail Oil 1", act:null},
-      {id:"oil_2", name:"Pail Oil 2", act:null},
-      {id:"oil_3", name:"Pail Oil 3", act:null},
-    ]},
-
-    /* Craft Metal — 8 */
-    { type:"extra", name:"Craft Metal", items:(()=> {
-      const a=[]; for(let i=1;i<=8;i++) a.push({id:\`metal_\${i}\`, name:\`Craft Metal \${i}\`, act:null}); return a;
-    })() }
+    { type:"extra", name:"Memory Lockets", items:(()=>{const a=[];for(let i=1;i<=20;i++) a.push({id:`locket_${i}`, name:`Memory Locket ${i}`, act:null}); return a;})() },
+    { type:"extra", name:"Fleas", items:(()=>{const a=[];for(let i=1;i<=30;i++) a.push({id:`flea_${i}`, name:`Flea ${i}`, act:null}); return a;})() },
+    { type:"extra", name:"Pail Oil", items:[ {id:"oil_1", name:"Pail Oil 1", act:null},{id:"oil_2", name:"Pail Oil 2", act:null},{id:"oil_3", name:"Pail Oil 3", act:null} ]},
+    { type:"extra", name:"Craft Metal", items:(()=>{const a=[];for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;})() }
   ];
 
-  /* ===== Order indices for stable sort (your acquisition order) ===== */
+  /* ===== Order indices for stable sort ===== */
   const categoryIndex = new Map();
   const itemIndex = new Map();
   (function buildOrder() {
     let c = 0, i = 0;
     for (const cat of DATA) {
       if (!categoryIndex.has(cat.name)) categoryIndex.set(cat.name, c++);
-      for (const it of cat.items) {
-        itemIndex.set(it.id, i++);
-      }
+      for (const it of cat.items) itemIndex.set(it.id, i++);
     }
   })();
 
@@ -818,7 +761,6 @@
     }
   }
 
-  /* ===== Item rows (name click only toggles location, not checkbox) ===== */
   function renderItemsList(container, items){
     for (const it of items) {
       if (it.condensed) {
@@ -826,22 +768,22 @@
         const wrap = document.createElement("div");
         wrap.className = "item";
         const label = document.createElement("div");
-        label.textContent = \`Hunter Journal progress: \`;
+        label.textContent = `Hunter Journal progress: `;
         const meta = document.createElement("div"); meta.className="meta";
 
-        const count = document.createElement("span"); count.className="pill"; count.id="hjCount"; count.textContent = \`\${hjCount}/\${HJ_TOTAL}\`;
+        const count = document.createElement("span"); count.className="pill"; count.id="hjCount"; count.textContent = `${hjCount}/${HJ_TOTAL}`;
         const minus = document.createElement("button"); minus.type="button"; minus.className="smallbtn"; minus.textContent = "–";
         const plus = document.createElement("button"); plus.type="button"; plus.className="smallbtn"; plus.textContent = "+";
         const reset = document.createElement("button"); reset.type="button"; reset.className="smallbtn"; reset.textContent = "Reset";
 
         function updateHJ(delta){
           hjCount = Math.max(0, Math.min(HJ_TOTAL, hjCount + delta));
-          document.getElementById("hjCount").textContent = \`\${hjCount}/\${HJ_TOTAL}\`;
+          document.getElementById("hjCount").textContent = `${hjCount}/${HJ_TOTAL}`;
           persist(); updateTotals();
         }
         minus.addEventListener("click", ()=>updateHJ(-1));
         plus.addEventListener("click", ()=>updateHJ(+1));
-        reset.addEventListener("click", ()=>{ hjCount=0; document.getElementById("hjCount").textContent = \`\${hjCount}/\${HJ_TOTAL}\`; persist(); updateTotals(); });
+        reset.addEventListener("click", ()=>{ hjCount=0; document.getElementById("hjCount").textContent = `${hjCount}/${HJ_TOTAL}`; persist(); updateTotals(); });
 
         meta.append(count, minus, plus, reset);
         wrap.append(label, meta);
@@ -864,12 +806,10 @@
       }
 
       const row = document.createElement("div"); row.className = "item";
-
-      // Checkbox only toggles completion when clicked directly
       const cb = document.createElement("input");
       cb.type = "checkbox"; cb.id = it.id; cb.checked = checked.has(it.id);
 
-      // Name acts like a button: opens/closes location only
+      // Name button that ONLY toggles the location panel
       const nameBtn = document.createElement("button");
       nameBtn.type = "button";
       nameBtn.className = "namebtn";
@@ -877,27 +817,29 @@
 
       const meta = document.createElement("div"); meta.className = "meta";
       if (it.weight != null) {
-        const w = document.createElement("span"); w.className = "pill"; w.textContent = \`\${it.weight}%\`;
+        const w = document.createElement("span"); w.className = "pill"; w.textContent = `${it.weight}%`;
         meta.appendChild(w);
       }
       const a = document.createElement("span"); a.className = "pill"; a.textContent = ACT_LABEL(it.act);
       meta.appendChild(a);
       if (it.color) {
-        const c = document.createElement("span"); c.className = \`pill color \${it.color}\`; c.textContent = it.color.charAt(0).toUpperCase() + it.color.slice(1);
+        const c = document.createElement("span"); c.className = `pill color ${it.color}`; c.textContent = it.color.charAt(0).toUpperCase() + it.color.slice(1);
         meta.appendChild(c);
       }
       const locBtn = document.createElement("button"); locBtn.type = "button"; locBtn.className = "locbtn"; locBtn.textContent = "📍 Location";
       meta.appendChild(locBtn);
 
-      // Location details
       const details = document.createElement("div"); details.className = "loc";
       const ornTop = document.createElement("div"); ornTop.className = "orn top";
       const ornBottom = document.createElement("div"); ornBottom.className = "orn bottom";
       const body = document.createElement("div");
-      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url ? \` — <a target="_blank" rel="noopener" href="\${it.url}">Open</a>\` : "");
+      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url ? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
       details.append(ornTop, body, ornBottom);
 
-      function toggleDetails() { details.classList.toggle("open"); }
+      function toggleDetails(e) {
+        if (e) e.stopPropagation();
+        details.classList.toggle("open");
+      }
       nameBtn.addEventListener("click", toggleDetails);
       locBtn.addEventListener("click", toggleDetails);
 
@@ -915,7 +857,7 @@
 
   function updateCatCount(el, items){
     const done = items.filter(i => !i.condensed && checked.has(i.id)).length; // condensed not counted per-item
-    el.textContent = \`\${done}/\${items.filter(i=>!i.condensed).length}\`;
+    el.textContent = `${done}/${items.filter(i=>!i.condensed).length}`;
   }
 
   function groupBy(list, key) {
@@ -931,7 +873,7 @@
   function render(){
     board.innerHTML = "";
     const items = flatItems();
-    totalBadge.textContent = \`\${items.length} items\`;
+    totalBadge.textContent = `${items.length} items`;
 
     const term = (searchEl.value || "").trim().toLowerCase();
     const actFilter = actFilterEl.value;
@@ -958,7 +900,7 @@
         return Number(a) - Number(b);
       });
       for (const k of keys) {
-        const title = k === "Unknown" ? "Act Unknown" : \`Act \${k}\`;
+        const title = k === "Unknown" ? "Act Unknown" : `Act ${k}`;
         board.appendChild(sectionTitle(title));
         const byCat = groupBy(byAct[k], "category");
         Object.keys(byCat)
@@ -997,7 +939,7 @@
     const count = document.createElement("div"); count.className = "cat-count";
     const selectAll = document.createElement("button"); selectAll.type="button"; selectAll.className="smallbtn"; selectAll.textContent="✓ All";
     const deselectAll = document.createElement("button"); deselectAll.type="button"; deselectAll.className="smallbtn"; deselectAll.textContent="✗ None";
-    const toggle = document.createElement("button"); toggle.type="button"; toggle.className = "smallbtn"; toggle.textContent = "–";
+    const toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent = "–";
     right.append(pill, count, selectAll, deselectAll, toggle);
     head.append(h2, right);
 
@@ -1058,7 +1000,7 @@
   });
 
   document.getElementById("exportBtn").addEventListener("click", () => {
-    const payload = { version: 18, checked: Array.from(checked), hjCount };
+    const payload = { version: 19, checked: Array.from(checked), hjCount };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1098,7 +1040,7 @@
 
   document.getElementById("groupByAct").addEventListener("click", function(){
     groupByAct = !groupByAct;
-    this.textContent = \`Group by Act: \${groupByAct ? "On" : "Off"}\`;
+    this.textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
     render();
   });
 
