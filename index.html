@@ -4,7 +4,23 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Silksong 100% Checklist</title>
+
+<!-- Fallback to a Trajan-like font (free) -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" />
+
 <style>
+/* If you have the licensed font file, add it to assets/ and this will load it. */
+@font-face{
+  font-family:"Trajan Pro";
+  src:
+    local("Trajan Pro Regular"),
+    local("TrajanPro-Regular"),
+    url("assets/TrajanPro-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
 :root{
   /* Moss grotto palette (muted greens) */
   --fg:#f5fff7;          /* near-white text */
@@ -23,15 +39,16 @@
   --extra1:#78d18a;      /* extras bar gradient 1 */
   --extra2:#c4f0cc;      /* extras bar gradient 2 */
 
-  /* Tool color dots (kept for semantic color tags) */
+  /* Tool color dots (semantic colors for tool splits) */
   --red:#ffb9b9;
   --blue:#a9cfff;
   --yellow:#ffe39a;
 
-  /* Background + ornaments (your files) */
-  --bg-image:url("assets/Screenshot_SS_Moss_Grotto_01.png");
-  --orn-top:url("assets/375px-SS_NPC_Dialogue_Top.png");
-  --orn-bottom:url("assets/300px-SS_NPC_Dialogue_Bottom.png");
+  /* Your image assets (exact filenames from your repo).
+     Cache-buster (?v=2) helps avoid stale browser caches after updates. */
+  --bg-image:url("assets/Screenshot_SS_Moss_Grotto_01.png?v=2");
+  --orn-top:url("assets/375px-SS_NPC_Dialogue_Top.png?v=2");
+  --orn-bottom:url("assets/300px-SS_NPC_Dialogue_Bottom.png?v=2");
 }
 
 /* ===== Base ===== */
@@ -39,7 +56,9 @@
 html,body{
   margin:0;
   color:var(--fg);
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  /* Prefer Trajan Pro; fallback to Cinzel; then generic serif */
+  font-family:"Trajan Pro","Cinzel",serif;
+  letter-spacing:.2px;
   min-height:100%;
 }
 
@@ -62,7 +81,7 @@ body::before{
   border-bottom:2px solid var(--edge);padding-bottom:.75rem;
   backdrop-filter:saturate(120%) blur(2px);
 }
-.topbar h1{margin:0;font-size:1.15rem;letter-spacing:.2px}
+.topbar h1{margin:0;font-size:1.35rem;letter-spacing:.3px}
 
 /* Controls */
 .controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-left:auto;align-items:center}
@@ -85,7 +104,7 @@ body::before{
 
 /* Progress bars */
 .progress{display:grid;gap:.4rem;margin:.9rem 0}
-.progress .label{color:var(--muted);font-size:.9rem}
+.progress .label{color:var(--muted);font-size:.95rem}
 .bar{height:10px;background:var(--bar);border-radius:999px;overflow:hidden;border:1px solid var(--edge)}
 .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
 
@@ -96,7 +115,7 @@ body::before{
   box-shadow:0 6px 20px rgba(0,0,0,.25);
 }
 .cat-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer}
-.cat-head h2{margin:0;font-size:1rem}
+.cat-head h2{margin:0;font-size:1.05rem}
 .cat-right{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
 .pillType{font-size:.7rem;padding:.2rem .45rem;border-radius:.45rem;border:1px solid var(--edge);background:var(--cardHover);color:var(--muted)}
 .cat-count{color:var(--muted);font-size:.85rem;margin-left:.25rem}
@@ -205,7 +224,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v13";
+  const STORAGE_KEY = "silksong-checklist-v14";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
   /* ========= ORDER CONTROL (acquisition order) ========= */
@@ -220,7 +239,6 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
   }
 
   // ======= DATA (edit to change order, acts, etc.) =======
-  // Silk Hearts & Misc toward the bottom of weighted section. Sylphsong=Act 2, Everbloom=Act 3.
   const DATA = [
     /* ---- Needle Upgrades — 4% ---- */
     { type:"main", name:"Needle Upgrades — 4%", items:[
@@ -634,7 +652,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     });
   });
   exportBtn.addEventListener("click", ()=>{
-    const payload = { version:13, checked:[...checked] };
+    const payload = { version:14, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
