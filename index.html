@@ -6,21 +6,21 @@
 <title>Silksong 100% Checklist</title>
 <style>
 :root{
-  /* Hornet palette */
-  --bg:#ffffff;            /* page background (white) */
-  --fg:#1b1b1f;            /* main text (near-black) */
-  --muted:#6b7280;         /* subtle text (silver/gray) */
-  --accent:#d23131;        /* Hornet red */
-  --accent2:#ff6b6b;       /* lighter red for gradients/hover */
-  --card:#f7f8fa;          /* cards (very light silver) */
-  --edge:#e5e7eb;          /* borders (silver) */
-  --chip:#eef0f4;          /* small chips/badges */
-  --bar:#eceff3;           /* progress background */
+  /* Hornet-forward (RED-FIRST) palette */
+  --bg:#b11226;            /* main background (deep Hornet red) */
+  --fg:#fff7f7;            /* primary text (near-white) */
+  --muted:#ffd0d0;         /* subtle text (light rose) */
+  --accent:#ff6161;        /* bright red for accents */
+  --accent2:#ff9a9a;       /* lighter red for gradients/hover */
+  --card:#8f0f1f;          /* card surfaces (darker red) */
+  --edge:#c82b2b;          /* borders (red, not silver) */
+  --chip:#9c1423;          /* chips/badges (slightly darker) */
+  --bar:#7f0b17;           /* progress track (dark red) */
 
-  /* color dots for tool kinds */
-  --red:#d23131;
-  --blue:#3b82f6;
-  --yellow:#f59e0b;
+  /* tool-color dots (kept for meaning) */
+  --red:#ffd0d0;           /* tint so the red tag is readable on red UI */
+  --blue:#9cc8ff;
+  --yellow:#ffd77a;
 }
 
 *{box-sizing:border-box}
@@ -43,20 +43,21 @@ html,body{
 /* Controls */
 .controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-left:auto;align-items:center}
 .controls input[type="search"], .controls select{
-  padding:.55rem .75rem;background:#fff;border:1px solid var(--edge);color:var(--fg);border-radius:.55rem
+  padding:.55rem .75rem;background:var(--card);border:1px solid var(--edge);color:var(--fg);border-radius:.55rem
 }
 .controls button{
-  padding:.55rem .75rem;background:#fff;border:1px solid var(--edge);color:var(--fg);
-  border-radius:.55rem;cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s
+  padding:.55rem .75rem;background:var(--card);border:1px solid var(--edge);color:var(--fg);
+  border-radius:.55rem;cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s,transform .05s
 }
-.controls button:hover{border-color:#d1d5db;background:#fafafa;box-shadow:0 0 0 2px rgba(210,49,49,.08)}
+.controls button:hover{border-color:#e04646;background:#9c1423;box-shadow:0 0 0 2px rgba(255,145,145,.18)}
+.controls button:active{transform:translateY(1px)}
 .badge{background:var(--chip);border:1px solid var(--edge);border-radius:.5rem;padding:.25rem .5rem;color:var(--muted);font-size:.8rem}
 
 /* Segmented filter */
-.seg{display:inline-flex;border:1px solid var(--edge);border-radius:.55rem;overflow:hidden;background:#fff}
-.seg button{background:#fff;border:none;padding:.55rem .7rem;color:var(--fg);cursor:pointer}
+.seg{display:inline-flex;border:1px solid var(--edge);border-radius:.55rem;overflow:hidden;background:var(--card)}
+.seg button{background:transparent;border:none;padding:.55rem .7rem;color:var(--fg);cursor:pointer}
 .seg button+button{border-left:1px solid var(--edge)}
-.seg button.active{background:#fff0f0;border-left-color:var(--edge)}
+.seg button.active{background:#a31627}
 
 /* Progress bars */
 .progress{display:grid;gap:.4rem;margin:.9rem 0}
@@ -72,36 +73,45 @@ html,body{
 .cat-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer}
 .cat-head h2{margin:0;font-size:1rem}
 .cat-right{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
-.pillType{font-size:.7rem;padding:.2rem .45rem;border-radius:.45rem;border:1px solid var(--edge);background:#fff;color:var(--muted)}
+.pillType{font-size:.7rem;padding:.2rem .45rem;border-radius:.45rem;border:1px solid var(--edge);background:#a31627;color:#ffe3e3}
 .cat-count{color:var(--muted);font-size:.85rem;margin-left:.25rem}
 
 .cat-items{padding:.2rem 1rem 1rem 1rem;display:grid;gap:.25rem}
 .item{display:flex;align-items:center;gap:.6rem;padding:.45rem;border-radius:.6rem;transition:background .12s}
-.item:hover{background:#ffffffcc}
+.item:hover{background:#9c1423}
 .item label{cursor:pointer}
 
 /* Pills */
 .item .meta{margin-left:auto;display:flex;gap:.4rem;align-items:center}
 .item .pill{
   font-size:.75rem;padding:.15rem .45rem;border-radius:.45rem;
-  background:#fff;border:1px solid var(--edge);color:var(--muted)
+  background:#a31627;border:1px solid var(--edge);color:#ffe3e3
 }
-.item .color{border-color:#d1d5db}
-.item .color.red{color:var(--red);border-color:var(--red)!important}
-.item .color.blue{color:var(--blue);border-color:var(--blue)!important}
-.item .color.yellow{color:var(--yellow);border-color:var(--yellow)!important}
+.item .color{border-color:#e04646}
+.item .color.red{color:var(--red);border-color:#ffd0d0!important}
+.item .color.blue{color:var(--blue);border-color:#9cc8ff!important}
+.item .color.yellow{color:var(--yellow);border-color:#ffd77a!important}
 
 /* Small buttons inside cards */
 .smallbtn,.locbtn{
-  font-size:.75rem;padding:.25rem .5rem;border-radius:.45rem;background:#fff;border:1px solid var(--edge);
-  color:var(--fg);cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s
+  font-size:.75rem;padding:.25rem .5rem;border-radius:.45rem;background:#a31627;border:1px solid var(--edge);
+  color:#ffe3e3;cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s
 }
-.smallbtn:hover,.locbtn:hover{border-color:#d1d5db;background:#fafafa;box-shadow:0 0 0 2px rgba(210,49,49,.08)}
+.smallbtn:hover,.locbtn:hover{border-color:#e04646;background:#b71a2d;box-shadow:0 0 0 2px rgba(255,145,145,.18)}
+
+/* Checkboxes */
+input[type="checkbox"]{
+  width:18px;height:18px;accent-color:#ffe3e3;cursor:pointer;
+  filter:drop-shadow(0 0 0 rgba(0,0,0,0));
+}
 
 /* Location details */
-.loc{grid-column:1/-1;margin:.25rem 0 0 2rem;padding:.6rem .8rem;border-left:3px solid var(--accent);color:var(--muted);background:#fff;border-radius:.25rem}
-.loc a{color:var(--accent);text-decoration:none}
-.loc a:hover{text-decoration:underline}
+.loc{
+  grid-column:1/-1;margin:.25rem 0 0 2rem;padding:.6rem .8rem;
+  border-left:3px solid var(--accent);color:#ffe3e3;background:#9c1423;border-radius:.25rem
+}
+.loc a{color:#fff;text-decoration:underline}
+.loc a:hover{opacity:.9}
 
 .hidden{display:none!important}
 .footer{margin:1.25rem 0;color:var(--muted);text-align:center;border-top:2px solid var(--edge);padding-top:1rem}
@@ -109,7 +119,7 @@ html,body{
 /* Subhead (tools split) */
 hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 .small{font-size:.85rem;color:var(--muted)}
-.subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#374151;display:flex;align-items:center;gap:.5rem}
+.subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#ffe3e3;display:flex;align-items:center;gap:.5rem}
 .dot{width:.6rem;height:.6rem;border-radius:50%}
 .dot.red{background:var(--red)} .dot.blue{background:var(--blue)} .dot.yellow{background:var(--yellow)}
 </style>
@@ -157,7 +167,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     <div class="label small">
       Extras (unweighted): <span id="extrasDone">0</span>/<span id="extrasTotal">0</span> items completed
     </div>
-    <div class="bar"><div id="barFillExtras" class="bar-fill extra"></div></div>
+    <div class="bar"><div id="barFillExtras" class="bar-fill" style="background:linear-gradient(90deg,#ff9a9a,#ffd0d0)"></div></div>
   </div>
 
   <div id="board" class="board" aria-live="polite"></div>
@@ -169,7 +179,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v9";
+  const STORAGE_KEY = "silksong-checklist-v10";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
   /* ========= ORDER CONTROL (acquisition order) ========= */
@@ -184,9 +194,9 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
   }
 
   // ======= DATA (edit to change order, acts, etc.) =======
-  // NOTE: Silk Hearts and Misc near the bottom of weighted section.
+  // Silk Hearts & Misc toward the bottom of weighted section. Sylphsong=Act 2, Everbloom=Act 3.
   const DATA = [
-    /* ---- Needle Upgrades (acts set) ---- */
+    /* ---- Needle Upgrades — 4% ---- */
     { type:"main", name:"Needle Upgrades — 4%", items:[
       { id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1 },
       { id:"needle_shining",   name:"Shining Needle",   weight:1, act:2 },
@@ -194,118 +204,118 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
       { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:3 },
     ]},
 
-    /* ---- Mask Shards: 20 × 0.25% = 5% ---- */
+    /* ---- Mask Shards — 5% (20 × 0.25%) ---- */
     { type:"main", name:"Mask Shards — 5% (order not indicative)", items:
       Array.from({length:20}, (_,k)=>({ id:`maskShard_${k+1}`, name:`Mask Shard ${k+1}`, weight:0.25, act:null }))
     },
 
-    /* ---- Spool Fragments: 18 × 0.5% = 9% ---- */
+    /* ---- Spool Fragments — 9% (18 × 0.5%) ---- */
     { type:"main", name:"Spool Fragments — 9%", items:
       Array.from({length:18}, (_,k)=>({ id:`spoolFrag_${k+1}`, name:`Spool Fragment ${k+1}`, weight:0.5, act:null }))
     },
 
-    /* ---- Crafting Kit Upgrades: 4 ×1% (acts set) ---- */
+    /* ---- Crafting Kit Upgrades — 4% ---- */
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
-      { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1 },
-      { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:1 },
+      { id:"kit_1", name:"Crafting Kit Expansion I",  weight:1, act:1 },
+      { id:"kit_2", name:"Crafting Kit Expansion II", weight:1, act:1 },
       { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:2 },
       { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 },
     ]},
 
-    /* ---- Tool Pouch Upgrades: 4 ×1% (acts set) ---- */
+    /* ---- Tool Pouch Upgrades — 4% ---- */
     { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
-      { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1 },
-      { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:1 },
+      { id:"pouch_1", name:"Tool Pouch Expansion I",  weight:1, act:1 },
+      { id:"pouch_2", name:"Tool Pouch Expansion II", weight:1, act:1 },
       { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1, act:2 },
       { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 },
     ]},
 
-    /* ---- Crests ---- */
+    /* ---- Crests — 6% ---- */
     { type:"main", name:"Crests — 6%", items:[
-      { id:"crest_reaper",    name:"Reaper",        weight:1, act:1 },
-      { id:"crest_wanderer",  name:"Wanderer",      weight:1, act:1 },
-      { id:"crest_beast",     name:"Beast",         weight:1, act:1 },
-      { id:"crest_witch",     name:"Witch",         weight:1, act:2 },
-      { id:"crest_architect", name:"Architect",     weight:1, act:2 },
-      { id:"crest_shaman",    name:"Shaman",        weight:1, act:3 },
+      { id:"crest_reaper",    name:"Reaper",    weight:1, act:1 },
+      { id:"crest_wanderer",  name:"Wanderer",  weight:1, act:1 },
+      { id:"crest_beast",     name:"Beast",     weight:1, act:1 },
+      { id:"crest_witch",     name:"Witch",     weight:1, act:2 },
+      { id:"crest_architect", name:"Architect", weight:1, act:2 },
+      { id:"crest_shaman",    name:"Shaman",    weight:1, act:3 },
     ]},
 
-    /* ---- Silk Skills ---- */
+    /* ---- Silk Skills — 6% ---- */
     { type:"main", name:"Silk Skills — 6%", items:[
-      { id:"skill_silkspear",   name:"Silkspear",   weight:1, act:1 },
-      { id:"skill_threadstorm", name:"Thread Storm",weight:1, act:1 },
-      { id:"skill_sharpdart",   name:"Sharpdart",   weight:1, act:1 },
-      { id:"skill_crossstitch", name:"Cross Stitch",weight:1, act:1 },
-      { id:"skill_runerage",    name:"Rune Rage",   weight:1, act:1 },
-      { id:"skill_purenails",   name:"Pure Nails",  weight:1, act:3 },
+      { id:"skill_silkspear",   name:"Silkspear",     weight:1, act:1 },
+      { id:"skill_threadstorm", name:"Thread Storm",  weight:1, act:1 },
+      { id:"skill_sharpdart",   name:"Sharpdart",     weight:1, act:1 },
+      { id:"skill_crossstitch", name:"Cross Stitch",  weight:1, act:1 },
+      { id:"skill_runerage",    name:"Rune Rage",     weight:1, act:1 },
+      { id:"skill_purenails",   name:"Pure Nails",    weight:1, act:3 },
     ]},
 
-    /* ---- Tools — 51% (Red/Blue/Yellow) ---- */
+    /* ---- Tools — 51% (Red / Blue / Yellow) ---- */
     { type:"main", name:"Tools — 51% (Red / Blue / Yellow)", items:[
-      // RED
-      {id:"tool_straightpin",  name:"Straight Pin",  weight:1, act:null, color:"red"},
-      {id:"tool_threefold",    name:"Threefold Pin", weight:1, act:null, color:"red"},
-      {id:"tool_stingshard",   name:"Sting Shard",   weight:1, act:null, color:"red"},
-      {id:"tool_tacks",        name:"Tacks",         weight:1, act:null, color:"red"},
-      {id:"tool_longpin",      name:"Longpin",       weight:1, act:null, color:"red"},
+      /* RED */
+      {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:null, color:"red"},
+      {id:"tool_threefold",    name:"Threefold Pin",  weight:1, act:null, color:"red"},
+      {id:"tool_stingshard",   name:"Sting Shard",    weight:1, act:null, color:"red"},
+      {id:"tool_tacks",        name:"Tacks",          weight:1, act:null, color:"red"},
+      {id:"tool_longpin",      name:"Longpin",        weight:1, act:null, color:"red"},
       {id:"tool_curveclaw",    name:"Curveclaw / Curvesickle", weight:1, act:null, color:"red"},
-      {id:"tool_throwingring", name:"Throwing Ring", weight:1, act:null, color:"red"},
-      {id:"tool_pimpillo",     name:"Pimpillo",      weight:1, act:null, color:"red"},
-      {id:"tool_conchcutter",  name:"Conchcutter",   weight:1, act:null, color:"red"},
-      {id:"tool_silkshot",     name:"Silkshot",      weight:1, act:null, color:"red"},
-      {id:"tool_delverdrill",  name:"Delver’s Drill",weight:1, act:null, color:"red"},
-      {id:"tool_cogwheel",     name:"Cogwork Wheel", weight:1, act:null, color:"red"},
-      {id:"tool_cogfly",       name:"Cogfly",        weight:1, act:null, color:"red"},
-      {id:"tool_rosarycannon", name:"Rosary Cannon", weight:1, act:null, color:"red"},
-      {id:"tool_voltvessels",  name:"Voltvessels",   weight:1, act:null, color:"red"},
-      {id:"tool_flintslate",   name:"Flintslate",    weight:1, act:null, color:"red"},
-      {id:"tool_fleabrew",     name:"Flea Brew",     weight:1, act:null, color:"red"},
-      {id:"tool_plasmium",     name:"Plasmium Phial",weight:1, act:null, color:"red"},
-      // BLUE
+      {id:"tool_throwingring", name:"Throwing Ring",  weight:1, act:null, color:"red"},
+      {id:"tool_pimpillo",     name:"Pimpillo",       weight:1, act:null, color:"red"},
+      {id:"tool_conchcutter",  name:"Conchcutter",    weight:1, act:null, color:"red"},
+      {id:"tool_silkshot",     name:"Silkshot",       weight:1, act:null, color:"red"},
+      {id:"tool_delverdrill",  name:"Delver’s Drill", weight:1, act:null, color:"red"},
+      {id:"tool_cogwheel",     name:"Cogwork Wheel",  weight:1, act:null, color:"red"},
+      {id:"tool_cogfly",       name:"Cogfly",         weight:1, act:null, color:"red"},
+      {id:"tool_rosarycannon", name:"Rosary Cannon",  weight:1, act:null, color:"red"},
+      {id:"tool_voltvessels",  name:"Voltvessels",    weight:1, act:null, color:"red"},
+      {id:"tool_flintslate",   name:"Flintslate",     weight:1, act:null, color:"red"},
+      {id:"tool_fleabrew",     name:"Flea Brew",      weight:1, act:null, color:"red"},
+      {id:"tool_plasmium",     name:"Plasmium Phial", weight:1, act:null, color:"red"},
+      /* BLUE */
       {id:"tool_druidseye",    name:"Druid’s Eye / Druid’s Eyes", weight:1, act:null, color:"blue"},
-      {id:"tool_magmbell",     name:"Magma Bell",         weight:1, act:null, color:"blue"},
-      {id:"tool_wardingbell",  name:"Warding Bell",       weight:1, act:null, color:"blue"},
-      {id:"tool_pollip",       name:"Pollip Pouch",       weight:1, act:null, color:"blue"},
-      {id:"tool_fracturedmask",name:"Fractured Mask",     weight:1, act:null, color:"blue"},
-      {id:"tool_multibinder",  name:"Multibinder",        weight:1, act:null, color:"blue"},
-      {id:"tool_weavelight",   name:"Weavelight",         weight:1, act:null, color:"blue"},
-      {id:"tool_sawtooth",     name:"Sawtooth Circlet",   weight:1, act:null, color:"blue"},
-      {id:"tool_injectorband", name:"Injector Band",      weight:1, act:null, color:"blue"},
-      {id:"tool_spoolext",     name:"Spool Extender",     weight:1, act:null, color:"blue"},
-      {id:"tool_reservebind",  name:"Reserve Bind",       weight:1, act:null, color:"blue"},
-      {id:"tool_clawmirror",   name:"Claw Mirror",        weight:1, act:null, color:"blue"},
-      {id:"tool_memorycrystal",name:"Memory Crystal",     weight:1, act:null, color:"blue"},
-      {id:"tool_snitchpick",   name:"Snitch Pick",        weight:1, act:null, color:"blue"},
-      {id:"tool_voltfilament", name:"Volt Filament",      weight:1, act:null, color:"blue"},
-      {id:"tool_quicksling",   name:"Quick Sling",        weight:1, act:null, color:"blue"},
-      {id:"tool_wreathpurity", name:"Wreath of Purity",   weight:1, act:null, color:"blue"},
-      {id:"tool_longclaw",     name:"Longclaw",           weight:1, act:null, color:"blue"},
-      {id:"tool_wispfire",     name:"Wispfire Lantern",   weight:1, act:null, color:"blue"},
-      {id:"tool_eggflealia",   name:"Egg of Flealia",     weight:1, act:null, color:"blue"},
-      {id:"tool_pinbadge",     name:"Pin Badge",          weight:1, act:null, color:"blue"},
-      // YELLOW
-      {id:"tool_compass",      name:"Compass",            weight:1, act:null, color:"yellow"},
-      {id:"tool_shardpendant", name:"Shard Pendant",      weight:1, act:null, color:"yellow"},
+      {id:"tool_magmbell",     name:"Magma Bell",          weight:1, act:null, color:"blue"},
+      {id:"tool_wardingbell",  name:"Warding Bell",        weight:1, act:null, color:"blue"},
+      {id:"tool_pollip",       name:"Pollip Pouch",        weight:1, act:null, color:"blue"},
+      {id:"tool_fracturedmask",name:"Fractured Mask",      weight:1, act:null, color:"blue"},
+      {id:"tool_multibinder",  name:"Multibinder",         weight:1, act:null, color:"blue"},
+      {id:"tool_weavelight",   name:"Weavelight",          weight:1, act:null, color:"blue"},
+      {id:"tool_sawtooth",     name:"Sawtooth Circlet",    weight:1, act:null, color:"blue"},
+      {id:"tool_injectorband", name:"Injector Band",       weight:1, act:null, color:"blue"},
+      {id:"tool_spoolext",     name:"Spool Extender",      weight:1, act:null, color:"blue"},
+      {id:"tool_reservebind",  name:"Reserve Bind",        weight:1, act:null, color:"blue"},
+      {id:"tool_clawmirror",   name:"Claw Mirror",         weight:1, act:null, color:"blue"},
+      {id:"tool_memorycrystal",name:"Memory Crystal",      weight:1, act:null, color:"blue"},
+      {id:"tool_snitchpick",   name:"Snitch Pick",         weight:1, act:null, color:"blue"},
+      {id:"tool_voltfilament", name:"Volt Filament",       weight:1, act:null, color:"blue"},
+      {id:"tool_quicksling",   name:"Quick Sling",         weight:1, act:null, color:"blue"},
+      {id:"tool_wreathpurity", name:"Wreath of Purity",    weight:1, act:null, color:"blue"},
+      {id:"tool_longclaw",     name:"Longclaw",            weight:1, act:null, color:"blue"},
+      {id:"tool_wispfire",     name:"Wispfire Lantern",    weight:1, act:null, color:"blue"},
+      {id:"tool_eggflealia",   name:"Egg of Flealia",      weight:1, act:null, color:"blue"},
+      {id:"tool_pinbadge",     name:"Pin Badge",           weight:1, act:null, color:"blue"},
+      /* YELLOW */
+      {id:"tool_compass",      name:"Compass",             weight:1, act:null, color:"yellow"},
+      {id:"tool_shardpendant", name:"Shard Pendant",       weight:1, act:null, color:"yellow"},
       {id:"tool_magnetite_brooch", name:"Magnetite Brooch", weight:1, act:null, color:"yellow"},
-      {id:"tool_weightedbelt", name:"Weighted Belt",      weight:1, act:null, color:"yellow"},
-      {id:"tool_barbed",       name:"Barbed Bracelet",    weight:1, act:null, color:"yellow"},
+      {id:"tool_weightedbelt", name:"Weighted Belt",       weight:1, act:null, color:"yellow"},
+      {id:"tool_barbed",       name:"Barbed Bracelet",     weight:1, act:null, color:"yellow"},
       {id:"tool_deadbug",      name:"Dead Bug’s Purse / Shell Satchel", weight:1, act:null, color:"yellow"},
-      {id:"tool_magnetite_dice", name:"Magnetite Dice",   weight:1, act:null, color:"yellow"},
-      {id:"tool_scuttlebrace", name:"Scuttlebrace",       weight:1, act:null, color:"yellow"},
-      {id:"tool_wallcling",    name:"Ascendant’s Grip",   weight:1, act:null, color:"yellow"},
-      {id:"tool_spiderstrings",name:"Spider Strings",     weight:1, act:null, color:"yellow"},
-      {id:"tool_silkspeed",    name:"Silkspeed Anklets",  weight:1, act:null, color:"yellow"},
-      {id:"tool_thiefsmark",   name:"Thief’s Mark",       weight:1, act:null, color:"yellow"},
+      {id:"tool_magnetite_dice", name:"Magnetite Dice",    weight:1, act:null, color:"yellow"},
+      {id:"tool_scuttlebrace", name:"Scuttlebrace",        weight:1, act:null, color:"yellow"},
+      {id:"tool_wallcling",    name:"Ascendant’s Grip",    weight:1, act:null, color:"yellow"},
+      {id:"tool_spiderstrings",name:"Spider Strings",      weight:1, act:null, color:"yellow"},
+      {id:"tool_silkspeed",    name:"Silkspeed Anklets",   weight:1, act:null, color:"yellow"},
+      {id:"tool_thiefsmark",   name:"Thief’s Mark",        weight:1, act:null, color:"yellow"},
     ]},
 
-    /* ---- Silk Hearts ---- */
+    /* ---- Silk Hearts — 3% ---- */
     { type:"main", name:"Silk Hearts — 3%", items:[
       { id:"sheart_1", name:"Silk Heart I",   weight:1, act:1 },
       { id:"sheart_2", name:"Silk Heart II",  weight:1, act:2 },
       { id:"sheart_3", name:"Silk Heart III", weight:1, act:2 },
     ]},
 
-    /* ---- Misc (updated acts) ---- */
+    /* ---- Misc — 2% (Sylphsong Act 2, Everbloom Act 3) ---- */
     { type:"main", name:"Miscellaneous — 2%", items:[
       { id:"misc_sylphsong", name:"Sylphsong", weight:1, act:2 },
       { id:"misc_everbloom", name:"Everbloom", weight:1, act:3 },
@@ -442,7 +452,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     const d = document.createElement("div");
     d.textContent = text;
     d.style.margin = ".25rem 0 .5rem";
-    d.style.color = "#374151";
+    d.style.color = "#ffe3e3";
     d.style.fontSize = ".95rem";
     return d;
   }
@@ -517,7 +527,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
       if(it.weight!=null){ const w = document.createElement("span"); w.className="pill"; w.textContent = `${it.weight}%`; meta.appendChild(w); }
       const a = document.createElement("span"); a.className="pill"; a.textContent = ACT_LABEL(it.act); meta.appendChild(a);
       if(it.color){ const c = document.createElement("span"); c.className=`pill color ${it.color}`; c.textContent = it.color[0].toUpperCase()+it.color.slice(1); meta.appendChild(c); }
-      const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent="📍 Location";
+      const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent = "📍 Location";
       meta.appendChild(locBtn);
 
       const details = document.createElement("div"); details.className="loc";
@@ -589,7 +599,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     });
   });
   exportBtn.addEventListener("click", ()=>{
-    const payload = { version:9, checked:[...checked] };
+    const payload = { version:10, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
