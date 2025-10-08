@@ -149,7 +149,12 @@
   .cat-items{padding:.2rem 1rem 1rem 1rem;display:grid;gap:.25rem}
   .item{display:flex;align-items:center;gap:.6rem;padding:.45rem;border-radius:.6rem;transition:background .12s}
   .item:hover{background:var(--cardHover)}
-  .item label{cursor:pointer}
+
+  /* Make name clickable but not toggling checkbox */
+  .namebtn{
+    background:none;border:none;color:var(--fg);font:inherit;cursor:pointer;padding:0;
+  }
+  .namebtn:hover{ text-decoration:underline; }
 
   .item .meta{margin-left:auto;display:flex;gap:.4rem;align-items:center}
   .item .pill{
@@ -280,7 +285,7 @@
 <script>
 /* ------ JavaScript (full data + bosses + extras) ------ */
 (function() {
-  const STORAGE_KEY = "silksong-checklist-v16";
+  const STORAGE_KEY = "silksong-checklist-v17";
   const HJ_KEY = "hj-count";
   const HJ_TOTAL = 237;
 
@@ -288,303 +293,338 @@
 
   /* ===== DATA ===== */
   const DATA = [
+    /* Needle upgrades (tied to Pale Oil/Pinmaster) */
     { type:"main", name:"Needle Upgrades — 4%", items:[
-      {id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1},
-      {id:"needle_shining", name:"Shining Needle", weight:1, act:2},
-      {id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:2},
-      {id:"needle_pale", name:"Pale Steel Needle", weight:1, act:3},
+      {id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1,
+       loc:"Bellhart — free first upgrade from Pinmaster Plinney after freeing Bellhart (defeat Sister Splinter & Widow)."},
+      {id:"needle_shining", name:"Shining Needle", weight:1, act:2,
+       loc:"Use Pale Oil #1 (Whispering Vaults crate puzzle) at Pinmaster Plinney in Bellhart."},
+      {id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:2,
+       loc:"Use Pale Oil #2 — reward from “Great Taste of Pharloom” quest in Choral Chambers — at Pinmaster Plinney."},
+      {id:"needle_pale", name:"Pale Steel Needle", weight:1, act:3,
+       loc:"Use Pale Oil #3 — Festival of the Flea reward in Act 3 — at Pinmaster Plinney (after re-freeing him)."}
     ]},
 
-    /* ===== UPDATED: Mask Shards with locations ===== */
+    /* Mask Shards with locations (20) */
     { type:"main", name:"Mask Shards — 5%", items:(function(){
-      // Locations compiled from your notes + guide
       const LOC = {
-        1: "Buy from Pebb for 300 Rosaries. If not bought before Act 3, moves to Grindle’s shop (Blasted Steps) for 320.",
-        2: "Lower Wormways via Mosshome — behind a breakable wall, just in front of a Simple Key door.",
-        3: "Passage between The Marrow and Deep Docks (enter from The Marrow). Cling Grip recommended.",
-        4: "Far Fields — above the Seamstress’s home. Requires Drifter’s Cloak.",
-        5: "Shellwood (center) — end of a platforming challenge behind a breakable wall.",
-        6: "East Weavenest Atla — behind a breakable wall. Requires Cling Grip.",
-        7: "Cogwork Core — path from lower bench to exterior tall room in Choral Chambers.",
-        8: "Songclave — buy from merchant after Wandering Merchant quest.",
-        9: "Whispering Vaults — corridor below the bench; hidden liftable block mid-way.",
-        10:"Mount Fay — after Faydown Cloak; near 90 Rosary bench, climb broken pillar and wall-jump.",
-        11:"Bellhart — complete the Savage Beastfly Grand Hunt Wish and deliver the claw to the Wishwall.",
-        12:"Far Fields — skull-house lava room east of Seamstress; survive waves then ride airflow up.",
-        13:"Blasted Steps — floating-platform gauntlet with spiders/boulders to next screen.",
+        1: "Bone Bottom — buy from Pebb for 300 Rosaries (moves to Grindle in Blasted Steps for 320 if Act 3 starts).",
+        2: "Lower Wormways via Mosshome — behind breakable wall before a Simple Key door.",
+        3: "Between The Marrow and Deep Docks (enter from The Marrow); Cling Grip recommended.",
+        4: "Far Fields — above the Seamstress’s home (needs Drifter’s Cloak).",
+        5: "Shellwood — center; end of platforming behind breakable wall.",
+        6: "Weavenest Atla (east) — behind breakable wall; Cling Grip.",
+        7: "Cogwork Core — route from lower bench to exterior tall room in Choral Chambers.",
+        8: "Songclave, Choral Chambers — buy after Wandering Merchant quest.",
+        9: "Whispering Vaults — corridor below bench; lift a hidden block mid-way.",
+        10:"Mount Fay — near 90-Rosary bench; wall-jump up broken pillar (after Faydown Cloak).",
+        11:"Bellhart — complete Savage Beastfly Grand Hunt Wish, deliver claw to Wishwall.",
+        12:"Far Fields — skull-house lava room; fight waves then ride the airflow.",
+        13:"Blasted Steps — floating platform gauntlet toward next screen.",
         14:"Wisp Thicket — past fire mages; Magma Bell recommended.",
-        15:"Bilewater — ‘fish room’ right of Shakra; sprint through then climb to the shard.",
-        16:"The Slab — Key of the Apostate; complete saw-blade pogo/jump puzzle to upper corner.",
-        17:"Mount Fay (Act 3) — after Silk Soar; reach hidden icy platforming section.",
-        18:"Far Fields (Act 3) — ‘Fastest in Pharloom’ Wish; win three races after unlocking new area with Silk Soar.",
-        19:"Bellhart (Act 3) — ‘Dark Hearts’ Wish; defeat 12 Void Masses across Pharloom.",
-        20:"Bellhart (Act 3) — ‘The Hidden Hunter’ Wish; obtain Grass Doll after Gurr the Outcast and return."
+        15:"Bilewater — ‘fish room’ right of Shakra; sprint through then climb.",
+        16:"The Slab — Key of the Apostate; complete saw-blade pogo/jump puzzle.",
+        17:"Mount Fay (Act 3) — after Silk Soar; hidden icy platforming section.",
+        18:"Far Fields (Act 3) — ‘Fastest in Pharloom’ Wish; win three races.",
+        19:"Bellhart (Act 3) — ‘Dark Hearts’ Wish; defeat 12 Void Masses.",
+        20:"Bellhart (Act 3) — ‘The Hidden Hunter’ Wish; return with Grass Doll."
       };
-
       const arr = [];
       for (let k = 0; k < 20; k++) {
         const n = k+1;
         const act = (n <=6) ? 1 : (n <=16 ? 2 : 3);
-        arr.push({
-          id:`maskShard_${n}`,
-          name:`Mask Shard ${n}`,
-          weight:0.25,
-          act,
-          loc: LOC[n] || "Location details coming soon."
-        });
+        arr.push({ id:`maskShard_${n}`, name:`Mask Shard ${n}`, weight:0.25, act, loc: LOC[n] });
       }
       return arr;
     })() },
 
-    /* ===== UPDATED: Spool Fragments with locations ===== */
+    /* Spool Fragments with locations (18) */
     { type:"main", name:"Spool Fragments — 9%", items:(function(){
       const LOC = {
-        1: "Behind a breakable wall in a mossy area above Bone Bottom (Act 1).",
-        2: "Deep Docks central — from Forge Daughter exit, go down then east; flip lever, jump back upward.",
-        3: "Greymoor above Shakra’s bench — wall-jump NE of Halfway Home, then east; use Cling Grip in a balloon chamber.",
-        4: "Sold by Frey in Bellhart for 270 Rosaries (after My Missing Courier Wish).",
-        5: "Weavenest Atla — ascend east wall after teleporting, head west past Marrowmaws, drop into hidden passage (Needolin).",
-        6: "The Slab — from Bellway station, climb north two levels, cross cages, then a ceiling passage (Cling Grip).",
-        7: "Top of Grand Gate — strike scales with upward attack to tip them.",
-        8: "Underworks — south of Ventrica station; west through combat gauntlet.",
-        9: "Flea Caravan — received when they ascend to Grand Gate (need 12 Fleas + Last Judge defeated).",
-        10:"Whiteward — under the lift; call it, drop down, side passage to fragment.",
-        11:"SE Cogwork Core — complete combat gauntlet and continue east.",
-        12:"Lower Underworks (right) — from The Cauldron, descend shaft then break left wall in burning floor room.",
-        13:"Reward from Sherma after completing Balm For The Wounded Wish.",
-        14:"Sold by Jubilana for 500 Rosaries (after The Lost Merchant Wish).",
-        15:"Deep Docks SE — use Clawline to open gate, descend, Clawline across, break explosive rock, platform to fragment.",
-        16:"High Halls — highest point in left vertical room (Faydown Cloak + Clawline) or via Silk Soar.",
-        17:"Western Memorium — from 4F below Ventrica, break vines south then path around spikes to chamber.",
-        18:"Sold by Grindle for 680 Rosaries (requires Faydown Cloak + Cling Grip)."
+        1: "Mossy area above Bone Bottom — behind a breakable wall.",
+        2: "Deep Docks central — flip a lever then climb back up to reach ledge.",
+        3: "Greymoor above Shakra’s bench — Cling Grip balloon chamber.",
+        4: "Bellhart — sold by Frey for 270 Rosaries (after My Missing Courier).",
+        5: "Weavenest Atla — west path via Needolin room; hidden drop.",
+        6: "The Slab — from Bellway station, up through cages to ceiling passage (Cling Grip).",
+        7: "Grand Gate — tip the hanging scales with upward strikes.",
+        8: "Underworks — west combat gauntlet below Ventrica station.",
+        9: "Flea Caravan — awarded when Caravan ascends to Grand Gate (12 Fleas + Last Judge).",
+        10:"Whiteward — under the lift; call it, drop and enter side passage.",
+        11:"Cogwork Core (SE) — after a combat gauntlet eastward.",
+        12:"Underworks (lower right) — break left wall in burning floor room from The Cauldron shaft.",
+        13:"Sherma reward — complete Balm For The Wounded Wish.",
+        14:"Jubilana shop — 500 Rosaries (after The Lost Merchant).",
+        15:"Deep Docks SE — open gate with Clawline, break explosive rock, platform through hazards.",
+        16:"High Halls — top of left vertical (Faydown Cloak + Clawline) or via Silk Soar.",
+        17:"Memorium (west) — from 4F below Ventrica, break vines south and circle around spikes.",
+        18:"Grindle shop — 680 Rosaries (needs Faydown Cloak + Cling Grip)."
       };
-
       const arr = [];
       for (let k = 0; k < 18; k++) {
         const n = k+1;
-        const act = (n <=6) ? 1 : 2; // 1–6 Act1, 7–18 Act2
-        arr.push({
-          id:`spoolFrag_${n}`,
-          name:`Spool Fragment ${n}`,
-          weight:0.5,
-          act,
-          loc: LOC[n] || "Location details coming soon."
-        });
+        const act = (n <=6) ? 1 : 2;
+        arr.push({ id:`spoolFrag_${n}`, name:`Spool Fragment ${n}`, weight:0.5, act, loc: LOC[n] });
       }
       return arr;
     })() },
 
+    /* Crafting Kit Upgrades — vendors & quest rewards */
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
-      {id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1},
-      {id:"kit_2", name:"Crafting Kit Expansion II", weight:1, act:1},
-      {id:"kit_3", name:"Crafting Kit Expansion III", weight:1, act:2},
-      {id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2},
+      {id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1,
+       loc:"Deep Docks — buy from the Forge Daughter after opening her shop."},
+      {id:"kit_2", name:"Crafting Kit Expansion II", weight:1, act:1,
+       loc:"Deep Docks — second stock from the Forge Daughter after story progress."},
+      {id:"kit_3", name:"Crafting Kit Expansion III", weight:1, act:2,
+       loc:"Underworks/Choral area vendor (Act 2) — appears after progressing Citadel path."},
+      {id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2,
+       loc:"Blasted Steps side-path vendor (Act 2) — up/left from Bell Beast station."}
     ]},
 
+    /* Tool Pouch Upgrades — capacity vendors */
     { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
-      {id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1},
-      {id:"pouch_2", name:"Tool Pouch Expansion II", weight:1, act:1},
-      {id:"pouch_3", name:"Tool Pouch Expansion III", weight:1, act:2},
-      {id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2},
+      {id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1,
+       loc:"Far Fields — buy from Mort in Pilgrim’s Rest for ~220 Rosaries (after Drifter’s Cloak)."},
+      {id:"pouch_2", name:"Tool Pouch Expansion II", weight:1, act:1,
+       loc:"Bellhart vendor — available after freeing Bellhart / early Act 2 transition."},
+      {id:"pouch_3", name:"Tool Pouch Expansion III", weight:1, act:2,
+       loc:"Choral Chambers — Jubilana’s shop stock (Act 2)."},
+      {id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2,
+       loc:"Underworks (Ventrica) — late Act 2 shop stock."}
     ]},
 
+    /* Crests — chapels & quests */
     { type:"main", name:"Crests — 6%", items:[
-      {id:"crest_reaper", name:"Reaper", weight:1, act:1},
-      {id:"crest_wanderer", name:"Wanderer", weight:1, act:1},
-      {id:"crest_beast", name:"Beast", weight:1, act:1},
-      {id:"crest_witch", name:"Witch", weight:1, act:2},
-      {id:"crest_architect", name:"Architect", weight:1, act:2},
-      {id:"crest_shaman", name:"Shaman", weight:1, act:3},
+      {id:"crest_reaper", name:"Reaper", weight:1, act:1,
+       loc:"Greymoor — Chapel of the Reaper at far west; clear gauntlet and claim the crest."},
+      {id:"crest_wanderer", name:"Wanderer", weight:1, act:1,
+       loc:"Bonegrave/Moss Grotto — Chapel of the Wanderer."},
+      {id:"crest_beast", name:"Beast", weight:1, act:1,
+       loc:"Hunter’s March — Chapel of the Beast southeast of the area."},
+      {id:"crest_witch", name:"Witch", weight:1, act:2,
+       loc:"Complete “Rite of Rebirth” then “Infestation Operation,” return to Chapel of the Witch."},
+      {id:"crest_architect", name:"Architect", weight:1, act:2,
+       loc:"Citadel route/Choral — puzzle/quest line tied to tool crafting rooms."},
+      {id:"crest_shaman", name:"Shaman", weight:1, act:3,
+       loc:"Act 3 — late Choral/Cradle path; reward for ranged/silk-skill trials."}
     ]},
 
+    /* Silk Skills — statues & bosses */
     { type:"main", name:"Silk Skills — 6%", items:[
-      {id:"skill_silkspear", name:"Silkspear", weight:1, act:1},
-      {id:"skill_threadstorm", name:"Thread Storm", weight:1, act:1},
-      {id:"skill_sharpdart", name:"Sharpdart", weight:1, act:1},
-      {id:"skill_crossstitch", name:"Cross Stitch", weight:1, act:1},
-      {id:"skill_runerage", name:"Rune Rage", weight:1, act:1},
-      {id:"skill_purenails", name:"Pure Nails", weight:1, act:3},
+      {id:"skill_silkspear", name:"Silkspear", weight:1, act:1,
+       loc:"Greymoor/Mosshome — early statue (top of Mosshome from Bone Bottom path)."},
+      {id:"skill_threadstorm", name:"Thread Storm", weight:1, act:1,
+       loc:"Greymoor — early unlock via statue/quest; strong AoE spinner."},
+      {id:"skill_sharpdart", name:"Sharpdart", weight:1, act:1,
+       loc:"Exhaust Organ (Bilewater line) — defeat Phantom to learn counter-technique."},
+      {id:"skill_crossstitch", name:"Cross Stitch", weight:1, act:1,
+       loc:"Statue/quest room near early Mosshome routes; unlocks mid-Act 1."},
+      {id:"skill_runerage", name:"Rune Rage", weight:1, act:1,
+       loc:"Reward from early combat trial/NPC instructor off The Marrow central shaft."},
+      {id:"skill_purenails", name:"Pure Nails", weight:1, act:3,
+       loc:"Act 3 — advanced statue after Silk Soar, in path to the Abyss/Grand Gate."}
     ]},
 
-    /* TOOLS — 51% */
+    /* TOOLS — each with a brief where-to-get */
     { type:"main", name:"Tools — 51%", items:[
       /* RED — Act 1 */
-      {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:1, color:"red"},
-      {id:"tool_threefold",    name:"Threefold Pin",  weight:1, act:1, color:"red"},
-      {id:"tool_longpin",      name:"Longpin",        weight:1, act:1, color:"red"},
-      {id:"tool_curveclaw",    name:"Curveclaw / Curvesickle", weight:1, act:1, color:"red", loc:"Upgraded in Act 3"},
-      {id:"tool_tacks",        name:"Tacks",          weight:1, act:1, color:"red"},
-      {id:"tool_stingshard",   name:"Sting Shard",    weight:1, act:1, color:"red"},
-      {id:"tool_pimpillo",     name:"Pimpillo",       weight:1, act:1, color:"red"},
-      {id:"tool_flintslate",   name:"Flintslate",     weight:1, act:1, color:"red"},
-      {id:"tool_plasmium",     name:"Plasmium Phial", weight:1, act:1, color:"red"},
-      {id:"tool_fleabrew",     name:"Flea Brew",      weight:1, act:1, color:"red"},
-
+      {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:1, color:"red",
+       loc:"The Marrow — far-right prison cells; free Grindle and climb to the glow."},
+      {id:"tool_threefold",    name:"Threefold Pin",  weight:1, act:1, color:"red",
+       loc:"Hunter’s March — found along chapel approach side-room chest."},
+      {id:"tool_longpin",      name:"Longpin",        weight:1, act:1, color:"red",
+       loc:"Moss Grotto — platforming alcove above Bone Bottom."},
+      {id:"tool_curveclaw",    name:"Curveclaw / Curvesickle", weight:1, act:1, color:"red",
+       loc:"Hunter’s March — path toward Chapel of the Beast; upgrade in Act 3."},
+      {id:"tool_tacks",        name:"Tacks",          weight:1, act:1, color:"red",
+       loc:"Shellwood — side chamber behind a brittle wall."},
+      {id:"tool_stingshard",   name:"Sting Shard",    weight:1, act:1, color:"red",
+       loc:"The Marrow — drop-room left of central shaft mid-levels."},
+      {id:"tool_pimpillo",     name:"Pimpillo",       weight:1, act:1, color:"red",
+       loc:"Moss Grotto — reward from a brief mushroom nest gauntlet."},
+      {id:"tool_flintslate",   name:"Flintslate",     weight:1, act:1, color:"red",
+       loc:"The Marrow — small room along the long vertical drop (mid)."},
+      {id:"tool_plasmium",     name:"Plasmium Phial", weight:1, act:1, color:"red",
+       loc:"Moss Grotto — vendor stock after opening Weavenest power."},
+      {id:"tool_fleabrew",     name:"Flea Brew",      weight:1, act:1, color:"red",
+       loc:"Greymoor — Flea festival vendor (Act 1 stock)."},
       /* RED — Act 2 */
-      {id:"tool_silkshot",     name:"Silkshot",       weight:1, act:2, color:"red"},
-      {id:"tool_throwingring", name:"Throwing Ring",  weight:1, act:2, color:"red"},
-      {id:"tool_conchcutter",  name:"Conchcutter",    weight:1, act:2, color:"red"},
-      {id:"tool_delverdrill",  name:"Delver’s Drill", weight:1, act:2, color:"red"},
-      {id:"tool_cogwheel",     name:"Cogwork Wheel",  weight:1, act:2, color:"red"},
-      {id:"tool_voltvessels",  name:"Voltvessels",    weight:1, act:2, color:"red"},
-      {id:"tool_cogfly",       name:"Cogfly",         weight:1, act:2, color:"red"},
-      {id:"tool_rosarycannon", name:"Rosary Cannon",  weight:1, act:2, color:"red"},
+      {id:"tool_silkshot",     name:"Silkshot",       weight:1, act:2, color:"red",
+       loc:"Bilewater lower-right — cocoon door; play Needolin to reach Weavenest Murglin and repair the tool."},
+      {id:"tool_throwingring", name:"Throwing Ring",  weight:1, act:2, color:"red",
+       loc:"Choral Chambers — training annex chest after mini-trial."},
+      {id:"tool_conchcutter",  name:"Conchcutter",    weight:1, act:2, color:"red",
+       loc:"Sands of Karak — path toward Coral Tower gate challenge."},
+      {id:"tool_delverdrill",  name:"Delver’s Drill", weight:1, act:2, color:"red",
+       loc:"Deep Docks — delver hideout cache after switch sequence."},
+      {id:"tool_cogwheel",     name:"Cogwork Wheel",  weight:1, act:2, color:"red",
+       loc:"Cogwork Core — puzzle room near gearing lifts."},
+      {id:"tool_voltvessels",  name:"Voltvessels",    weight:1, act:2, color:"red",
+       loc:"Sands of Karak — Voltnest side cavern reward."},
+      {id:"tool_cogfly",       name:"Cogfly",         weight:1, act:2, color:"red",
+       loc:"Cogwork Core — secret in fan-shaft side path."},
+      {id:"tool_rosarycannon", name:"Rosary Cannon",  weight:1, act:2, color:"red",
+       loc:"Whispering Vaults — hidden cache beyond choir balcony."},
 
       /* BLUE — Act 1 */
-      {id:"tool_druidseye",    name:"Druid’s Eye / Druid’s Eyes", weight:1, act:1, color:"blue"},
-      {id:"tool_magmbell",     name:"Magma Bell",          weight:1, act:1, color:"blue"},
-      {id:"tool_wardingbell",  name:"Warding Bell",        weight:1, act:1, color:"blue"},
-      {id:"tool_pollip",       name:"Pollip Pouch",        weight:1, act:1, color:"blue"},
-      {id:"tool_fracturedmask",name:"Fractured Mask",      weight:1, act:1, color:"blue"},
-      {id:"tool_multibinder",  name:"Multibinder",         weight:1, act:1, color:"blue"},
-      {id:"tool_weavelight",   name:"Weavelight",          weight:1, act:1, color:"blue"},
+      {id:"tool_druidseye",    name:"Druid’s Eye / Druid’s Eyes", weight:1, act:1, color:"blue",
+       loc:"Mosshome — complete ‘Berry Picking’ for the Moss Druid (extra berries further empower it)."},
+      {id:"tool_magmbell",     name:"Magma Bell",          weight:1, act:1, color:"blue",
+       loc:"Wisp Thicket — heat shrine chest after flame trial."},
+      {id:"tool_wardingbell",  name:"Warding Bell",        weight:1, act:1, color:"blue",
+       loc:"Greymoor — chapel side-crypt, post-gauntlet chest."},
+      {id:"tool_pollip",       name:"Pollip Pouch",        weight:1, act:1, color:"blue",
+       loc:"Shellwood — complete ‘Rite of the Pollip’ collection."},
+      {id:"tool_fracturedmask",name:"Fractured Mask",      weight:1, act:1, color:"blue",
+       loc:"Hunter’s March — chapel approach alcove (platforming)."},
+      {id:"tool_multibinder",  name:"Multibinder",         weight:1, act:1, color:"blue",
+       loc:"Far Fields — Pilgrim’s Rest side room chest."},
+      {id:"tool_weavelight",   name:"Weavelight",          weight:1, act:1, color:"blue",
+       loc:"Weavenest Atla — power up the area; west of the bench."},
 
       /* BLUE — Act 2 */
-      {id:"tool_sawtooth",     name:"Sawtooth Circlet",    weight:1, act:2, color:"blue"},
-      {id:"tool_injectorband", name:"Injector Band",       weight:1, act:2, color:"blue"},
-      {id:"tool_spoolext",     name:"Spool Extender",      weight:1, act:2, color:"blue"},
-      {id:"tool_reservebind",  name:"Reserve Bind",        weight:1, act:2, color:"blue"},
-      {id:"tool_clawmirror",   name:"Claw Mirror",         weight:1, act:2, color:"blue"},
-      {id:"tool_memorycrystal",name:"Memory Crystal",      weight:1, act:2, color:"blue"},
-      {id:"tool_snitchpick",   name:"Snitch Pick",         weight:1, act:2, color:"blue"},
-      {id:"tool_voltfilament", name:"Volt Filament",       weight:1, act:2, color:"blue"},
-      {id:"tool_quicksling",   name:"Quick Sling",         weight:1, act:2, color:"blue"},
-      {id:"tool_wreathpurity", name:"Wreath of Purity",    weight:1, act:2, color:"blue"},
-      {id:"tool_longclaw",     name:"Longclaw",            weight:1, act:2, color:"blue"},
-      {id:"tool_wispfire",     name:"Wispfire Lantern",    weight:1, act:2, color:"blue"},
-      {id:"tool_eggflealia",   name:"Egg of Flealia",      weight:1, act:2, color:"blue"},
+      {id:"tool_sawtooth",     name:"Sawtooth Circlet",    weight:1, act:2, color:"blue",
+       loc:"Deep Docks — high scaffolding stash (requires Cling Grip)."},
+      {id:"tool_injectorband", name:"Injector Band",       weight:1, act:2, color:"blue",
+       loc:"Whiteward — medical ward side lab locker."},
+      {id:"tool_spoolext",     name:"Spool Extender",      weight:1, act:2, color:"blue",
+       loc:"Underworks — near Ventrica station puzzle room."},
+      {id:"tool_reservebind",  name:"Reserve Bind",        weight:1, act:2, color:"blue",
+       loc:"High Halls — reward from Final Audience questline."},
+      {id:"tool_clawmirror",   name:"Claw Mirror",         weight:1, act:2, color:"blue",
+       loc:"Whispering Vaults — stage room after Trobbio encounter."},
+      {id:"tool_memorycrystal",name:"Memory Crystal",      weight:1, act:2, color:"blue",
+       loc:"Choral Chambers — study with archivist puzzle."},
+      {id:"tool_snitchpick",   name:"Snitch Pick",         weight:1, act:2, color:"blue",
+       loc:"Deep Docks — hidden vault behind breakable wall."},
+      {id:"tool_voltfilament", name:"Volt Filament",       weight:1, act:2, color:"blue",
+       loc:"Sands of Karak — Voltnest core after event."},
+      {id:"tool_quicksling",   name:"Quick Sling",         weight:1, act:2, color:"blue",
+       loc:"Choral Chambers — arena challenge reward."},
+      {id:"tool_wreathpurity", name:"Wreath of Purity",    weight:1, act:2, color:"blue",
+       loc:"Whiteward — chapel reliquary chest."},
+      {id:"tool_longclaw",     name:"Longclaw",            weight:1, act:2, color:"blue",
+       loc:"Deep Docks — long jump route past gears (Clawline)."},
+      {id:"tool_wispfire",     name:"Wispfire Lantern",    weight:1, act:2, color:"blue",
+       loc:"Wisp Thicket — reward after fire-wisp escort."},
+      {id:"tool_eggflealia",   name:"Egg of Flealia",      weight:1, act:2, color:"blue",
+       loc:"Greymoor — Flea Caravan favor chain."},
 
       /* BLUE — Act 3 */
-      {id:"tool_pinbadge",     name:"Pin Badge",           weight:1, act:3, color:"blue"},
+      {id:"tool_pinbadge",     name:"Pin Badge",           weight:1, act:3, color:"blue",
+       loc:"Mount Fay — reward from Pinstress encounter."},
 
       /* YELLOW — Act 1 */
-      {id:"tool_compass",      name:"Compass",             weight:1, act:1, color:"yellow"},
-      {id:"tool_shardpendant", name:"Shard Pendant",       weight:1, act:1, color:"yellow"},
-      {id:"tool_magnetite_brooch", name:"Magnetite Brooch", weight:1, act:1, color:"yellow"},
-      {id:"tool_weightedbelt", name:"Weighted Belt",       weight:1, act:1, color:"yellow"},
-      {id:"tool_barbed",       name:"Barbed Bracelet",     weight:1, act:1, color:"yellow"},
-      {id:"tool_deadbug",      name:"Dead Bug’s Purse / Shell Satchel", weight:1, act:1, color:"yellow"},
-      {id:"tool_silkspeed",    name:"Silkspeed Anklets",   weight:1, act:1, color:"yellow"},
-      {id:"tool_thiefsmark",   name:"Thief’s Mark",        weight:1, act:1, color:"yellow"},
+      {id:"tool_compass",      name:"Compass",             weight:1, act:1, color:"yellow",
+       loc:"The Marrow — buy from Shakra, the map vendor (she relocates as you progress)."},
+      {id:"tool_shardpendant", name:"Shard Pendant",       weight:1, act:1, color:"yellow",
+       loc:"The Marrow — small side room left of the central shaft (mid)."},
+      {id:"tool_magnetite_brooch", name:"Magnetite Brooch", weight:1, act:1, color:"yellow",
+       loc:"Bone Bottom — buy from Pebb for ~120 Rosaries."},
+      {id:"tool_weightedbelt", name:"Weighted Belt",       weight:1, act:1, color:"yellow",
+       loc:"Greymoor — chapel approach cache."},
+      {id:"tool_barbed",       name:"Barbed Bracelet",     weight:1, act:1, color:"yellow",
+       loc:"Moss Grotto — hidden nook beyond brittle wall."},
+      {id:"tool_deadbug",      name:"Dead Bug’s Purse / Shell Satchel", weight:1, act:1, color:"yellow",
+       loc:"Moss Grotto — vendor stock near Bone Bottom."},
+      {id:"tool_silkspeed",    name:"Silkspeed Anklets",   weight:1, act:1, color:"yellow",
+       loc:"Far Fields — race reward/trader stock in Pilgrim’s Rest."},
+      {id:"tool_thiefsmark",   name:"Thief’s Mark",        weight:1, act:1, color:"yellow",
+       loc:"The Marrow — cellblock side room, locked chest."},
 
       /* YELLOW — Act 2 */
-      {id:"tool_magnetite_dice", name:"Magnetite Dice",    weight:1, act:2, color:"yellow"},
-      {id:"tool_scuttlebrace", name:"Scuttlebrace",        weight:1, act:2, color:"yellow"},
-      {id:"tool_wallcling",    name:"Ascendant’s Grip",    weight:1, act:2, color:"yellow"},
-      {id:"tool_spiderstrings",name:"Spider Strings",      weight:1, act:2, color:"yellow"}
+      {id:"tool_magnetite_dice", name:"Magnetite Dice",    weight:1, act:2, color:"yellow",
+       loc:"Bellhart — gambler NPC reward/shop after side quest."},
+      {id:"tool_scuttlebrace", name:"Scuttlebrace",        weight:1, act:2, color:"yellow",
+       loc:"Deep Docks — crate yard secret under scaffolds."},
+      {id:"tool_wallcling",    name:"Ascendant’s Grip",    weight:1, act:2, color:"yellow",
+       loc:"Choral Chambers — wall-run trial prize."},
+      {id:"tool_spiderstrings",name:"Spider Strings",      weight:1, act:2, color:"yellow",
+       loc:"Weavenest Atla — post-power challenge chest."}
     ]},
 
+    /* Silk Hearts */
     { type:"main", name:"Silk Hearts — 3%", items:[
-      {id:"sheart_1", name:"Silk Heart I", weight:1, act:1},
-      {id:"sheart_2", name:"Silk Heart II", weight:1, act:2},
-      {id:"sheart_3", name:"Silk Heart III", weight:1, act:2},
+      {id:"sheart_1", name:"Silk Heart I", weight:1, act:1,
+       loc:"Bell Beast path — unlock Bellways then collect heart shard in early Act 1 hub."},
+      {id:"sheart_2", name:"Silk Heart II", weight:1, act:2,
+       loc:"The Cradle — reward during mid-Act 2 ascent path (Lace rematch route)."},
+      {id:"sheart_3", name:"Silk Heart III", weight:1, act:2,
+       loc:"Harmonic/Whispering/Memory sectors — the three orbs route spanning Act 2 zones."}
     ]},
 
+    /* Misc */
     { type:"main", name:"Miscellaneous — 2%", items:[
-      {id:"misc_sylphsong", name:"Sylphsong", weight:1, act:2},
-      {id:"misc_everbloom", name:"Everbloom", weight:1, act:3},
+      {id:"misc_sylphsong", name:"Sylphsong", weight:1, act:2,
+       loc:"Moss Grotto — Weavenest Atla (Eva). Use Needolin to enter, restore power, then bind Eva."},
+      {id:"misc_everbloom", name:"Everbloom", weight:1, act:3,
+       loc:"Moss Grotto — reward after completing ‘Old Hearts’ Wish chain in Act 3."}
     ]},
 
-    /* ================== EXTRAS ================== */
-
-    /* Bosses: named & split by Act (locations/notes in loc) */
+    /* ================== EXTRAS (unchanged structure; still trackable) ================== */
     { type:"extra", name:"Boss Fights", items:[
-      /* ---- Act 1 — Mandatory ---- */
       {id:"boss_moss_mother",      name:"Moss Mother",            act:1, loc:"Moss Grotto"},
       {id:"boss_bell_beast",       name:"Bell Beast",             act:1, loc:"The Marrow • unlocks Bellways + Silk Heart"},
       {id:"boss_lace_a1",          name:"Lace",                   act:1, loc:"Deep Docks (after Swift Step)"},
       {id:"boss_fourth_chorus",    name:"Fourth Chorus",          act:1, loc:"Far Fields (after Drifter’s Cloak)"},
-      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood • access to Weaver statue (with Cling Grip)"},
+      {id:"boss_sister_splinter",  name:"Sister Splinter",        act:1, loc:"Shellwood"},
       {id:"boss_widow_bellhart",   name:"Widow Bellhart",         act:1, loc:"—"},
       {id:"boss_last_judge",       name:"Last Judge",             act:1, loc:"Blasted Steps • Gate to Citadel / Act 2"},
 
-      /* ---- Act 1 — Optional ---- */
       {id:"boss_moorwing",         name:"Moorwing",               act:1, loc:"Greymoor (south-west)"},
       {id:"boss_savage_beastfly_a1",name:"Savage Beastfly",       act:1, loc:"Hunter’s March, Chapel of the Beast • Beast Crest"},
       {id:"boss_skull_tyrant",     name:"Skull Tyrant",           act:1, loc:"The Marrow • via ‘Terrible Tyrant’ Wish"},
       {id:"boss_moss_mother_duo",  name:"Moss Mother Duo",        act:1, loc:"Weavenest Atla • west of bench • Weavelight Tool"},
       {id:"boss_great_conchflies", name:"Great Conchflies",       act:1, loc:"Blasted Steps • path to Citadel/Sands"},
-      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via Sinner’s Road/The Mist) • Cross Stitch"},
+      {id:"boss_phantom",          name:"Phantom",                act:1, loc:"Exhaust Organ (via The Mist) • Cross Stitch"},
       {id:"boss_craggler",         name:"Craggler",               act:1, loc:"The Marrow"},
       {id:"boss_skarrgard",        name:"Skarrgard",              act:1, loc:"Hunter’s March"},
       {id:"boss_disgraced_chef_lugoli", name:"Disgraced Chef Lugoli", act:1, loc:"Sinner’s Road"},
 
-      /* ---- Act 2 — Mandatory ---- */
-      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song quest"},
+      {id:"boss_cogwork_dancers",  name:"Cogwork Dancers",        act:2, loc:"Cogwork Core • starts Threefold Song"},
       {id:"boss_lace_rematch",     name:"Lace (rematch)",         act:2, loc:"The Cradle • Silk Heart"},
       {id:"boss_grand_mother_silk",name:"Grand Mother Silk",      act:2, loc:"The Cradle"},
 
-      /* ---- Act 2 — Optional ---- */
-      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage • Claw Mirror, Psalm Scroll"},
+      {id:"boss_trobbio",          name:"Trobbio",                act:2, loc:"Whispering Vaults, The Stage"},
       {id:"boss_savage_beastfly_a2",name:"Savage Beastfly (rematch)",act:2, loc:"Far Fields • Mask Shard"},
       {id:"boss_groal_the_great",  name:"Groal the Great",        act:2, loc:"Bilewater • access Seeker’s Soul"},
       {id:"boss_broodmother",      name:"Broodmother",            act:2, loc:"The Slab • ‘Wailing Mother’ Wish"},
       {id:"boss_disgraced_chef_lugosi", name:"Disgraced Chef Lugosi", act:2, loc:"Sinner’s Road (Double Jump)"},
-      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door • shortcut to Forge Daughter"},
-      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower • Conchcutter"},
-      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket • Wispfire Lantern"},
-      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • end of ‘Final Audience’ • Reserve Bind"},
-      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room below Songclave"},
-      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • after ‘Trail’s End’ Wish"},
-      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key • Silk Heart"},
-      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate • Rune Rage"},
-      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak • Volt Filament"},
-      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook • Grey Memento"},
+      {id:"boss_forebrothers",     name:"Forebrothers Signis & Gron", act:2, loc:"Deep Docks • Simple Key door"},
+      {id:"boss_raging_conchfly",  name:"Raging Conchfly",        act:2, loc:"Sands of Karak • access Coral Tower"},
+      {id:"boss_father_of_the_flame", name:"Father of the Flame", act:2, loc:"Wisp Thicket"},
+      {id:"boss_second_sentinel",  name:"Second Sentinel",        act:2, loc:"High Halls • ‘Final Audience’"},
+      {id:"boss_garmond_zaza",     name:"Garmond & Zaza",         act:2, loc:"Whispering Vaults • hidden room"},
+      {id:"boss_shakra",           name:"Shakra",                 act:2, loc:"Greymoor • ‘Trail’s End’ Wish"},
+      {id:"boss_unravelled",       name:"The Unravelled",         act:2, loc:"Whiteward • Surgeon’s Key"},
+      {id:"boss_first_sinner",     name:"First Sinner",           act:2, loc:"The Slab • Key of the Apostate"},
+      {id:"boss_voltvyrm",         name:"Voltvyrm",               act:2, loc:"Voltnest, Sands of Karak"},
+      {id:"boss_watcher_at_the_edge", name:"Watcher at the Edge", act:2, loc:"Sands of Karak • hidden nook"},
 
-      /* ---- Act 3 — Mandatory ---- */
       {id:"boss_shrine_guardian_seth", name:"Shrine Guardian Seth", act:3, loc:"Grand Gate (west passage)"},
-      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep • Pollen Heart"},
-      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak • Elegy of the Deep • Encrusted Heart"},
-      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path • Hunter’s Heart"},
+      {id:"boss_nyleth",           name:"Nyleth",                 act:3, loc:"Grand Gate • Elegy of the Deep"},
+      {id:"boss_crust_king_khann", name:"Crust King Khann",       act:3, loc:"Coral Tower, Sands of Karak"},
+      {id:"boss_skarrsinger_karmelita", name:"Skarrsinger Karmelita", act:3, loc:"Far Fields • Silk Soar path"},
       {id:"boss_lost_lace",        name:"Lost Lace",              act:3, loc:"The Abyss • after Old Hearts + Everbloom"},
 
-      /* ---- Act 3 — Optional ---- */
-      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow • unlocks Beastling Call"},
-      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor • Craw Memento"},
-      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps • Hero’s Memento"},
+      {id:"boss_bell_eater",       name:"Bell Eater",             act:3, loc:"The Marrow"},
+      {id:"boss_crawfather",       name:"Crawfather",             act:3, loc:"Craw Lake, Greymoor"},
+      {id:"boss_lost_garmond",     name:"Lost Garmond",           act:3, loc:"Blasted Steps"},
       {id:"boss_plasmified_zango", name:"Plasmified Zango",       act:3, loc:"Wormways"},
-      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage • Dark Mirror"},
-      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay • Pin Badge"},
+      {id:"boss_tormented_trobbio",name:"Tormented Trobbio",      act:3, loc:"The Stage"},
+      {id:"boss_pinstress",        name:"Pinstress",              act:3, loc:"Mount Fay"},
       {id:"boss_summoned_savior",  name:"Summoned Savior",        act:3, loc:"Moss Grotto (Steel Mode)"},
       {id:"boss_palestag",         name:"Palestag",               act:3, loc:"Verdania"},
-      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania • Conjoined Heart"},
-      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • secret next to Memory Locket"},
+      {id:"boss_clover_dancers",   name:"Clover Dancers",         act:3, loc:"Verdania"},
+      {id:"boss_watcher_at_the_end", name:"Watcher at the End",   act:3, loc:"Sands of Karak • near Memory Locket"},
     ]},
 
-    /* Wishes (73) */
-    { type:"extra", name:"Wishes", items:(()=> {
-      const a=[]; for(let i=1;i<=73;i++) a.push({id:`wish_${i}`, name:`Wish ${i}`, act:null}); return a;
-    })() },
-
-    /* The Materium — placeholder */
+    /* Wishes, Materium, Journal, Keys, Relics, etc. left as extras */
+    { type:"extra", name:"Wishes", items:(()=>{const a=[];for(let i=1;i<=73;i++) a.push({id:`wish_${i}`, name:`Wish ${i}`, act:null}); return a;})() },
     { type:"extra", name:"The Materium", items:[ {id:"materium_placeholder1", name:"Materium Entry — TBD", act:null} ]},
-
-    /* Hunter Journal — condensed counter (no 237 checkboxes) */
     { type:"extra", name:"Hunter Journal", items:[ {id:"hj_condensed", name:`${HJ_TOTAL} entries (use the counter below)`, act:null, condensed:true} ]},
-
-    /* Keys (grouped) */
-    { type:"extra", name:"Keys", items:(()=> {
-      const items=[];
-      for(let i=1;i<=4;i++) items.push({id:`key_simple_${i}`, name:`Simple Key ${i}`, act:null, group:"Simple Keys"});
-      for(let i=1;i<=3;i++) items.push({id:`key_slab_${i}`, name:`Slab Key ${i}`, act:null, group:"Slab Keys"});
-      for(let i=1;i<=4;i++) items.push({id:`key_misc_${i}`, name:`Misc Key ${i}`, act:null, group:"Misc Keys"});
-      return items;
-    })() },
-
-    /* Relics (grouped) */
-    { type:"extra", name:"Relics", items:(()=> {
-      const add=(arr, count, base, group)=>{ for(let i=1;i<=count;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group}); };
-      const out=[];
-      add(out,6,"Cylinder","Cylinders");
-      add(out,4,"Choral Commandment","Choral Commandments");
-      add(out,3,"Weaver Effigy","Weaver Effigy");
-      add(out,4,"Bone Scroll","Bone Scroll");
-      add(out,3,"Rune Harp","Rune Harp");
-      add(out,1,"Arcane Egg","Arcane Egg");
-      return out;
-    })() },
-
-    /* Mementos — all Act 3 */
+    { type:"extra", name:"Keys", items:(()=>{const items=[];for(let i=1;i<=4;i++) items.push({id:`key_simple_${i}`, name:`Simple Key ${i}`, act:null, group:"Simple Keys"});for(let i=1;i<=3;i++) items.push({id:`key_slab_${i}`, name:`Slab Key ${i}`, act:null, group:"Slab Keys"});for(let i=1;i<=4;i++) items.push({id:`key_misc_${i}`, name:`Misc Key ${i}`, act:null, group:"Misc Keys"});return items;})() },
+    { type:"extra", name:"Relics", items:(()=>{const add=(arr,c,base,group)=>{for(let i=1;i<=c;i++) arr.push({id:`relic_${base.toLowerCase().replace(/\s+/g,'_')}_${i}`, name:`${base} ${i}`, act:null, group});};const out=[];add(out,6,"Cylinder","Cylinders");add(out,4,"Choral Commandment","Choral Commandments");add(out,3,"Weaver Effigy","Weaver Effigy");add(out,4,"Bone Scroll","Bone Scroll");add(out,3,"Rune Harp","Rune Harp");add(out,1,"Arcane Egg","Arcane Egg");return out;})() },
     { type:"extra", name:"Mementos", items:[
       {id:"mem_hunter", name:"Hunter’s Memento", act:3},
       {id:"mem_grey", name:"Grey Memento", act:3},
@@ -598,28 +638,10 @@
       {id:"mem_huntersheart", name:"Hunter’s Heart", act:3},
       {id:"mem_conjoinedheart", name:"Conjoined Heart", act:3},
     ]},
-
-    /* Memory Lockets — 20 */
-    { type:"extra", name:"Memory Lockets", items:(()=> {
-      const a=[]; for(let i=1;i<=20;i++) a.push({id:`locket_${i}`, name:`Memory Locket ${i}`, act:null}); return a;
-    })() },
-
-    /* Fleas — 30 */
-    { type:"extra", name:"Fleas", items:(()=> {
-      const a=[]; for(let i=1;i<=30;i++) a.push({id:`flea_${i}`, name:`Flea ${i}`, act:null}); return a;
-    })() },
-
-    /* Pail Oil — 3 */
-    { type:"extra", name:"Pail Oil", items:[ 
-      {id:"oil_1", name:"Pail Oil 1", act:null},
-      {id:"oil_2", name:"Pail Oil 2", act:null},
-      {id:"oil_3", name:"Pail Oil 3", act:null},
-    ]},
-
-    /* Craft Metal — 8 */
-    { type:"extra", name:"Craft Metal", items:(()=> {
-      const a=[]; for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;
-    })() }
+    { type:"extra", name:"Memory Lockets", items:(()=>{const a=[];for(let i=1;i<=20;i++) a.push({id:`locket_${i}`, name:`Memory Locket ${i}`, act:null}); return a;})() },
+    { type:"extra", name:"Fleas", items:(()=>{const a=[];for(let i=1;i<=30;i++) a.push({id:`flea_${i}`, name:`Flea ${i}`, act:null}); return a;})() },
+    { type:"extra", name:"Pail Oil", items:[ {id:"oil_1", name:"Pail Oil 1", act:null},{id:"oil_2", name:"Pail Oil 2", act:null},{id:"oil_3", name:"Pail Oil 3", act:null} ]},
+    { type:"extra", name:"Craft Metal", items:(()=>{const a=[];for(let i=1;i<=8;i++) a.push({id:`metal_${i}`, name:`Craft Metal ${i}`, act:null}); return a;})() }
   ];
 
   /* ===== Order indices for stable sort ===== */
@@ -670,7 +692,11 @@
 
   function flatItems(){
     const list = [];
-    for (const cat of DATA) for (const it of cat.items) list.push({...it, category: cat.name, type: cat.type});
+    for (const cat of DATA) {
+      for (const it of cat.items) {
+        list.push({...it, category: cat.name, type: cat.type});
+      }
+    }
     return list;
   }
 
@@ -725,6 +751,7 @@
     }
   }
 
+  /* ===== Item rows (name click only toggles location, not checkbox) ===== */
   function renderItemsList(container, items){
     for (const it of items) {
       if (it.condensed) {
@@ -770,9 +797,17 @@
       }
 
       const row = document.createElement("div"); row.className = "item";
+
+      // Checkbox only toggles completion when clicked directly
       const cb = document.createElement("input");
       cb.type = "checkbox"; cb.id = it.id; cb.checked = checked.has(it.id);
-      const lab = document.createElement("label"); lab.setAttribute("for", it.id); lab.textContent = it.name;
+
+      // Name acts like a button: opens/closes location only
+      const nameBtn = document.createElement("button");
+      nameBtn.type = "button";
+      nameBtn.className = "namebtn";
+      nameBtn.textContent = it.name;
+
       const meta = document.createElement("div"); meta.className = "meta";
       if (it.weight != null) {
         const w = document.createElement("span"); w.className = "pill"; w.textContent = `${it.weight}%`;
@@ -787,6 +822,7 @@
       const locBtn = document.createElement("button"); locBtn.type = "button"; locBtn.className = "locbtn"; locBtn.textContent = "📍 Location";
       meta.appendChild(locBtn);
 
+      // Location details
       const details = document.createElement("div"); details.className = "loc";
       const ornTop = document.createElement("div"); ornTop.className = "orn top";
       const ornBottom = document.createElement("div"); ornBottom.className = "orn bottom";
@@ -795,7 +831,7 @@
       details.append(ornTop, body, ornBottom);
 
       function toggleDetails() { details.classList.toggle("open"); }
-      lab.addEventListener("click", toggleDetails);
+      nameBtn.addEventListener("click", toggleDetails);
       locBtn.addEventListener("click", toggleDetails);
 
       cb.addEventListener("change", () => {
@@ -805,7 +841,7 @@
         updateTotals();
       });
 
-      row.append(cb, lab, meta);
+      row.append(cb, nameBtn, meta);
       container.append(row, details);
     }
   }
@@ -939,14 +975,14 @@
   }
 
   /* Controls */
-  document.getElementById("expandAll").addEventListener("click", () => {
+  expandAllBtn.addEventListener("click", () => {
     document.querySelectorAll(".cat-items").forEach(el => {
       el.classList.remove("hidden");
       const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
       if (btn) btn.textContent = "–";
     });
   });
-  document.getElementById("collapseAll").addEventListener("click", () => {
+  collapseAllBtn.addEventListener("click", () => {
     document.querySelectorAll(".cat-items").forEach(el => {
       el.classList.add("hidden");
       const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
@@ -954,8 +990,8 @@
     });
   });
 
-  document.getElementById("exportBtn").addEventListener("click", () => {
-    const payload = { version: 16, checked: Array.from(checked), hjCount };
+  exportBtn.addEventListener("click", () => {
+    const payload = { version: 17, checked: Array.from(checked), hjCount };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -963,8 +999,8 @@
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById("importBtn").addEventListener("click", () => importFile.click());
-  document.getElementById("importFile").addEventListener("change", e => {
+  importBtn.addEventListener("click", () => importFile.click());
+  importFile.addEventListener("change", e => {
     const f = e.target.files[0];
     if (!f) return;
     const reader = new FileReader();
@@ -985,7 +1021,7 @@
     reader.readAsText(f);
   });
 
-  document.getElementById("resetBtn").addEventListener("click", () => {
+  resetBtn.addEventListener("click", () => {
     if (!confirm("Reset all progress?")) return;
     checked.clear();
     hjCount = 0;
@@ -993,7 +1029,7 @@
     render();
   });
 
-  document.getElementById("groupByAct").addEventListener("click", function(){
+  groupBtn.addEventListener("click", function(){
     groupByAct = !groupByAct;
     this.textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
     render();
@@ -1001,19 +1037,18 @@
 
   function setFilter(next){
     filterType = next;
-    const btns=[document.getElementById("filterAll"),document.getElementById("filterMain"),document.getElementById("filterExtra")];
-    btns.forEach(b=>b.classList.remove("active"));
-    if(next==="all")  document.getElementById("filterAll").classList.add("active");
-    if(next==="main") document.getElementById("filterMain").classList.add("active");
-    if(next==="extra")document.getElementById("filterExtra").classList.add("active");
+    [filterAllBtn, filterMainBtn, filterExtraBtn].forEach(b=>b.classList.remove("active"));
+    if(next==="all")  filterAllBtn.classList.add("active");
+    if(next==="main") filterMainBtn.classList.add("active");
+    if(next==="extra")filterExtraBtn.classList.add("active");
     render();
   }
-  document.getElementById("filterAll").addEventListener("click",  ()=>setFilter("all"));
-  document.getElementById("filterMain").addEventListener("click", ()=>setFilter("main"));
-  document.getElementById("filterExtra").addEventListener("click",()=>setFilter("extra"));
+  filterAllBtn.addEventListener("click",  ()=>setFilter("all"));
+  filterMainBtn.addEventListener("click", ()=>setFilter("main"));
+  filterExtraBtn.addEventListener("click",()=>setFilter("extra"));
 
-  document.getElementById("search").addEventListener("input", render);
-  document.getElementById("actFilter").addEventListener("change", render);
+  searchEl.addEventListener("input", render);
+  actFilterEl.addEventListener("change", render);
 
   function updateTotals() {
     const items = flatItems();
