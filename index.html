@@ -6,48 +6,61 @@
 <title>Silksong 100% Checklist</title>
 <style>
 :root{
-  /* Softer Hornet-inspired (muted crimson) */
-  --bg:#7b2633;      /* deep rosewood */
-  --fg:#fff7f7;      /* soft near-white text */
-  --muted:#ffd6d6;   /* gentle rose for secondary text */
+  /* Moss grotto palette (muted greens) */
+  --fg:#f5fff7;          /* near-white text */
+  --muted:#d9f2de;       /* secondary text */
 
-  --accent:#ff7a7a;  /* coral red accents */
-  --accent2:#ffc2c2; /* light blush for gradients/hover */
+  --accent:#62c574;      /* moss leaf (accents / progress) */
+  --accent2:#a4e3b0;     /* light mint */
 
-  --card:#5a1c26;      /* darker card surface for contrast */
-  --cardHover:#6a222d; /* hover surface */
-  --edge:#9a3a49;      /* muted red borders */
-  --edgeStrong:#b55362;/* stronger border on hover/focus */
-  --chip:#66202a;      /* badge/chip background */
-  --bar:#4c1720;       /* progress track */
+  --card:#1f3a2a;        /* dark moss card */
+  --cardHover:#254530;   /* hover tone */
+  --edge:#2e5a40;        /* borders */
+  --edgeStrong:#3f7c57;  /* hover/focus border */
+  --chip:#1b3225;        /* badges / chips */
+  --bar:#182a20;         /* progress track */
 
-  --extra1:#ff9aa5;  /* extras bar gradient 1 */
-  --extra2:#ffd6d6;  /* extras bar gradient 2 */
+  --extra1:#78d18a;      /* extras bar gradient 1 */
+  --extra2:#c4f0cc;      /* extras bar gradient 2 */
 
-  /* tool-color dots (kept readable on red) */
-  --red:#ffe0e0;
+  /* Tool color dots (kept for semantic color tags) */
+  --red:#ffb9b9;
   --blue:#a9cfff;
   --yellow:#ffe39a;
 
-  /* ornament images – update these paths to where you place your files */
-  --orn-top:url("assets/ornament-top.png");      /* e.g., 375px-SS_NPC_Dialogue_Top.png */
-  --orn-bottom:url("assets/ornament-bottom.png");/* e.g., 300px-SS_NPC_Dialogue_Bottom.png */
+  /* Background + ornaments (your files) */
+  --bg-image:url("assets/Screenshot_SS_Moss_Grotto_01.png");
+  --orn-top:url("assets/375px-SS_NPC_Dialogue_Top.png");
+  --orn-bottom:url("assets/300px-SS_NPC_Dialogue_Bottom.png");
 }
 
+/* ===== Base ===== */
 *{box-sizing:border-box}
 html,body{
   margin:0;
-  background:var(--bg);
   color:var(--fg);
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  min-height:100%;
 }
 
+/* Full-page background with a subtle dark green overlay for readability */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    linear-gradient(rgba(10,25,18,.68), rgba(10,25,18,.68)),
+    var(--bg-image) center/cover no-repeat fixed;
+  z-index:-1;
+}
+
+/* Layout */
 .container{max-width:1100px;margin:0 auto;padding:1rem}
 
 /* Top bar */
 .topbar{
   display:flex;gap:1rem;align-items:center;flex-wrap:wrap;
-  border-bottom:2px solid var(--edge);padding-bottom:.75rem
+  border-bottom:2px solid var(--edge);padding-bottom:.75rem;
+  backdrop-filter:saturate(120%) blur(2px);
 }
 .topbar h1{margin:0;font-size:1.15rem;letter-spacing:.2px}
 
@@ -60,7 +73,7 @@ html,body{
   padding:.55rem .75rem;background:var(--card);border:1px solid var(--edge);color:var(--fg);
   border-radius:.55rem;cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s,transform .05s
 }
-.controls button:hover{border-color:var(--edgeStrong);background:var(--cardHover);box-shadow:0 0 0 2px rgba(255,145,145,.18)}
+.controls button:hover{border-color:var(--edgeStrong);background:var(--cardHover);box-shadow:0 0 0 2px rgba(98,197,116,.18)}
 .controls button:active{transform:translateY(1px)}
 .badge{background:var(--chip);border:1px solid var(--edge);border-radius:.5rem;padding:.25rem .5rem;color:var(--muted);font-size:.8rem}
 
@@ -79,7 +92,8 @@ html,body{
 /* Cards & items */
 .board{display:grid;gap:1rem}
 .category{
-  background:var(--card);border:1px solid var(--edge);border-radius:.9rem;overflow:hidden
+  background:var(--card);border:1px solid var(--edge);border-radius:.9rem;overflow:hidden;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
 }
 .cat-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer}
 .cat-head h2{margin:0;font-size:1rem}
@@ -108,35 +122,19 @@ html,body{
   font-size:.75rem;padding:.25rem .5rem;border-radius:.45rem;background:var(--cardHover);border:1px solid var(--edge);
   color:var(--muted);cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s
 }
-.smallbtn:hover,.locbtn:hover{border-color:var(--edgeStrong);background:var(--cardHover);box-shadow:0 0 0 2px rgba(255,145,145,.18)}
+.smallbtn:hover,.locbtn:hover{border-color:var(--edgeStrong);background:var(--cardHover);box-shadow:0 0 0 2px rgba(98,197,116,.18)}
 
 /* Checkboxes */
-input[type="checkbox"]{
-  width:18px;height:18px;accent-color:#ffe3e3;cursor:pointer;
-  filter:drop-shadow(0 0 0 rgba(0,0,0,0));
-}
+input[type="checkbox"]{ width:18px;height:18px;accent-color:#baf2c4;cursor:pointer; }
 
-/* Location details (default CLOSED) */
-.loc{
-  display:none;                /* <-- stay closed on load/refresh */
-  grid-column:1/-1;
-  margin:.25rem 0 0 2rem;
-  padding:.85rem .9rem .9rem .9rem;
-  border-left:3px solid var(--accent);
-  color:#ffe3e3;
-  background:var(--cardHover);
-  border-radius:.4rem;
-  position:relative;
-}
-.loc.open{display:block;}      /* toggled open state */
-.loc a{color:#fff;text-decoration:underline}
-.loc a:hover{opacity:.9}
+/* Location details (closed by default) */
+.loc{ display:none; grid-column:1/-1; margin:.25rem 0 0 2rem; padding:.85rem .9rem .9rem .9rem;
+  border-left:3px solid var(--accent); color:#ecfff0; background:var(--cardHover); border-radius:.4rem; position:relative }
+.loc.open{display:block}
+.loc a{color:#eaffea;text-decoration:underline}
 
-/* Ornaments */
-.orn{
-  width:100%;height:22px;opacity:.95;filter:drop-shadow(0 0 1px rgba(0,0,0,.15));
-  background-position:center;background-repeat:no-repeat;background-size:contain;margin:.2rem 0 .6rem 0
-}
+.orn{ width:100%;height:22px;opacity:.95;filter:drop-shadow(0 0 1px rgba(0,0,0,.15));
+  background-position:center;background-repeat:no-repeat;background-size:contain;margin:.2rem 0 .6rem 0 }
 .orn.top{background-image:var(--orn-top);height:24px}
 .orn.bottom{background-image:var(--orn-bottom);height:20px;margin:.6rem 0 .1rem 0}
 
@@ -147,7 +145,7 @@ input[type="checkbox"]{
 /* Subhead (tools split) */
 hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 .small{font-size:.85rem;color:var(--muted)}
-.subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#ffe3e3;display:flex;align-items:center;gap:.5rem}
+.subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#e8ffef;display:flex;align-items:center;gap:.5rem}
 .dot{width:.6rem;height:.6rem;border-radius:50%}
 .dot.red{background:var(--red)} .dot.blue{background:var(--blue)} .dot.yellow{background:var(--yellow)}
 </style>
@@ -207,7 +205,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v12";
+  const STORAGE_KEY = "silksong-checklist-v13";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
   /* ========= ORDER CONTROL (acquisition order) ========= */
@@ -234,7 +232,11 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 
     /* ---- Mask Shards — 5% (20 × 0.25%) ---- */
     { type:"main", name:"Mask Shards — 5% (order not indicative)", items:
-      Array.from({length:20}, (_,k)=>({ id:`maskShard_${k+1}`, name:`Mask Shard ${k+1}`, weight:0.25, act:null }))
+      Array.from({length:20}, (_,k)=>{
+        const n = k+1;
+        const act = (n<=6)?1 : (n<=16)?2 : 3;   // 1–6 Act1, 7–16 Act2, 17–20 Act3
+        return { id:`maskShard_${n}`, name:`Mask Shard ${n}`, weight:0.25, act };
+      })
     },
 
     /* ---- Spool Fragments — 9% (18 × 0.5%) ---- */
@@ -362,7 +364,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]},
   ];
 
-  // Build order maps
+  // Build order maps from your DATA definition
   buildOrderMaps(DATA);
 
   // -------- DOM lookups
@@ -632,7 +634,7 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     });
   });
   exportBtn.addEventListener("click", ()=>{
-    const payload = { version:12, checked:[...checked] };
+    const payload = { version:13, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
