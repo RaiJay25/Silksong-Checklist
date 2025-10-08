@@ -15,7 +15,7 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 .container{max-width:1100px;margin:0 auto;padding:1rem}
 .topbar{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--edge);padding-bottom:.75rem}
 .topbar h1{margin:0;font-size:1.15rem;letter-spacing:.2px}
-.controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-left:auto}
+.controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-left:auto;align-items:center}
 .controls input[type="search"], .controls select{
   padding:.55rem .75rem;background:#11131a;border:1px solid #2a2d35;color:var(--fg);border-radius:.55rem
 }
@@ -24,6 +24,12 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 }
 .controls button:hover{border-color:#3a3d47}
 .badge{background:var(--chip);border:1px solid var(--edge);border-radius:.5rem;padding:.25rem .5rem;color:var(--muted);font-size:.8rem}
+
+.seg{display:inline-flex;border:1px solid #2a2d35;border-radius:.55rem;overflow:hidden}
+.seg button{background:#171a22;border:none;padding:.55rem .7rem;color:var(--fg);cursor:pointer}
+.seg button+button{border-left:1px solid #2a2d35}
+.seg button.active{background:#1f2430}
+
 .progress{display:grid;gap:.4rem;margin:.9rem 0}
 .progress .label{color:var(--muted);font-size:.9rem}
 .bar{height:10px;background:var(--bar);border-radius:999px;overflow:hidden}
@@ -65,17 +71,21 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   <div class="topbar">
     <h1>Silksong Checklist</h1>
     <span id="totalBadge" class="badge">0 items</span>
+
     <div class="controls">
       <input id="search" type="search" placeholder="Search items…" aria-label="Search" />
-      <select id="sortBy" aria-label="Sort by">
-        <option value="act">Sort: Act (asc)</option>
-        <option value="name">Sort: Name (A→Z)</option>
-        <option value="category">Sort: Category (A→Z)</option>
-      </select>
       <select id="actFilter" aria-label="Filter by act">
         <option value="all">Act: All / Unknown</option>
       </select>
       <button id="groupByAct" type="button">Group by Act: Off</button>
+
+      <!-- filter: All / 100% / Extras -->
+      <div class="seg" role="group" aria-label="Filter by task type">
+        <button id="filterAll"   type="button" class="active">All</button>
+        <button id="filterMain"  type="button">100%</button>
+        <button id="filterExtra" type="button">Extras</button>
+      </div>
+
       <button id="expandAll" type="button">Expand All</button>
       <button id="collapseAll" type="button">Collapse All</button>
       <button id="exportBtn" type="button">Export</button>
@@ -112,12 +122,24 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v5";
+  const STORAGE_KEY = "silksong-checklist-v7";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
-  // ======= DATA =======
+  /* ========= ORDER CONTROL (acquisition order) ========= */
+  // We'll keep categories and items exactly in the order you define below.
+  const categoryIndex = new Map(); // category name -> index
+  const itemIndex = new Map();     // item id -> index
+  function buildOrderMaps(DATA){
+    let c=0, i=0;
+    DATA.forEach(cat=>{
+      if(!categoryIndex.has(cat.name)) categoryIndex.set(cat.name, c++);
+      cat.items.forEach(it=> itemIndex.set(it.id, i++));
+    });
+  }
+
+  // ======= DATA (edit to change order, acts, etc.) =======
   // type: "main" (weighted) or "extra" (unweighted)
-  // Optional fields: act, color (tools), loc, url
+  // Optional fields: act, color (for tools), loc, url
   const DATA = [
     /* ---- Needle Upgrades (acts set) ---- */
     { type:"main", name:"Needle Upgrades — 4%", items:[
@@ -127,14 +149,14 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:3 },
     ]},
 
-    /* ---- Mask Shards: 20 × 0.25% = 5% (order not meaningful) ---- */
+    /* ---- Mask Shards: 20 × 0.25% = 5% ---- */
     { type:"main", name:"Mask Shards — 5% (order not indicative)", items:
-      Array.from({length:20}, (_,i)=>({ id:`maskShard_${i+1}`, name:`Mask Shard ${i+1}`, weight:0.25, act:null }))
+      Array.from({length:20}, (_,k)=>({ id:`maskShard_${k+1}`, name:`Mask Shard ${k+1}`, weight:0.25, act:null }))
     },
 
     /* ---- Spool Fragments: 18 × 0.5% = 9% ---- */
     { type:"main", name:"Spool Fragments — 9%", items:
-      Array.from({length:18}, (_,i)=>({ id:`spoolFrag_${i+1}`, name:`Spool Fragment ${i+1}`, weight:0.5, act:null }))
+      Array.from({length:18}, (_,k)=>({ id:`spoolFrag_${k+1}`, name:`Spool Fragment ${k+1}`, weight:0.5, act:null }))
     },
 
     /* ---- Silk Hearts: 3 × 1% (Act 1, then Act 2 ×2) ---- */
@@ -144,13 +166,13 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"sheart_3", name:"Silk Heart III",weight:1, act:2 },
     ]},
 
-    /* ---- Misc (names cleaned) ---- */
+    /* ---- Misc ---- */
     { type:"main", name:"Miscellaneous — 2%", items:[
       { id:"misc_sylphsong", name:"Sylphsong", weight:1, act:null },
       { id:"misc_everbloom", name:"Everbloom", weight:1, act:null },
     ]},
 
-    /* ---- Crests (acts set, names cleaned) ---- */
+    /* ---- Crests ---- */
     { type:"main", name:"Crests — 6%", items:[
       { id:"crest_reaper",    name:"Reaper",        weight:1, act:1 },
       { id:"crest_wanderer",  name:"Wanderer",      weight:1, act:1 },
@@ -160,7 +182,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"crest_shaman",    name:"Shaman",        weight:1, act:3 },
     ]},
 
-    /* ---- Silk Skills (order/acts set, names cleaned) ---- */
+    /* ---- Silk Skills ---- */
     { type:"main", name:"Silk Skills — 6%", items:[
       { id:"skill_silkspear",   name:"Silkspear",   weight:1, act:1 },
       { id:"skill_threadstorm", name:"Thread Storm",weight:1, act:1 },
@@ -170,7 +192,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"skill_purenails",   name:"Pure Nails",  weight:1, act:3 },
     ]},
 
-    /* ---- Crafting Kit Upgrades: 4 ×1% with matching acts ---- */
+    /* ---- Crafting Kit Upgrades: 4 ×1% (acts set) ---- */
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
       { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1 },
       { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:1 },
@@ -178,7 +200,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 },
     ]},
 
-    /* ---- Tool Pouch Upgrades: 4 ×1% total 4% (acts set) ---- */
+    /* ---- Tool Pouch Upgrades: 4 ×1% (acts set) ---- */
     { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
       { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1 },
       { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:1 },
@@ -186,7 +208,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 },
     ]},
 
-    /* ---- Tools — 51% with Red/Blue/Yellow split (names cleaned) ---- */
+    /* ---- Tools — 51% (Red/Blue/Yellow) ---- */
     { type:"main", name:"Tools — 51% (Red / Blue / Yellow)", items:[
       // RED
       {id:"tool_straightpin",  name:"Straight Pin",  weight:1, act:null, color:"red"},
@@ -256,12 +278,13 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     { type:"extra", name:"Pail Oil", items:[ {id:"oil_placeholder1", name:"Pail Oil — TBD", act:null} ]},
     { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]},
   ];
-  // ======= END DATA =======
 
-  // -------- DOM + logic (unchanged except totals reflect 100%) --------
+  // Build order maps from your DATA definition
+  buildOrderMaps(DATA);
+
+  // -------- DOM lookups
   const board = document.getElementById("board");
   const searchEl = document.getElementById("search");
-  const sortByEl = document.getElementById("sortBy");
   const actFilterEl = document.getElementById("actFilter");
   const expandAllBtn = document.getElementById("expandAll");
   const collapseAllBtn = document.getElementById("collapseAll");
@@ -279,9 +302,14 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   const barFillExtrasEl = document.getElementById("barFillExtras");
   const totalBadge = document.getElementById("totalBadge");
   const groupBtn = document.getElementById("groupByAct");
+  const filterAllBtn   = document.getElementById("filterAll");
+  const filterMainBtn  = document.getElementById("filterMain");
+  const filterExtraBtn = document.getElementById("filterExtra");
 
+  // -------- State
   let checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
   let groupByAct = false;
+  let filterType = "all"; // "all" | "main" | "extra"
 
   function flatItems(){
     const list = [];
@@ -291,6 +319,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     return list;
   }
 
+  // Populate Act filter
   (function initActFilter(){
     const acts = new Set(flatItems().map(i => i.act).filter(a => a || a === 0));
     [...acts].sort((a,b)=>a-b).forEach(a=>{
@@ -309,21 +338,19 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     const term = (searchEl.value || "").trim().toLowerCase();
     const actFilter = actFilterEl.value;
 
+    // Filter by search / act / type
     let visible = items.filter(it=>{
       const s = it.name.toLowerCase();
       const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term);
       const matchesAct = (actFilter === "all") || (String(it.act) === actFilter);
-      return matchesSearch && matchesAct;
+      const matchesType =
+        filterType === "all"  ? true :
+        filterType === "main" ? (it.type === "main") :
+                                (it.type !== "main");
+      return matchesSearch && matchesAct && matchesType;
     });
 
-    const sortBy = sortByEl.value;
-    const cmp = {
-      "act": (a,b)=> ((a.act??999)-(b.act??999)) || a.name.localeCompare(b.name),
-      "name": (a,b)=> a.name.localeCompare(b.name),
-      "category": (a,b)=> a.category.localeCompare(b.category) || a.name.localeCompare(b.name)
-    }[sortBy];
-    visible.sort(cmp);
-
+    // Group by Act or by Category — while preserving your authored order
     if (groupByAct){
       const byAct = new Map();
       visible.forEach(i=>{
@@ -336,17 +363,27 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       keys.forEach(k=>{
         const title = (k==="Unknown") ? "Act Unknown" : `Act ${k}`;
         board.appendChild(sectionTitle(title));
+
         const byCat = groupBy(byAct.get(k), "category");
-        Object.keys(byCat).sort().forEach(catName=>{
-          board.appendChild(renderCategory(catName, byCat[catName]));
-        });
+        [...Object.keys(byCat)]
+          .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
+          .forEach(catName=>{
+            const itemsInCat = byCat[catName].slice()
+              .sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
+            board.appendChild(renderCategory(catName, itemsInCat));
+          });
+
         board.appendChild(document.createElement("hr")).className="soft";
       });
     } else {
       const byCat = groupBy(visible, "category");
-      Object.keys(byCat).sort().forEach(catName=>{
-        board.appendChild(renderCategory(catName, byCat[catName]));
-      });
+      [...Object.keys(byCat)]
+        .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
+        .forEach(catName=>{
+          const itemsInCat = byCat[catName].slice()
+            .sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
+          board.appendChild(renderCategory(catName, itemsInCat));
+        });
     }
 
     updateTotals();
@@ -381,9 +418,9 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     list.className = "cat-items";
 
     if(isTools){
-      list.appendChild(subHead("Red","red"));   renderItems(list, items.filter(i=>i.color==="red"));
-      list.appendChild(subHead("Blue","blue")); renderItems(list, items.filter(i=>i.color==="blue"));
-      list.appendChild(subHead("Yellow","yellow")); renderItems(list, items.filter(i=>i.color==="yellow"));
+      list.appendChild(subHead("Red","red"));      renderItems(list, items.filter(i=>i.color==="red"));
+      list.appendChild(subHead("Blue","blue"));    renderItems(list, items.filter(i=>i.color==="blue"));
+      list.appendChild(subHead("Yellow","yellow"));renderItems(list, items.filter(i=>i.color==="yellow"));
     } else {
       renderItems(list, items);
     }
@@ -430,7 +467,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
       cb.addEventListener("change", ()=>{
         if(cb.checked) checked.add(it.id); else checked.delete(it.id);
-        persist(); updateTotals(); 
+        persist(); updateTotals();
       });
 
       row.append(cb, lab, meta);
@@ -475,6 +512,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...checked])); }
 
+  // Controls
   document.getElementById("expandAll").addEventListener("click", ()=>{
     document.querySelectorAll(".cat-items").forEach(el=>{
       el.classList.remove("hidden");
@@ -490,7 +528,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     });
   });
   document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const payload = { version:5, checked:[...checked] };
+    const payload = { version:7, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -517,10 +555,21 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     document.getElementById("groupByAct").textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
     render();
   });
-  document.getElementById("search").addEventListener("input", render);
-  document.getElementById("sortBy").addEventListener("change", render);
-  document.getElementById("actFilter").addEventListener("change", render);
 
+  // segmented filter logic
+  function setFilter(next){
+    filterType = next;
+    [filterAllBtn, filterMainBtn, filterExtraBtn].forEach(b=>b.classList.remove("active"));
+    if(next==="all")  filterAllBtn.classList.add("active");
+    if(next==="main") filterMainBtn.classList.add("active");
+    if(next==="extra")filterExtraBtn.classList.add("active");
+    render();
+  }
+  filterAllBtn.addEventListener("click",  ()=>setFilter("all"));
+  filterMainBtn.addEventListener("click", ()=>setFilter("main"));
+  filterExtraBtn.addEventListener("click",()=>setFilter("extra"));
+
+  // Initial render
   render();
 })();
 </script>
