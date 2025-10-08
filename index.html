@@ -7,7 +7,7 @@
 <style>
 :root{
   --fg:#eaeaea; --bg:#0e0f13; --muted:#9aa0a6; --accent:#6ee7ff; --accent2:#8fff8f;
-  --card:#16171c; --edge:#22242a; --chip:#1f2128; --bar:#2a2d35; --warn:#ffd166;
+  --card:#16171c; --edge:#22242a; --chip:#1f2128; --bar:#2a2d35;
   --red:#ff6b6b; --blue:#6bb6ff; --yellow:#ffd166;
 }
 *{box-sizing:border-box}
@@ -34,14 +34,13 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 .progress .label{color:var(--muted);font-size:.9rem}
 .bar{height:10px;background:var(--bar);border-radius:999px;overflow:hidden}
 .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
-.bar-fill.extra{background:linear-gradient(90deg,#a1c4fd,#c2ffd8)}
 .board{display:grid;gap:1rem}
 .category{background:var(--card);border:1px solid var(--edge);border-radius:.8rem;overflow:hidden}
 .cat-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;cursor:pointer}
 .cat-head h2{margin:0;font-size:1rem}
-.cat-right{display:flex;align-items:center;gap:.5rem}
+.cat-right{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
 .pillType{font-size:.7rem;padding:.2rem .45rem;border-radius:.45rem;border:1px solid #2b2e39;background:#13151c;color:var(--muted)}
-.cat-count{color:var(--muted);font-size:.85rem}
+.cat-count{color:var(--muted);font-size:.85rem;margin-left:.25rem}
 .cat-items{padding:.2rem 1rem 1rem 1rem;display:grid;gap:.25rem}
 .item{display:flex;align-items:center;gap:.6rem;padding:.4rem;border-radius:.5rem}
 .item:hover{background:#1b1e26}
@@ -52,15 +51,16 @@ html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system
 .item .color.red{color:var(--red);border-color:var(--red) !important}
 .item .color.blue{color:var(--blue);border-color:var(--blue) !important}
 .item .color.yellow{color:var(--yellow);border-color:var(--yellow) !important}
+.smallbtn{font-size:.75rem;padding:.25rem .5rem;border-radius:.45rem;background:#1e222c;border:1px solid #2b2e39;color:#dbe2ea;cursor:pointer}
+.smallbtn:hover{border-color:#3a3d47}
 .locbtn{font-size:.75rem;padding:.15rem .45rem;border-radius:.45rem;background:#1e222c;border:1px solid #2b2e39;color:#dbe2ea;cursor:pointer}
 .locbtn:hover{border-color:#3a3d47}
 .loc{grid-column:1/-1;margin:.25rem 0 0 2rem;padding:.5rem .75rem;border-left:2px solid #3a3d47;color:var(--muted);display:none}
-.loc a{color:var(--accent)}
+.loc a{color:#a5eaff}
 .hidden{display:none!important}
 .footer{margin:1.25rem 0;color:var(--muted);text-align:center;border-top:1px solid var(--edge);padding-top:1rem}
 hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 .small{font-size:.85rem;color:var(--muted)}
-.warning{color:var(--warn)}
 .subhead{margin:.5rem 1rem 0;font-size:.85rem;color:#cfd3da;display:flex;align-items:center;gap:.5rem}
 .dot{width:.6rem;height:.6rem;border-radius:50%}
 .dot.red{background:var(--red)} .dot.blue{background:var(--blue)} .dot.yellow{background:var(--yellow)}
@@ -100,7 +100,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     <div class="label">
       <strong><span id="percent">0</span>%</strong> of weighted 100% •
       <span id="doneCount">0</span>/<span id="totalCount">0</span> items checked
-      <span id="weightWarn" class="small warning" style="display:none"> • Note: weighted total ≠ 100%</span>
     </div>
     <div class="bar"><div id="barFill" class="bar-fill"></div></div>
   </div>
@@ -122,11 +121,10 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
 
 <script>
 (() => {
-  const STORAGE_KEY = "silksong-checklist-v7";
+  const STORAGE_KEY = "silksong-checklist-v8";
   const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
 
   /* ========= ORDER CONTROL (acquisition order) ========= */
-  // We'll keep categories and items exactly in the order you define below.
   const categoryIndex = new Map(); // category name -> index
   const itemIndex = new Map();     // item id -> index
   function buildOrderMaps(DATA){
@@ -138,8 +136,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   }
 
   // ======= DATA (edit to change order, acts, etc.) =======
-  // type: "main" (weighted) or "extra" (unweighted)
-  // Optional fields: act, color (for tools), loc, url
+  // NOTE: Moved Silk Hearts and Misc to the bottom of the weighted section.
   const DATA = [
     /* ---- Needle Upgrades (acts set) ---- */
     { type:"main", name:"Needle Upgrades — 4%", items:[
@@ -159,17 +156,20 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       Array.from({length:18}, (_,k)=>({ id:`spoolFrag_${k+1}`, name:`Spool Fragment ${k+1}`, weight:0.5, act:null }))
     },
 
-    /* ---- Silk Hearts: 3 × 1% (Act 1, then Act 2 ×2) ---- */
-    { type:"main", name:"Silk Hearts — 3%", items:[
-      { id:"sheart_1", name:"Silk Heart I", weight:1, act:1 },
-      { id:"sheart_2", name:"Silk Heart II",weight:1, act:2 },
-      { id:"sheart_3", name:"Silk Heart III",weight:1, act:2 },
+    /* ---- Crafting Kit Upgrades: 4 ×1% (acts set) ---- */
+    { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
+      { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1 },
+      { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:1 },
+      { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:2 },
+      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 },
     ]},
 
-    /* ---- Misc ---- */
-    { type:"main", name:"Miscellaneous — 2%", items:[
-      { id:"misc_sylphsong", name:"Sylphsong", weight:1, act:null },
-      { id:"misc_everbloom", name:"Everbloom", weight:1, act:null },
+    /* ---- Tool Pouch Upgrades: 4 ×1% (acts set) ---- */
+    { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
+      { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1 },
+      { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:1 },
+      { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1, act:2 },
+      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 },
     ]},
 
     /* ---- Crests ---- */
@@ -190,22 +190,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       { id:"skill_crossstitch", name:"Cross Stitch",weight:1, act:1 },
       { id:"skill_runerage",    name:"Rune Rage",   weight:1, act:1 },
       { id:"skill_purenails",   name:"Pure Nails",  weight:1, act:3 },
-    ]},
-
-    /* ---- Crafting Kit Upgrades: 4 ×1% (acts set) ---- */
-    { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
-      { id:"kit_1", name:"Crafting Kit Expansion I", weight:1, act:1 },
-      { id:"kit_2", name:"Crafting Kit Expansion II",weight:1, act:1 },
-      { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:2 },
-      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 },
-    ]},
-
-    /* ---- Tool Pouch Upgrades: 4 ×1% (acts set) ---- */
-    { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
-      { id:"pouch_1", name:"Tool Pouch Expansion I", weight:1, act:1 },
-      { id:"pouch_2", name:"Tool Pouch Expansion II",weight:1, act:1 },
-      { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1, act:2 },
-      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 },
     ]},
 
     /* ---- Tools — 51% (Red/Blue/Yellow) ---- */
@@ -266,6 +250,19 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       {id:"tool_thiefsmark",   name:"Thief’s Mark",       weight:1, act:null, color:"yellow"},
     ]},
 
+    /* ---- Silk Hearts (moved near bottom) ---- */
+    { type:"main", name:"Silk Hearts — 3%", items:[
+      { id:"sheart_1", name:"Silk Heart I", weight:1, act:1 },
+      { id:"sheart_2", name:"Silk Heart II",weight:1, act:2 },
+      { id:"sheart_3", name:"Silk Heart III",weight:1, act:2 },
+    ]},
+
+    /* ---- Misc (moved to bottom) ---- */
+    { type:"main", name:"Miscellaneous — 2%", items:[
+      { id:"misc_sylphsong", name:"Sylphsong", weight:1, act:null },
+      { id:"misc_everbloom", name:"Everbloom", weight:1, act:null },
+    ]},
+
     /* ===== EXTRAS (placeholders) ===== */
     { type:"extra", name:"Boss Fights", items:[ {id:"boss_placeholder1", name:"Boss — TBD", act:null} ]},
     { type:"extra", name:"Wishes", items:[ {id:"wish_placeholder1", name:"Wish — TBD", act:null} ]},
@@ -286,21 +283,22 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   const board = document.getElementById("board");
   const searchEl = document.getElementById("search");
   const actFilterEl = document.getElementById("actFilter");
+  const doneCountEl = document.getElementById("doneCount");
+  const totalCountEl = document.getElementById("totalCount");
+  const percentEl = document.getElementById("percent");
+  const barFillEl = document.getElementById("barFill");
+  const extrasDoneEl = document.getElementById("extrasDone");
+  const extrasTotalEl = document.getElementById("extrasTotal");
+  const barFillExtrasEl = document.getElementById("barFillExtras");
+  const totalBadge = document.getElementById("totalBadge");
+
+  // toolbar buttons
   const expandAllBtn = document.getElementById("expandAll");
   const collapseAllBtn = document.getElementById("collapseAll");
   const exportBtn = document.getElementById("exportBtn");
   const importBtn = document.getElementById("importBtn");
   const importFile = document.getElementById("importFile");
   const resetBtn = document.getElementById("resetBtn");
-  const doneCountEl = document.getElementById("doneCount");
-  const totalCountEl = document.getElementById("totalCount");
-  const percentEl = document.getElementById("percent");
-  const barFillEl = document.getElementById("barFill");
-  const weightWarnEl = document.getElementById("weightWarn");
-  const extrasDoneEl = document.getElementById("extrasDone");
-  const extrasTotalEl = document.getElementById("extrasTotal");
-  const barFillExtrasEl = document.getElementById("barFillExtras");
-  const totalBadge = document.getElementById("totalBadge");
   const groupBtn = document.getElementById("groupByAct");
   const filterAllBtn   = document.getElementById("filterAll");
   const filterMainBtn  = document.getElementById("filterMain");
@@ -341,7 +339,10 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     // Filter by search / act / type
     let visible = items.filter(it=>{
       const s = it.name.toLowerCase();
-      const matchesSearch = !term || s.includes(term) || it.category.toLowerCase().includes(term);
+      const matchesSearch =
+        !term ||
+        s.includes(term) ||
+        it.category.toLowerCase().includes(term);
       const matchesAct = (actFilter === "all") || (String(it.act) === actFilter);
       const matchesType =
         filterType === "all"  ? true :
@@ -350,7 +351,7 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
       return matchesSearch && matchesAct && matchesType;
     });
 
-    // Group by Act or by Category — while preserving your authored order
+    // Group by Act or by Category — preserve authored order
     if (groupByAct){
       const byAct = new Map();
       visible.forEach(i=>{
@@ -407,15 +408,28 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     const head = document.createElement("div");
     head.className = "cat-head";
     const h2 = document.createElement("h2"); h2.textContent = catName;
+
+    // right controls
     const right = document.createElement("div"); right.className="cat-right";
     const pill = document.createElement("span"); pill.className="pillType"; pill.textContent = (type==="main"?"Weighted":"Extra");
     const count = document.createElement("div"); count.className = "cat-count";
-    const toggle = document.createElement("button"); toggle.type="button"; toggle.textContent="–";
-    right.append(pill, count, toggle);
+    const selectAll = document.createElement("button"); selectAll.type="button"; selectAll.className="smallbtn"; selectAll.title="Select all in this category"; selectAll.textContent="✓ All";
+    const deselectAll = document.createElement("button"); deselectAll.type="button"; deselectAll.className="smallbtn"; deselectAll.title="Deselect all in this category"; deselectAll.textContent="✗ None";
+    const toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent="–";
+    right.append(pill, count, selectAll, deselectAll, toggle);
     head.append(h2, right);
 
     const list = document.createElement("div");
     list.className = "cat-items";
+
+    // handlers for select/deselect all in THIS category view
+    function setAllInCategory(checkedState){
+      const ids = items.map(i=>i.id);
+      ids.forEach(id => checkedState ? checked.add(id) : checked.delete(id));
+      persist(); render();
+    }
+    selectAll.addEventListener("click", (e)=>{ e.stopPropagation(); setAllInCategory(true); });
+    deselectAll.addEventListener("click", (e)=>{ e.stopPropagation(); setAllInCategory(false); });
 
     if(isTools){
       list.appendChild(subHead("Red","red"));      renderItems(list, items.filter(i=>i.color==="red"));
@@ -495,7 +509,6 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     const pct = totalWeight ? Math.round((doneWeight/totalWeight)*100) : 0;
     percentEl.textContent = pct;
     barFillEl.style.width = pct + "%";
-    weightWarnEl.style.display = (Math.abs(totalWeight-100)<1e-9)? "none":"inline";
 
     const extrasDone = extras.filter(i=>checked.has(i.id)).length;
     extrasDoneEl.textContent = extrasDone;
@@ -513,30 +526,30 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...checked])); }
 
   // Controls
-  document.getElementById("expandAll").addEventListener("click", ()=>{
+  expandAllBtn.addEventListener("click", ()=>{
     document.querySelectorAll(".cat-items").forEach(el=>{
       el.classList.remove("hidden");
-      const btn = el.previousElementSibling.querySelector("button");
+      const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
       if(btn) btn.textContent = "–";
     });
   });
-  document.getElementById("collapseAll").addEventListener("click", ()=>{
+  collapseAllBtn.addEventListener("click", ()=>{
     document.querySelectorAll(".cat-items").forEach(el=>{
       el.classList.add("hidden");
-      const btn = el.previousElementSibling.querySelector("button");
+      const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
       if(btn) btn.textContent = "+";
     });
   });
-  document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const payload = { version:7, checked:[...checked] };
+  exportBtn.addEventListener("click", ()=>{
+    const payload = { version:8, checked:[...checked] };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = "silksong-progress.json"; a.click();
     URL.revokeObjectURL(url);
   });
-  document.getElementById("importBtn").addEventListener("click", ()=>importFile.click());
-  document.getElementById("importFile").addEventListener("change", async (e)=>{
+  importBtn.addEventListener("click", ()=>importFile.click());
+  importFile.addEventListener("change", async (e)=>{
     const f = e.target.files?.[0]; if(!f) return;
     try{
       const obj = JSON.parse(await f.text());
@@ -546,13 +559,13 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
     }catch(err){ alert("Import failed. Make sure you selected a valid export file."); }
     finally{ e.target.value = ""; }
   });
-  document.getElementById("resetBtn").addEventListener("click", ()=>{
+  resetBtn.addEventListener("click", ()=>{
     if(!confirm("Reset all progress?")) return;
     checked.clear(); persist(); render();
   });
-  document.getElementById("groupByAct").addEventListener("click", ()=>{
+  groupBtn.addEventListener("click", ()=>{
     groupByAct = !groupByAct;
-    document.getElementById("groupByAct").textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
+    groupBtn.textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
     render();
   });
 
@@ -568,6 +581,10 @@ hr.soft{border:none;border-top:1px dashed #2b2e39;margin:.5rem 0}
   filterAllBtn.addEventListener("click",  ()=>setFilter("all"));
   filterMainBtn.addEventListener("click", ()=>setFilter("main"));
   filterExtraBtn.addEventListener("click",()=>setFilter("extra"));
+
+  // FIX: wire search input
+  searchEl.addEventListener("input", render);
+  actFilterEl.addEventListener("change", render);
 
   // Initial render
   render();
