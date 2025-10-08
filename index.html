@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Silksong 100% Checklist</title>
 
-<!-- Fallback to a Trajan-like font (free) -->
+<!-- Fallback Trajan-like font -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <style>
-/* If you have the licensed font file, add it to assets/ and this will load it. */
 @font-face{
   font-family:"Trajan Pro";
   src:
@@ -23,32 +22,30 @@
 
 :root{
   /* Moss grotto palette (muted greens) */
-  --fg:#f5fff7;          /* near-white text */
-  --muted:#d9f2de;       /* secondary text */
+  --fg:#f5fff7;
+  --muted:#d9f2de;
 
-  --accent:#62c574;      /* moss leaf (accents / progress) */
-  --accent2:#a4e3b0;     /* light mint */
+  --accent:#62c574;
+  --accent2:#a4e3b0;
 
-  --card:#1f3a2a;        /* dark moss card */
-  --cardHover:#254530;   /* hover tone */
-  --edge:#2e5a40;        /* borders */
-  --edgeStrong:#3f7c57;  /* hover/focus border */
-  --chip:#1b3225;        /* badges / chips */
-  --bar:#182a20;         /* progress track */
+  --card:#1f3a2a;
+  --cardHover:#254530;
+  --edge:#2e5a40;
+  --edgeStrong:#3f7c57;
+  --chip:#1b3225;
+  --bar:#182a20;
 
-  --extra1:#78d18a;      /* extras bar gradient 1 */
-  --extra2:#c4f0cc;      /* extras bar gradient 2 */
+  --extra1:#78d18a;
+  --extra2:#c4f0cc;
 
-  /* Tool color dots (semantic colors for tool splits) */
   --red:#ffb9b9;
   --blue:#a9cfff;
   --yellow:#ffe39a;
 
-  /* Your image assets (exact filenames from your repo).
-     Cache-buster (?v=2) helps avoid stale browser caches after updates. */
-  --bg-image:url("assets/Screenshot_SS_Moss_Grotto_01.png?v=2");
-  --orn-top:url("assets/375px-SS_NPC_Dialogue_Top.png?v=2");
-  --orn-bottom:url("assets/300px-SS_NPC_Dialogue_Bottom.png?v=2");
+  /* Your exact files + cache buster */
+  --bg-image:   url("assets/Screenshot_SS_Moss_Grotto_01.png?v=4");
+  --orn-top:    url("assets/375px-SS_NPC_Dialogue_Top.png?v=4");
+  --orn-bottom: url("assets/300px-SS_NPC_Dialogue_Bottom.png?v=4");
 }
 
 /* ===== Base ===== */
@@ -56,13 +53,12 @@
 html,body{
   margin:0;
   color:var(--fg);
-  /* Prefer Trajan Pro; fallback to Cinzel; then generic serif */
   font-family:"Trajan Pro","Cinzel",serif;
   letter-spacing:.2px;
   min-height:100%;
 }
 
-/* Full-page background with a subtle dark green overlay for readability */
+/* Full-page background with overlay */
 body::before{
   content:"";
   position:fixed; inset:0;
@@ -182,7 +178,6 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
       </select>
       <button id="groupByAct" type="button">Group by Act: Off</button>
 
-      <!-- filter: All / 100% / Extras -->
       <div class="seg" role="group" aria-label="Filter by task type">
         <button id="filterAll"   type="button" class="active">All</button>
         <button id="filterMain"  type="button">100%</button>
@@ -198,7 +193,6 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     </div>
   </div>
 
-  <!-- Weighted 100% -->
   <div class="progress">
     <div class="label">
       <strong><span id="percent">0</span>%</strong> of weighted 100% •
@@ -207,7 +201,6 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     <div class="bar"><div id="barFill" class="bar-fill"></div></div>
   </div>
 
-  <!-- Extras -->
   <div class="progress">
     <div class="label small">
       Extras (unweighted): <span id="extrasDone">0</span>/<span id="extrasTotal">0</span> items completed
@@ -223,82 +216,72 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
 </div>
 
 <script>
-(() => {
-  const STORAGE_KEY = "silksong-checklist-v14";
-  const ACT_LABEL = act => (act || act === 0) ? `Act ${act}` : "Act Unknown";
+(function(){
+  var STORAGE_KEY = "silksong-checklist-v15";
+  function ACT_LABEL(act){ return (act || act === 0) ? ("Act " + act) : "Act Unknown"; }
 
-  /* ========= ORDER CONTROL (acquisition order) ========= */
-  const categoryIndex = new Map(); // category name -> index
-  const itemIndex = new Map();     // item id -> index
-  function buildOrderMaps(DATA){
-    let c=0, i=0;
-    DATA.forEach(cat=>{
-      if(!categoryIndex.has(cat.name)) categoryIndex.set(cat.name, c++);
-      cat.items.forEach(it=> itemIndex.set(it.id, i++));
-    });
-  }
-
-  // ======= DATA (edit to change order, acts, etc.) =======
-  const DATA = [
-    /* ---- Needle Upgrades — 4% ---- */
+  /* ======= DATA ======= */
+  var DATA = [
     { type:"main", name:"Needle Upgrades — 4%", items:[
       { id:"needle_sharpened", name:"Sharpened Needle", weight:1, act:1 },
       { id:"needle_shining",   name:"Shining Needle",   weight:1, act:2 },
       { id:"needle_hivesteel", name:"Hivesteel Needle", weight:1, act:2 },
-      { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:3 },
+      { id:"needle_pale",      name:"Pale Steel Needle",weight:1, act:3 }
     ]},
 
-    /* ---- Mask Shards — 5% (20 × 0.25%) ---- */
-    { type:"main", name:"Mask Shards — 5% (order not indicative)", items:
-      Array.from({length:20}, (_,k)=>{
-        const n = k+1;
-        const act = (n<=6)?1 : (n<=16)?2 : 3;   // 1–6 Act1, 7–16 Act2, 17–20 Act3
-        return { id:`maskShard_${n}`, name:`Mask Shard ${n}`, weight:0.25, act };
-      })
+    { type:"main", name:"Mask Shards — 5% (order not indicative)", items:(function(){
+        var arr=[], n, act;
+        for(var k=0;k<20;k++){
+          n = k+1;
+          act = (n<=6)?1 : (n<=16)?2 : 3;
+          arr.push({ id:"maskShard_"+n, name:"Mask Shard "+n, weight:0.25, act:act });
+        }
+        return arr;
+      })()
     },
 
-    /* ---- Spool Fragments — 9% (18 × 0.5%) ---- */
-    { type:"main", name:"Spool Fragments — 9%", items:
-      Array.from({length:18}, (_,k)=>({ id:`spoolFrag_${k+1}`, name:`Spool Fragment ${k+1}`, weight:0.5, act:null }))
+    { type:"main", name:"Spool Fragments — 9%", items:(function(){
+        var arr=[], n;
+        for(var k=0;k<18;k++){
+          n = k+1;
+          arr.push({ id:"spoolFrag_"+n, name:"Spool Fragment "+n, weight:0.5, act:null });
+        }
+        return arr;
+      })()
     },
 
-    /* ---- Crafting Kit Upgrades — 4% ---- */
     { type:"main", name:"Crafting Kit Upgrades — 4%", items:[
       { id:"kit_1", name:"Crafting Kit Expansion I",  weight:1, act:1 },
       { id:"kit_2", name:"Crafting Kit Expansion II", weight:1, act:1 },
       { id:"kit_3", name:"Crafting Kit Expansion III",weight:1, act:2 },
-      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 },
+      { id:"kit_4", name:"Crafting Kit Expansion IV", weight:1, act:2 }
     ]},
 
-    /* ---- Tool Pouch Upgrades — 4% ---- */
     { type:"main", name:"Tool Pouch Upgrades — 4%", items:[
       { id:"pouch_1", name:"Tool Pouch Expansion I",  weight:1, act:1 },
       { id:"pouch_2", name:"Tool Pouch Expansion II", weight:1, act:1 },
       { id:"pouch_3", name:"Tool Pouch Expansion III",weight:1, act:2 },
-      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 },
+      { id:"pouch_4", name:"Tool Pouch Expansion IV", weight:1, act:2 }
     ]},
 
-    /* ---- Crests — 6% ---- */
     { type:"main", name:"Crests — 6%", items:[
       { id:"crest_reaper",    name:"Reaper",    weight:1, act:1 },
       { id:"crest_wanderer",  name:"Wanderer",  weight:1, act:1 },
       { id:"crest_beast",     name:"Beast",     weight:1, act:1 },
       { id:"crest_witch",     name:"Witch",     weight:1, act:2 },
       { id:"crest_architect", name:"Architect", weight:1, act:2 },
-      { id:"crest_shaman",    name:"Shaman",    weight:1, act:3 },
+      { id:"crest_shaman",    name:"Shaman",    weight:1, act:3 }
     ]},
 
-    /* ---- Silk Skills — 6% ---- */
     { type:"main", name:"Silk Skills — 6%", items:[
       { id:"skill_silkspear",   name:"Silkspear",     weight:1, act:1 },
       { id:"skill_threadstorm", name:"Thread Storm",  weight:1, act:1 },
       { id:"skill_sharpdart",   name:"Sharpdart",     weight:1, act:1 },
       { id:"skill_crossstitch", name:"Cross Stitch",  weight:1, act:1 },
       { id:"skill_runerage",    name:"Rune Rage",     weight:1, act:1 },
-      { id:"skill_purenails",   name:"Pure Nails",    weight:1, act:3 },
+      { id:"skill_purenails",   name:"Pure Nails",    weight:1, act:3 }
     ]},
 
-    /* ---- Tools — 51% (Red / Blue / Yellow) ---- */
     { type:"main", name:"Tools — 51% (Red / Blue / Yellow)", items:[
       /* RED */
       {id:"tool_straightpin",  name:"Straight Pin",   weight:1, act:null, color:"red"},
@@ -353,23 +336,21 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
       {id:"tool_wallcling",    name:"Ascendant’s Grip",    weight:1, act:null, color:"yellow"},
       {id:"tool_spiderstrings",name:"Spider Strings",      weight:1, act:null, color:"yellow"},
       {id:"tool_silkspeed",    name:"Silkspeed Anklets",   weight:1, act:null, color:"yellow"},
-      {id:"tool_thiefsmark",   name:"Thief’s Mark",        weight:1, act:null, color:"yellow"},
+      {id:"tool_thiefsmark",   name:"Thief’s Mark",        weight:1, act:null, color:"yellow"}
     ]},
 
-    /* ---- Silk Hearts — 3% ---- */
     { type:"main", name:"Silk Hearts — 3%", items:[
       { id:"sheart_1", name:"Silk Heart I",   weight:1, act:1 },
       { id:"sheart_2", name:"Silk Heart II",  weight:1, act:2 },
-      { id:"sheart_3", name:"Silk Heart III", weight:1, act:2 },
+      { id:"sheart_3", name:"Silk Heart III", weight:1, act:2 }
     ]},
 
-    /* ---- Misc — 2% (Sylphsong Act 2, Everbloom Act 3) ---- */
     { type:"main", name:"Miscellaneous — 2%", items:[
       { id:"misc_sylphsong", name:"Sylphsong", weight:1, act:2 },
-      { id:"misc_everbloom", name:"Everbloom", weight:1, act:3 },
+      { id:"misc_everbloom", name:"Everbloom", weight:1, act:3 }
     ]},
 
-    /* ===== EXTRAS (placeholders) ===== */
+    /* Extras placeholders */
     { type:"extra", name:"Boss Fights", items:[ {id:"boss_placeholder1", name:"Boss — TBD", act:null} ]},
     { type:"extra", name:"Wishes", items:[ {id:"wish_placeholder1", name:"Wish — TBD", act:null} ]},
     { type:"extra", name:"The Materium", items:[ {id:"materium_placeholder1", name:"Materium Entry — TBD", act:null} ]},
@@ -379,125 +360,89 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     { type:"extra", name:"Memory Lockets", items:[ {id:"locket_placeholder1", name:"Memory Locket — TBD", act:null} ]},
     { type:"extra", name:"Fleas", items:[ {id:"flea_placeholder1", name:"Flea — TBD", act:null} ]},
     { type:"extra", name:"Pail Oil", items:[ {id:"oil_placeholder1", name:"Pail Oil — TBD", act:null} ]},
-    { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]},
+    { type:"extra", name:"Craft Metal", items:[ {id:"metal_placeholder1", name:"Craft Metal — TBD", act:null} ]}
   ];
 
-  // Build order maps from your DATA definition
-  buildOrderMaps(DATA);
+  /* ===== Acquisition-order indices (no optional chaining / ??) ===== */
+  var categoryIndex = new Map();
+  var itemIndex = new Map();
+  (function buildOrder(){
+    var c=0, i=0;
+    for(var ci=0; ci<DATA.length; ci++){
+      var cat = DATA[ci];
+      if(!categoryIndex.has(cat.name)) categoryIndex.set(cat.name, c++);
+      for(var ii=0; ii<cat.items.length; ii++){
+        var it = cat.items[ii];
+        itemIndex.set(it.id, i++);
+      }
+    }
+  })();
 
-  // -------- DOM lookups
-  const board = document.getElementById("board");
-  const searchEl = document.getElementById("search");
-  const actFilterEl = document.getElementById("actFilter");
-  const doneCountEl = document.getElementById("doneCount");
-  const totalCountEl = document.getElementById("totalCount");
-  const percentEl = document.getElementById("percent");
-  const barFillEl = document.getElementById("barFill");
-  const extrasDoneEl = document.getElementById("extrasDone");
-  const extrasTotalEl = document.getElementById("extrasTotal");
-  const barFillExtrasEl = document.getElementById("barFillExtras");
-  const totalBadge = document.getElementById("totalBadge");
+  /* -------- DOM lookups -------- */
+  var board = document.getElementById("board");
+  var searchEl = document.getElementById("search");
+  var actFilterEl = document.getElementById("actFilter");
+  var doneCountEl = document.getElementById("doneCount");
+  var totalCountEl = document.getElementById("totalCount");
+  var percentEl = document.getElementById("percent");
+  var barFillEl = document.getElementById("barFill");
+  var extrasDoneEl = document.getElementById("extrasDone");
+  var extrasTotalEl = document.getElementById("extrasTotal");
+  var barFillExtrasEl = document.getElementById("barFillExtras");
+  var totalBadge = document.getElementById("totalBadge");
 
-  // toolbar buttons
-  const expandAllBtn = document.getElementById("expandAll");
-  const collapseAllBtn = document.getElementById("collapseAll");
-  const exportBtn = document.getElementById("exportBtn");
-  const importBtn = document.getElementById("importBtn");
-  const importFile = document.getElementById("importFile");
-  const resetBtn = document.getElementById("resetBtn");
-  const groupBtn = document.getElementById("groupByAct");
-  const filterAllBtn   = document.getElementById("filterAll");
-  const filterMainBtn  = document.getElementById("filterMain");
-  const filterExtraBtn = document.getElementById("filterExtra");
+  var expandAllBtn = document.getElementById("expandAll");
+  var collapseAllBtn = document.getElementById("collapseAll");
+  var exportBtn = document.getElementById("exportBtn");
+  var importBtn = document.getElementById("importBtn");
+  var importFile = document.getElementById("importFile");
+  var resetBtn = document.getElementById("resetBtn");
+  var groupBtn = document.getElementById("groupByAct");
+  var filterAllBtn = document.getElementById("filterAll");
+  var filterMainBtn = document.getElementById("filterMain");
+  var filterExtraBtn = document.getElementById("filterExtra");
 
-  // -------- State
-  let checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
-  let groupByAct = false;
-  let filterType = "all"; // "all" | "main" | "extra"
+  /* -------- State -------- */
+  var checked = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+  var groupByAct = false;
+  var filterType = "all"; // "all" | "main" | "extra"
 
   function flatItems(){
-    const list = [];
-    DATA.forEach(cat=>{
-      cat.items.forEach(it=>list.push({...it, category:cat.name, type:cat.type}));
-    });
+    var list = [];
+    for(var ci=0; ci<DATA.length; ci++){
+      var cat = DATA[ci];
+      for(var ii=0; ii<cat.items.length; ii++){
+        var it = cat.items[ii];
+        var obj = {};
+        for(var k in it){ if(Object.prototype.hasOwnProperty.call(it,k)) obj[k]=it[k]; }
+        obj.category = cat.name;
+        obj.type = cat.type;
+        list.push(obj);
+      }
+    }
     return list;
   }
 
-  // Populate Act filter
+  /* Populate Act filter */
   (function initActFilter(){
-    const acts = new Set(flatItems().map(i => i.act).filter(a => a || a === 0));
-    [...acts].sort((a,b)=>a-b).forEach(a=>{
-      const opt = document.createElement("option");
-      opt.value = String(a);
-      opt.textContent = ACT_LABEL(a);
+    var actsSet = {};
+    var items = flatItems();
+    for(var i=0;i<items.length;i++){
+      var a = items[i].act;
+      if(a || a===0){ actsSet[a]=true; }
+    }
+    var acts = Object.keys(actsSet).map(function(x){ return Number(x); }).sort(function(a,b){return a-b;});
+    for(var j=0;j<acts.length;j++){
+      var aVal = acts[j];
+      var opt = document.createElement("option");
+      opt.value = String(aVal);
+      opt.textContent = ACT_LABEL(aVal);
       actFilterEl.appendChild(opt);
-    });
+    }
   })();
 
-  function render(){
-    board.innerHTML = "";
-    const items = flatItems();
-    totalBadge.textContent = `${items.length} items`;
-
-    const term = (searchEl.value || "").trim().toLowerCase();
-    const actFilter = actFilterEl.value;
-
-    // Filter by search / act / type
-    let visible = items.filter(it=>{
-      const s = it.name.toLowerCase();
-      const matchesSearch =
-        !term ||
-        s.includes(term) ||
-        it.category.toLowerCase().includes(term);
-      const matchesAct = (actFilter === "all") || (String(it.act) === actFilter);
-      const matchesType =
-        filterType === "all"  ? true :
-        filterType === "main" ? (it.type === "main") :
-                                (it.type !== "main");
-      return matchesSearch && matchesAct && matchesType;
-    });
-
-    // Group by Act or by Category — preserve authored order
-    if (groupByAct){
-      const byAct = new Map();
-      visible.forEach(i=>{
-        const k = (i.act==null) ? "Unknown" : i.act;
-        (byAct.get(k) || byAct.set(k,[]).get(k)).push(i);
-      });
-      const keys = [...byAct.keys()].sort((a,b)=>{
-        if(a==="Unknown") return 1; if(b==="Unknown") return -1; return a-b;
-      });
-      keys.forEach(k=>{
-        const title = (k==="Unknown") ? "Act Unknown" : `Act ${k}`;
-        board.appendChild(sectionTitle(title));
-
-        const byCat = groupBy(byAct.get(k), "category");
-        [...Object.keys(byCat)]
-          .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
-          .forEach(catName=>{
-            const itemsInCat = byCat[catName].slice()
-              .sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
-            board.appendChild(renderCategory(catName, itemsInCat));
-          });
-
-        board.appendChild(document.createElement("hr")).className="soft";
-      });
-    } else {
-      const byCat = groupBy(visible, "category");
-      [...Object.keys(byCat)]
-        .sort((a,b) => (categoryIndex.get(a) ?? 9999) - (categoryIndex.get(b) ?? 9999))
-        .forEach(catName=>{
-          const itemsInCat = byCat[catName].slice()
-            .sort((a,b) => (itemIndex.get(a.id) ?? 999999) - (itemIndex.get(b.id) ?? 999999));
-          board.appendChild(renderCategory(catName, itemsInCat));
-        });
-    }
-
-    updateTotals();
-  }
-
   function sectionTitle(text){
-    const d = document.createElement("div");
+    var d = document.createElement("div");
     d.textContent = text;
     d.style.margin = ".25rem 0 .5rem";
     d.style.color = "var(--muted)";
@@ -505,199 +450,296 @@ hr.soft{border:none;border-top:1px dashed var(--edge);margin:.5rem 0}
     return d;
   }
 
-  function renderCategory(catName, items){
-    const type = items[0]?.type || "main";
-    const isTools = /Tools — 51%/.test(catName);
-    const card = document.createElement("section");
-    card.className = "category";
-
-    const head = document.createElement("div");
-    head.className = "cat-head";
-    const h2 = document.createElement("h2"); h2.textContent = catName;
-
-    // right controls
-    const right = document.createElement("div"); right.className="cat-right";
-    const pill = document.createElement("span"); pill.className="pillType"; pill.textContent = (type==="main"?"Weighted":"Extra");
-    const count = document.createElement("div"); count.className = "cat-count";
-    const selectAll = document.createElement("button"); selectAll.type="button"; selectAll.className="smallbtn"; selectAll.title="Select all in this category"; selectAll.textContent="✓ All";
-    const deselectAll = document.createElement("button"); deselectAll.type="button"; deselectAll.className="smallbtn"; deselectAll.title="Deselect all in this category"; deselectAll.textContent="✗ None";
-    const toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent="–";
-    right.append(pill, count, selectAll, deselectAll, toggle);
-    head.append(h2, right);
-
-    const list = document.createElement("div");
-    list.className = "cat-items";
-
-    // handlers for select/deselect all in THIS category view
-    function setAllInCategory(checkedState){
-      const ids = items.map(i=>i.id);
-      ids.forEach(id => checkedState ? checked.add(id) : checked.delete(id));
-      persist(); render();
-    }
-    selectAll.addEventListener("click", (e)=>{ e.stopPropagation(); setAllInCategory(true); });
-    deselectAll.addEventListener("click", (e)=>{ e.stopPropagation(); setAllInCategory(false); });
-
-    if(isTools){
-      list.appendChild(subHead("Red","red"));      renderItems(list, items.filter(i=>i.color==="red"));
-      list.appendChild(subHead("Blue","blue"));    renderItems(list, items.filter(i=>i.color==="blue"));
-      list.appendChild(subHead("Yellow","yellow"));renderItems(list, items.filter(i=>i.color==="yellow"));
-    } else {
-      renderItems(list, items);
-    }
-
-    head.addEventListener("click", (e)=>{
-      if(e.target===head || e.target===toggle){
-        list.classList.toggle("hidden");
-        toggle.textContent = list.classList.contains("hidden") ? "+" : "–";
-      }
-    });
-
-    card.append(head, list);
-    updateCatCount(count, items);
-    return card;
-  }
-
   function subHead(txt, color){
-    const sh = document.createElement("div");
+    var sh = document.createElement("div");
     sh.className = "subhead";
-    const dot = document.createElement("span"); dot.className = "dot " + color;
-    const label = document.createElement("span"); label.textContent = txt;
-    sh.append(dot,label);
+    var dot = document.createElement("span"); dot.className = "dot " + color;
+    var label = document.createElement("span"); label.textContent = txt;
+    sh.appendChild(dot); sh.appendChild(label);
     return sh;
   }
 
   function renderItems(container, items){
-    items.forEach(it=>{
-      const row = document.createElement("div"); row.className="item";
-      const cb = document.createElement("input"); cb.type="checkbox"; cb.id=it.id; cb.checked = checked.has(it.id);
-      const lab = document.createElement("label"); lab.setAttribute("for", it.id); lab.textContent = it.name;
-      const meta = document.createElement("div"); meta.className="meta";
-      if(it.weight!=null){ const w = document.createElement("span"); w.className="pill"; w.textContent = `${it.weight}%`; meta.appendChild(w); }
-      const a = document.createElement("span"); a.className="pill"; a.textContent = ACT_LABEL(it.act); meta.appendChild(a);
-      if(it.color){ const c = document.createElement("span"); c.className=`pill color ${it.color}`; c.textContent = it.color[0].toUpperCase()+it.color.slice(1); meta.appendChild(c); }
-      const locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent = "📍 Location";
+    for(var i=0;i<items.length;i++){
+      var it = items[i];
+      var row = document.createElement("div"); row.className="item";
+      var cb = document.createElement("input"); cb.type="checkbox"; cb.id=it.id; cb.checked = checked.has(it.id);
+      var lab = document.createElement("label"); lab.setAttribute("for", it.id); lab.textContent = it.name;
+      var meta = document.createElement("div"); meta.className="meta";
+      if(it.weight!=null){ var w = document.createElement("span"); w.className="pill"; w.textContent = String(it.weight)+"%"; meta.appendChild(w); }
+      var a = document.createElement("span"); a.className="pill"; a.textContent = ACT_LABEL(it.act); meta.appendChild(a);
+      if(it.color){ var c = document.createElement("span"); c.className="pill color "+it.color; c.textContent = it.color.charAt(0).toUpperCase()+it.color.slice(1); meta.appendChild(c); }
+      var locBtn = document.createElement("button"); locBtn.type="button"; locBtn.className="locbtn"; locBtn.textContent = "📍 Location";
       meta.appendChild(locBtn);
 
-      /* location details (closed by default). Includes ornaments above/below. */
-      const details = document.createElement("div"); details.className="loc";
-      const ornTop = document.createElement("div"); ornTop.className="orn top";
-      const ornBottom = document.createElement("div"); ornBottom.className="orn bottom";
-      const body = document.createElement("div");
-      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url? ` — <a target="_blank" rel="noopener" href="${it.url}">Open</a>` : "");
-      details.append(ornTop, body, ornBottom);
+      var details = document.createElement("div"); details.className="loc";
+      var ornTop = document.createElement("div"); ornTop.className="orn top";
+      var ornBottom = document.createElement("div"); ornBottom.className="orn bottom";
+      var body = document.createElement("div");
+      body.innerHTML = (it.loc || "Location info not added yet.") + (it.url? (' — <a target="_blank" rel="noopener" href="'+it.url+'">Open</a>') : "");
+      details.appendChild(ornTop); details.appendChild(body); details.appendChild(ornBottom);
 
       function toggleDetails(){ details.classList.toggle("open"); }
       lab.addEventListener("click", toggleDetails);
       locBtn.addEventListener("click", toggleDetails);
 
-      cb.addEventListener("change", ()=>{
-        if(cb.checked) checked.add(it.id); else checked.delete(it.id);
-        persist(); updateTotals();
-      });
+      cb.addEventListener("change", (function(id){
+        return function(){
+          if(this.checked) checked.add(id); else checked.delete(id);
+          persist(); updateTotals();
+        };
+      })(it.id));
 
-      row.append(cb, lab, meta);
-      container.append(row, details);
-    });
+      row.appendChild(cb); row.appendChild(lab); row.appendChild(meta);
+      container.appendChild(row); container.appendChild(details);
+    }
   }
 
   function updateCatCount(el, items){
-    const done = items.filter(i=>checked.has(i.id)).length;
-    el.textContent = `${done}/${items.length}`;
+    var done=0;
+    for(var i=0;i<items.length;i++){ if(checked.has(items[i].id)) done++; }
+    el.textContent = done + "/" + items.length;
   }
 
   function updateTotals(){
-    const items = flatItems();
-    const main = items.filter(i=>i.type==="main");
-    const extras = items.filter(i=>i.type!=="main");
+    var items = flatItems();
+    var main = []; var extras=[];
+    for(var i=0;i<items.length;i++){
+      if(items[i].type==="main") main.push(items[i]); else extras.push(items[i]);
+    }
 
-    const totalItems = main.length;
-    totalCountEl.textContent = totalItems;
-    const totalWeight = main.reduce((s,i)=>s + (Number(i.weight)||0), 0);
-    const doneMain = main.filter(i=>checked.has(i.id));
-    const doneCount = doneMain.length;
-    doneCountEl.textContent = doneCount;
-    const doneWeight = doneMain.reduce((s,i)=>s + (Number(i.weight)||0), 0);
-    const pct = totalWeight ? Math.round((doneWeight/totalWeight)*100) : 0;
-    percentEl.textContent = pct;
+    totalCountEl.textContent = String(main.length);
+
+    var totalWeight=0, doneWeight=0, doneCount=0;
+    for(var j=0;j<main.length;j++){
+      var it = main[j]; totalWeight += Number(it.weight)||0;
+      if(checked.has(it.id)){ doneWeight += Number(it.weight)||0; doneCount++; }
+    }
+    doneCountEl.textContent = String(doneCount);
+    var pct = totalWeight ? Math.round((doneWeight/totalWeight)*100) : 0;
+    percentEl.textContent = String(pct);
     barFillEl.style.width = pct + "%";
 
-    const extrasDone = extras.filter(i=>checked.has(i.id)).length;
-    extrasDoneEl.textContent = extrasDone;
-    extrasTotalEl.textContent = extras.length;
-    const pctExtra = extras.length ? Math.round((extrasDone/extras.length)*100) : 0;
+    var extrasDone=0;
+    for(var k=0;k<extras.length;k++){ if(checked.has(extras[k].id)) extrasDone++; }
+    extrasDoneEl.textContent = String(extrasDone);
+    extrasTotalEl.textContent = String(extras.length);
+    var pctExtra = extras.length ? Math.round((extrasDone/extras.length)*100) : 0;
     barFillExtrasEl.style.width = pctExtra + "%";
   }
 
   function groupBy(list, key){
-    return list.reduce((acc, cur)=>{
-      const k = cur[key]; (acc[k] ||= []).push(cur); return acc;
-    }, {});
+    var out = {};
+    for(var i=0;i<list.length;i++){
+      var k = list[i][key];
+      if(!out[k]) out[k]=[];
+      out[k].push(list[i]);
+    }
+    return out;
   }
 
-  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...checked])); }
+  function render(){
+    board.innerHTML = "";
+    var items = flatItems();
+    totalBadge.textContent = items.length + " items";
 
-  // Controls
-  expandAllBtn.addEventListener("click", ()=>{
-    document.querySelectorAll(".cat-items").forEach(el=>{
-      el.classList.remove("hidden");
-      const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
+    var term = (searchEl.value || "").toLowerCase();
+    var actFilter = actFilterEl.value;
+
+    var visible = [];
+    for(var i=0;i<items.length;i++){
+      var it = items[i];
+      var s = it.name.toLowerCase();
+      var matchesSearch = (!term) || s.indexOf(term) !== -1 || it.category.toLowerCase().indexOf(term) !== -1;
+      var matchesAct = (actFilter === "all") || (String(it.act) === actFilter);
+      var matchesType = (filterType === "all") ? true : (filterType === "main" ? it.type==="main" : it.type!=="main");
+      if(matchesSearch && matchesAct && matchesType) visible.push(it);
+    }
+
+    if(groupByAct){
+      var byAct = {};
+      for(var a=0;a<visible.length;a++){
+        var k = (visible[a].act==null) ? "Unknown" : visible[a].act;
+        if(!byAct[k]) byAct[k]=[];
+        byAct[k].push(visible[a]);
+      }
+      var keys = Object.keys(byAct).sort(function(a,b){
+        if(a==="Unknown") return 1; if(b==="Unknown") return -1; return Number(a)-Number(b);
+      });
+
+      for(var ai=0; ai<keys.length; ai++){
+        var kAct = keys[ai];
+        var title = (kAct==="Unknown") ? "Act Unknown" : ("Act " + kAct);
+        board.appendChild(sectionTitle(title));
+
+        var byCat = groupBy(byAct[kAct], "category");
+        var catNames = Object.keys(byCat).sort(function(a,b){
+          var ia = categoryIndex.has(a) ? categoryIndex.get(a) : 9999;
+          var ib = categoryIndex.has(b) ? categoryIndex.get(b) : 9999;
+          return ia - ib;
+        });
+
+        for(var ci=0; ci<catNames.length; ci++){
+          var catName = catNames[ci];
+          var itemsInCat = byCat[catName].slice().sort(function(a,b){
+            var ia = itemIndex.has(a.id) ? itemIndex.get(a.id) : 999999;
+            var ib = itemIndex.has(b.id) ? itemIndex.get(b.id) : 999999;
+            return ia - ib;
+          });
+          board.appendChild(renderCategory(catName, itemsInCat));
+        }
+
+        var hr = document.createElement("hr"); hr.className="soft";
+        board.appendChild(hr);
+      }
+    } else {
+      var byCat = groupBy(visible, "category");
+      var catNames2 = Object.keys(byCat).sort(function(a,b){
+        var ia = categoryIndex.has(a) ? categoryIndex.get(a) : 9999;
+        var ib = categoryIndex.has(b) ? categoryIndex.get(b) : 9999;
+        return ia - ib;
+      });
+      for(var c2=0;c2<catNames2.length;c2++){
+        var catName2 = catNames2[c2];
+        var itemsInCat2 = byCat[catName2].slice().sort(function(a,b){
+          var ia = itemIndex.has(a.id) ? itemIndex.get(a.id) : 999999;
+          var ib = itemIndex.has(b.id) ? itemIndex.get(b.id) : 999999;
+          return ia - ib;
+        });
+        board.appendChild(renderCategory(catName2, itemsInCat2));
+      }
+    }
+
+    updateTotals();
+  }
+
+  function renderCategory(catName, items){
+    var type = (items[0] && items[0].type) ? items[0].type : "main";
+    var isTools = /Tools — 51%/.test(catName);
+    var card = document.createElement("section");
+    card.className = "category";
+
+    var head = document.createElement("div");
+    head.className = "cat-head";
+    var h2 = document.createElement("h2"); h2.textContent = catName;
+
+    var right = document.createElement("div"); right.className="cat-right";
+    var pill = document.createElement("span"); pill.className="pillType"; pill.textContent = (type==="main"?"Weighted":"Extra");
+    var count = document.createElement("div"); count.className = "cat-count";
+    var selectAll = document.createElement("button"); selectAll.type="button"; selectAll.className="smallbtn"; selectAll.title="Select all in this category"; selectAll.textContent="✓ All";
+    var deselectAll = document.createElement("button"); deselectAll.type="button"; deselectAll.className="smallbtn"; deselectAll.title="Deselect all in this category"; deselectAll.textContent="✗ None";
+    var toggle = document.createElement("button"); toggle.type="button"; toggle.className="smallbtn"; toggle.textContent="–";
+    right.appendChild(pill); right.appendChild(count); right.appendChild(selectAll); right.appendChild(deselectAll); right.appendChild(toggle);
+    head.appendChild(h2); head.appendChild(right);
+
+    var list = document.createElement("div"); list.className = "cat-items";
+
+    function setAllInCategory(checkedState){
+      for(var i=0;i<items.length;i++){
+        var id = items[i].id;
+        if(checkedState) checked.add(id); else checked.delete(id);
+      }
+      persist(); render();
+    }
+    selectAll.addEventListener("click", function(e){ e.stopPropagation(); setAllInCategory(true); });
+    deselectAll.addEventListener("click", function(e){ e.stopPropagation(); setAllInCategory(false); });
+
+    if(isTools){
+      list.appendChild(subHead("Red","red"));      renderItems(list, items.filter(function(i){return i.color==="red";}));
+      list.appendChild(subHead("Blue","blue"));    renderItems(list, items.filter(function(i){return i.color==="blue";}));
+      list.appendChild(subHead("Yellow","yellow"));renderItems(list, items.filter(function(i){return i.color==="yellow";}));
+    } else {
+      renderItems(list, items);
+    }
+
+    head.addEventListener("click", function(e){
+      if(e.target===head || e.target===toggle){
+        if(list.classList.contains("hidden")){
+          list.classList.remove("hidden"); toggle.textContent = "–";
+        }else{
+          list.classList.add("hidden"); toggle.textContent = "+";
+        }
+      }
+    });
+
+    card.appendChild(head); card.appendChild(list);
+    updateCatCount(count, items);
+    return card;
+  }
+
+  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checked))); }
+
+  /* Controls */
+  document.getElementById("expandAll").addEventListener("click", function(){
+    var els = document.querySelectorAll(".cat-items");
+    for(var i=0;i<els.length;i++){
+      els[i].classList.remove("hidden");
+      var btn = els[i].previousElementSibling.querySelector(".smallbtn:last-child");
       if(btn) btn.textContent = "–";
-    });
+    }
   });
-  collapseAllBtn.addEventListener("click", ()=>{
-    document.querySelectorAll(".cat-items").forEach(el=>{
-      el.classList.add("hidden");
-      const btn = el.previousElementSibling.querySelector(".smallbtn:last-child");
+  document.getElementById("collapseAll").addEventListener("click", function(){
+    var els = document.querySelectorAll(".cat-items");
+    for(var i=0;i<els.length;i++){
+      els[i].classList.add("hidden");
+      var btn = els[i].previousElementSibling.querySelector(".smallbtn:last-child");
       if(btn) btn.textContent = "+";
-    });
+    }
   });
-  exportBtn.addEventListener("click", ()=>{
-    const payload = { version:14, checked:[...checked] };
-    const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    var payload = { version:15, checked:Array.from(checked) };
+    var blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
     a.href = url; a.download = "silksong-progress.json"; a.click();
     URL.revokeObjectURL(url);
   });
-  importBtn.addEventListener("click", ()=>importFile.click());
-  importFile.addEventListener("change", async (e)=>{
-    const f = e.target.files?.[0]; if(!f) return;
-    try{
-      const obj = JSON.parse(await f.text());
-      if(!obj || !Array.isArray(obj.checked)) throw new Error("bad");
-      checked = new Set(obj.checked);
-      persist(); render(); alert("Import complete!");
-    }catch(err){ alert("Import failed. Make sure you selected a valid export file."); }
-    finally{ e.target.value = ""; }
+
+  document.getElementById("importBtn").addEventListener("click", function(){ document.getElementById("importFile").click(); });
+  document.getElementById("importFile").addEventListener("change", function(e){
+    var f = e.target.files && e.target.files[0]; if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var obj = JSON.parse(reader.result);
+        if(!obj || !Array.isArray(obj.checked)) throw new Error("bad");
+        checked = new Set(obj.checked);
+        persist(); render(); alert("Import complete!");
+      }catch(err){ alert("Import failed. Make sure you selected a valid export file."); }
+      finally{ e.target.value = ""; }
+    };
+    reader.readAsText(f);
   });
-  resetBtn.addEventListener("click", ()=>{
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
     if(!confirm("Reset all progress?")) return;
     checked.clear(); persist(); render();
   });
-  groupBtn.addEventListener("click", ()=>{
+
+  document.getElementById("groupByAct").addEventListener("click", function(){
     groupByAct = !groupByAct;
-    groupBtn.textContent = `Group by Act: ${groupByAct ? "On" : "Off"}`;
+    this.textContent = "Group by Act: " + (groupByAct ? "On" : "Off");
     render();
   });
 
-  // segmented filter logic
   function setFilter(next){
     filterType = next;
-    [filterAllBtn, filterMainBtn, filterExtraBtn].forEach(b=>b.classList.remove("active"));
-    if(next==="all")  filterAllBtn.classList.add("active");
-    if(next==="main") filterMainBtn.classList.add("active");
-    if(next==="extra")filterExtraBtn.classList.add("active");
+    var btns=[document.getElementById("filterAll"),document.getElementById("filterMain"),document.getElementById("filterExtra")];
+    for(var i=0;i<btns.length;i++) btns[i].classList.remove("active");
+    if(next==="all")  document.getElementById("filterAll").classList.add("active");
+    if(next==="main") document.getElementById("filterMain").classList.add("active");
+    if(next==="extra")document.getElementById("filterExtra").classList.add("active");
     render();
   }
-  filterAllBtn.addEventListener("click",  ()=>setFilter("all"));
-  filterMainBtn.addEventListener("click", ()=>setFilter("main"));
-  filterExtraBtn.addEventListener("click",()=>setFilter("extra"));
+  document.getElementById("filterAll").addEventListener("click",  function(){ setFilter("all"); });
+  document.getElementById("filterMain").addEventListener("click", function(){ setFilter("main"); });
+  document.getElementById("filterExtra").addEventListener("click",function(){ setFilter("extra"); });
 
-  // Search + act filter
   document.getElementById("search").addEventListener("input", render);
   document.getElementById("actFilter").addEventListener("change", render);
 
-  // Initial render
+  /* Initial render */
   render();
 })();
 </script>
